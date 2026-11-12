@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BridgeAI pitch view</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:,">
+<script>
+  // The two-phone view only fits a wide screen. On a phone (or a narrow window) show the app itself.
+  const tooNarrow = () => innerWidth < 860;
+  if (tooNarrow()) location.replace('./');
+  addEventListener('resize', () => tooNarrow() && location.replace('./'));
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; color: #1d1b33; overflow: hidden;
+    background: radial-gradient(70% 60% at 15% 10%, #dcd6fb 0, transparent 60%), radial-gradient(70% 70% at 90% 95%, #ffd9c4 0, transparent 60%), #f1f0fa; }
+  .wrap { height: 100%; display: flex; flex-direction: column; align-items: center; padding: 18px 24px 14px; gap: 12px; }
+  header { width: 100%; max-width: 1180px; display: flex; align-items: center; gap: 14px; }
+  .mark { font: 800 22px 'Outfit', sans-serif; letter-spacing: -0.03em; display: flex; align-items: center; gap: 8px; }
+  .mark svg { width: 32px; height: 23px; color: #4b3fc4; }
+  .ai { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 13px; color: #4a4866; padding: 8px 14px; border-radius: 18px; background: rgba(255, 255, 255, 0.55); border: 1px solid #fff; }
+  .ai i { width: 9px; height: 9px; border-radius: 50%; background: #ef8466; }
+  .ai.on i { background: #2f9e6b; }
+  button { font: 600 13px 'Inter', sans-serif; color: #1d1b33; padding: 9px 16px; border-radius: 18px; border: 1px solid #fff; background: rgba(255, 255, 255, 0.55); cursor: pointer; }
+  .phones { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; gap: clamp(20px, 6vw, 110px); width: 100%; }
+  .col { height: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; min-height: 0; }
+  .who { text-align: center; }
+  .who b { display: block; font: 800 19px 'Outfit', sans-serif; letter-spacing: -0.02em; }
+  .who span { font-size: 13px; color: #8e8ca6; }
+  .slot { flex: 1; min-height: 0; aspect-ratio: 392 / 820; max-height: 820px; }
+  .frame { width: 392px; height: 820px; transform-origin: 0 0; border-radius: 52px; overflow: hidden; border: 1.5px solid rgba(255, 255, 255, 0.95);
+    box-shadow: 0 40px 80px -30px rgba(64, 52, 160, 0.5), 0 0 0 9px rgba(255, 255, 255, 0.3); background: #f6f5fc; }
+  iframe { width: 100%; height: 100%; border: 0; display: block; }
+  .link { align-self: center; display: flex; flex-direction: column; align-items: center; gap: 8px; color: #4b3fc4; font-size: 12.500px; text-align: center; width: 110px; }
+  .link svg { width: 96px; height: 60px; }
+  @media (max-width: 900px) { .link { display: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="mark"><svg viewBox="0 0 48 34" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 27C6 13.5 13.5 5 24 5s18 8.5 18 22"/><path d="M15 27c0-6.5 3.600-11 9-11s9 4.500 9 11" opacity=".55"/><circle cx="6" cy="27" r="3.200" fill="currentColor" stroke="none"/><circle cx="42" cy="27" r="3.200" fill="currentColor" stroke="none"/></svg>BridgeAI</span>
+    <span class="ai" id="ai"><i></i><span>Checking AI…</span></span>
+    <button id="reset" title="Put the sample week back as it was">Reset demo</button>
+  </header>
+  <div class="phones">
+    <div class="col"><div class="who"><b>Doctor</b><span>Dr. Farhana, at the centre</span></div><div class="slot"><div class="frame"><iframe src="./?role=doctor" title="Doctor phone" allow="microphone"></iframe></div></div></div>
+    <div class="link"><svg viewBox="0 0 96 60" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 20h76M76 12l8 8-8 8"/><path d="M88 42H12M20 34l-8 8 8 8" opacity=".55"/></svg>plan and story go home<br>notes come back</div>
+    <div class="col"><div class="who"><b>Parent</b><span>Nusrat, at home with Rafi</span></div><div class="slot"><div class="frame"><iframe src="./?role=parent" title="Parent phone" allow="microphone"></iframe></div></div></div>
+  </div>
+</div>
+<script>
+  const PREVIEW = /github\.io$/.test(location.hostname) || new URLSearchParams(location.search).has('preview');
+  if (new URLSearchParams(location.search).has('preview')) document.querySelectorAll('iframe').forEach((f) => (f.src = f.getAttribute('src') + '&preview'));
+  async function ai() {
+    const el = document.getElementById('ai');
+    if (PREVIEW) { el.lastElementChild.textContent = 'Online preview · sample data, no AI'; return; }
+    try {
+      const j = await (await fetch('api/state?rev=-1')).json(), c = j.ai.chat;
+      el.classList.toggle('on', c.ok === true);
+      el.lastElementChild.textContent = c.ok === true ? `AI connected · ${c.model}` : c.configured ? `AI not connected (${c.error || 'checking'})` : 'AI not connected: no key set';
+    } catch {}
+  }
+  // The phones are always drawn at full size and scaled to fit the screen, so they look the same on any projector.
+  function fit() { document.querySelectorAll('.slot').forEach((s) => (s.firstElementChild.style.transform = `scale(${s.clientHeight / 820})`)); }
+  fit(); addEventListener('resize', fit);
+  ai(); setInterval(ai, 5000);
+  document.getElementById('reset').onclick = async () => {
+    if (!confirm('Put the sample week back and remove notes and plans made since?')) return;
+    if (PREVIEW) localStorage.removeItem('bridgeai:preview-db'); else await fetch('api/reset', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });
+    document.querySelectorAll('iframe').forEach((f) => f.contentWindow.location.reload());
+  };
+</script>
+</body>
+</html>
