@@ -1,11 +1,13 @@
 "use client";
 // A-04 Join with code (parents). Bangla first, English underneath.
-import { ArrowLeft, Eye, EyeOff, HeartHandshake } from "lucide-react";
+// Styled using prototype glass cards, fields and Tiger mascot.
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { Icon } from "@/components/legacy/icons";
+import { Tiger } from "@/components/legacy/mascots";
 import { HOME } from "@/components/shells";
-import { Button, Card, cx, inputCls } from "@/components/ui";
+import { Button, Card, cx, Field } from "@/components/ui";
 import { useSession } from "@/lib/hooks";
 import { nameIn } from "@/lib/labels";
 import { authService } from "@/lib/services";
@@ -21,8 +23,8 @@ const RELATIONS: { v: Caregiver["relation"]; bn: string; en: string }[] = [
 function Bi({ bn, en, className }: { bn: string; en: string; className?: string }) {
   return (
     <span className={cx("block", className)}>
-      <span className="bn block">{bn}</span>
-      <span className="block text-[0.8em] font-normal text-muted">{en}</span>
+      <span className="bn" style={{ display: "block", fontWeight: 600 }}>{bn}</span>
+      <span className="small" style={{ display: "block", color: "var(--mute)" }}>{en}</span>
     </span>
   );
 }
@@ -53,7 +55,6 @@ export default function Join() {
   const setAt = (i: number, v: string) => {
     const clean = v.replace(/\D/g, "");
     if (clean.length > 1) {
-      // paste
       const next = [...digits];
       clean.slice(0, 6 - i).split("").forEach((d, k) => (next[i + k] = d));
       setDigits(next);
@@ -98,90 +99,159 @@ export default function Join() {
   const therapistBn = info ? nameIn(info.therapist.name, "bn") : "";
 
   return (
-    <main className="mx-auto flex min-h-[calc(100vh-28px)] max-w-md flex-col justify-center px-4 py-10 text-[18px]">
-      <div className="mb-3 flex items-center">
+    <div className="scroll softbg pad" style={{ paddingBottom: 32 }}>
+      <div className="bar" style={{ padding: "4px 16px 12px" }}>
         {step > 1 ? (
-          <button onClick={() => setStep((s) => (s - 1) as 1 | 2)} aria-label="Back" className="grid size-12 place-items-center rounded-full hover:bg-primary-soft"><ArrowLeft className="size-5" /></button>
+          <button onClick={() => setStep((s) => (s - 1) as 1 | 2)} className="hbtn" aria-label="Back" type="button">
+            <Icon name="back" />
+          </button>
         ) : (
-          <Link href="/" aria-label="Back" className="grid size-12 place-items-center rounded-full hover:bg-primary-soft"><ArrowLeft className="size-5" /></Link>
+          <Link href="/" className="hbtn" aria-label="Back">
+            <Icon name="back" />
+          </Link>
         )}
+        <h1 className="h2 grow" style={{ paddingLeft: 4 }}>
+          {step === 1 ? "কোড দিয়ে যোগ দিন" : step === 2 ? "সন্তান যাচাই" : "আপনার বিবরণ"}
+        </h1>
+        <span className="pill line">{step}/3</span>
       </div>
 
-      {step === 1 && (
-        <Card strong className="space-y-5 rise">
-          <h1 className="text-[24px] font-bold leading-tight"><Bi bn="কোড দিয়ে যোগ দিন" en="Join with code" /></h1>
-          <p className="text-text-2"><Bi bn="আপনার থেরাপিস্টের দেওয়া ৬ সংখ্যার কোডটি লিখুন।" en="Enter the 6-digit code from your therapist." /></p>
-          <div className="flex justify-between gap-2" onPaste={(e) => { e.preventDefault(); setAt(0, e.clipboardData.getData("text")); }}>
-            {digits.map((d, i) => (
-              <input key={i} ref={(el) => { refs.current[i] = el; }} value={d} inputMode="numeric" autoComplete="one-time-code" maxLength={6}
-                aria-label={`Digit ${i + 1}`}
-                onChange={(e) => setAt(i, e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Backspace" && !d && i > 0) refs.current[i - 1]?.focus(); if (e.key === "Enter" && code.length === 6) check(); }}
-                className={cx("h-16 w-full min-w-0 rounded-2xl border bg-surface/70 text-center text-3xl font-bold outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft",
-                  error ? "border-[#ea580c]" : "border-line")} />
-            ))}
-          </div>
-          {error && (
-            <p role="alert" className="text-[16px] font-semibold text-[#c2410c]">
-              <Bi bn="এই কোডটি কাজ করেনি। আপনার থেরাপিস্টের কাছে নতুন কোড চান।" en="This code didn't work. Ask your therapist for a new one." />
-            </p>
-          )}
-          <Button size="lg" block loading={busy} disabled={code.length !== 6} onClick={check}><span className="bn">এগিয়ে যান</span> · Continue</Button>
-          <p className="text-center text-sm text-muted">Demo code: 482915</p>
-        </Card>
-      )}
+      <div className="in">
+        {step === 1 && (
+          <Card>
+            <div style={{ textAlign: "center", marginBottom: 14 }}>
+              <div style={{ width: 76, margin: "0 auto 10px" }}>
+                <Tiger mood="hi" />
+              </div>
+              <h2 className="h2 bn">৬ সংখ্যার কোড দিন</h2>
+              <p className="small" style={{ marginTop: 2 }}>Enter the 6-digit code from your therapist</p>
+            </div>
 
-      {step === 2 && info && (
-        <Card strong className="space-y-5 text-center rise">
-          <div className="mx-auto grid size-20 place-items-center rounded-full bg-primary-soft text-primary pop"><HeartHandshake className="size-10" /></div>
-          <p className="text-[20px] font-bold leading-snug">
-            <Bi bn={`আপনি ${childBn}-র পরিকল্পনায় যোগ দিচ্ছেন — ${therapistBn}, ${info.centre.name}।`}
-              en={`You're joining ${info.child.nickname}'s plan with ${info.therapist.name}, ${info.centre.name}.`} />
-          </p>
-          <Button size="lg" block onClick={() => setStep(3)}><span className="bn">চালিয়ে যান</span> · Continue</Button>
-        </Card>
-      )}
-
-      {step === 3 && (
-        <Card strong className="space-y-4 rise">
-          <h1 className="text-[22px] font-bold"><Bi bn="আপনার তথ্য" en="About you" /></h1>
-          <label className="block">
-            <span className="mb-1.5 block text-[16px] font-semibold"><Bi bn="আপনার নাম" en="Your name" /></span>
-            <input className={inputCls(touched && !name.trim())} value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" />
-          </label>
-          <div>
-            <span className="mb-1.5 block text-[16px] font-semibold"><Bi bn="শিশুর সাথে সম্পর্ক" en="Relation to the child" /></span>
-            <div className="grid grid-cols-2 gap-2">
-              {RELATIONS.map((r) => (
-                <button key={r.v} type="button" onClick={() => setRelation(r.v)} aria-pressed={relation === r.v}
-                  className={cx("min-h-14 rounded-2xl border px-2 text-[16px] font-semibold leading-tight",
-                    relation === r.v ? "border-primary bg-primary-soft text-primary" : "border-line text-text-2",
-                    touched && !relation && "border-[#ea580c]")}>
-                  <span className="bn block">{r.bn}</span><span className="block text-xs font-normal text-muted">{r.en}</span>
-                </button>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 6, margin: "16px 0" }}>
+              {digits.map((d, i) => (
+                <input
+                  key={i}
+                  ref={(el) => { refs.current[i] = el; }}
+                  className="field"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="\d*"
+                  maxLength={1}
+                  value={d}
+                  onChange={(e) => setAt(i, e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Backspace" && !digits[i] && i > 0) {
+                      refs.current[i - 1]?.focus();
+                    }
+                  }}
+                  style={{
+                    height: 54,
+                    textAlign: "center",
+                    font: "700 22px var(--round)",
+                    padding: 0,
+                  }}
+                />
               ))}
             </div>
-          </div>
-          <label className="block">
-            <span className="mb-1.5 block text-[16px] font-semibold"><Bi bn="ফোন নম্বর বা ইমেইল" en="Phone or email" /></span>
-            <input className={inputCls(touched && !contact.trim())} value={contact} onChange={(e) => setContact(e.target.value)} autoComplete="tel" />
-          </label>
-          <label className="block">
-            <span className="mb-1.5 block text-[16px] font-semibold"><Bi bn="পাসওয়ার্ড (কমপক্ষে ৮ অক্ষর)" en="Password (8+ characters)" /></span>
-            <div className="relative">
-              <input className={inputCls(touched && password.length < 8)} type={show ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" />
-              <button type="button" onClick={() => setShow(!show)} aria-label={show ? "Hide password" : "Show password"} className="absolute right-1 top-0 grid size-12 place-items-center text-muted">
-                {show ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
-              </button>
+
+            {error && (
+              <p className="err" style={{ textAlign: "center" }}>
+                কোডটি সঠিক নয় বা মেয়াদ শেষ হয়ে গেছে। থেরাপিস্টের সাথে কথা বলুন।
+              </p>
+            )}
+
+            <Button
+              block
+              size="md"
+              loading={busy}
+              disabled={code.length !== 6}
+              onClick={check}
+              style={{ marginTop: 10 }}
+            >
+              এগিয়ে যান · Continue
+            </Button>
+          </Card>
+        )}
+
+        {step === 2 && info && (
+          <Card>
+            <div style={{ textAlign: "center", marginBottom: 14 }}>
+              <span className="ic t-green" style={{ width: 52, height: 52, fontSize: 26, margin: "0 auto 10px" }}>
+                <Icon name="check" />
+              </span>
+              <h2 className="h2 bn">{childBn}-এর পরিকল্পনা</h2>
+              <p className="small">{info.child.nickname}&apos;s therapy plan</p>
             </div>
-          </label>
-          {touched && (!name.trim() || !relation || !contact.trim() || password.length < 8) && (
-            <p className="text-[15px] font-medium text-[#c2410c]"><Bi bn="দয়া করে সব ঘর পূরণ করুন।" en="Please fill in every field." /></p>
-          )}
-          {joinError && <p role="alert" className="text-[15px] font-semibold text-[#c2410c]">{joinError}</p>}
-          <Button size="lg" block loading={busy} onClick={join}><span className="bn">যোগ দিন</span> · Join</Button>
-        </Card>
-      )}
-    </main>
+
+            <div className="card" style={{ background: "rgba(255, 255, 255, 0.5)", marginBottom: 14 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0" }}>
+                <Bi bn="থেরাপিস্ট" en="Therapist" />
+                <span className="h3 bn" style={{ textAlign: "right" }}>{therapistBn}</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderTop: "0.5px solid var(--line)" }}>
+                <Bi bn="সেন্টার" en="Centre" />
+                <span className="h3" style={{ textAlign: "right" }}>{info.centre.name}</span>
+              </div>
+            </div>
+
+            <Button block size="md" onClick={() => setStep(3)}>
+              হ্যাঁ, এটি সঠিক · Confirm
+            </Button>
+          </Card>
+        )}
+
+        {step === 3 && (
+          <Card>
+            <h2 className="h2 bn" style={{ marginBottom: 12 }}>আপনার তথ্য দিন</h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <Field label={<Bi bn="আপনার পুরো নাম" en="Your full name" />} error={touched && !name.trim() ? "নাম লিখুন" : null}>
+                <input className="field" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Ayesha Rahman" />
+              </Field>
+
+              <Field label={<Bi bn="শিশুর সাথে সম্পর্ক" en="Relationship to child" />} error={touched && !relation ? "সম্পর্ক বেছে নিন" : null}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                  {RELATIONS.map((r) => (
+                    <button
+                      key={r.v}
+                      type="button"
+                      className={cx("card", relation === r.v && "is-pressed")}
+                      onClick={() => setRelation(r.v)}
+                      style={{
+                        padding: "8px 10px",
+                        margin: 0,
+                        border: relation === r.v ? "1.5px solid var(--p)" : undefined,
+                        textAlign: "center",
+                      }}
+                    >
+                      <span className="bn" style={{ display: "block", fontSize: 14 }}>{r.bn}</span>
+                      <span className="small">{r.en}</span>
+                    </button>
+                  ))}
+                </div>
+              </Field>
+
+              <Field label={<Bi bn="ফোন বা ইমেইল" en="Phone or email" />} error={touched && !contact.trim() ? "যোগাযোগের নম্বর বা ইমেইল দিন" : null}>
+                <input className="field" value={contact} onChange={(e) => setContact(e.target.value)} placeholder="017... or name@mail.com" />
+              </Field>
+
+              <Field label={<Bi bn="পাসওয়ার্ড (কমপক্ষে ৮ অক্ষর)" en="Password (min 8 characters)" />} error={touched && password.length < 8 ? "কমপক্ষে ৮ অক্ষর দিন" : null}>
+                <div style={{ position: "relative" }}>
+                  <input className="field" type={show ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} />
+                  <button type="button" onClick={() => setShow(!show)} className="xb" style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)" }}>
+                    <Icon name={show ? "x" : "ear"} />
+                  </button>
+                </div>
+              </Field>
+
+              {joinError && <p className="err">{joinError}</p>}
+
+              <Button block size="md" loading={busy} onClick={join} style={{ marginTop: 8 }}>
+                যুক্ত হোন · Join now
+              </Button>
+            </div>
+          </Card>
+        )}
+      </div>
+    </div>
   );
 }

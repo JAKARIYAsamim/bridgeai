@@ -1,9 +1,9 @@
 "use client";
-// A-05 Forgot password (mocked in Phase 1).
-import { MailCheck } from "lucide-react";
+// A-05 Forgot password (mocked in Phase 1) using prototype card, field and button.
 import Link from "next/link";
 import { useState } from "react";
-import { Button, Card, Field, inputCls } from "@/components/ui";
+import { Icon } from "@/components/legacy/icons";
+import { Button, Card, Field } from "@/components/ui";
 
 export default function Forgot() {
   const [email, setEmail] = useState("");
@@ -21,28 +21,53 @@ export default function Forgot() {
   };
 
   return (
-    <main className="mx-auto flex min-h-[calc(100vh-28px)] max-w-md flex-col justify-center px-4 py-10">
-      <Link href="/" className="mb-6 text-center text-2xl font-bold tracking-tight">BridgeAI</Link>
-      <Card strong className="rise">
-        {sent ? (
-          <div className="space-y-4 text-center">
-            <div className="mx-auto grid size-16 place-items-center rounded-full bg-success-soft text-success pop"><MailCheck className="size-8" /></div>
-            <h1 className="text-2xl font-bold">Check your email</h1>
-            <p className="text-text-2">If an account exists for <b>{email}</b>, we&apos;ve sent a reset link.</p>
-            <Button href="/login" size="lg" block>Back to log in</Button>
-          </div>
-        ) : (
-          <form onSubmit={submit} className="space-y-4" noValidate>
-            <h1 className="text-2xl font-bold">Forgot password</h1>
-            <p className="text-sm text-text-2">Enter your email and we&apos;ll send you a link to reset your password.</p>
-            <Field label="Email">
-              <input className={inputCls()} type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-            </Field>
-            <Button type="submit" size="lg" block loading={busy} disabled={!valid}>Send reset link</Button>
-            <div className="text-center"><Link href="/login" className="inline-block py-2 text-sm font-semibold text-primary">Back to log in</Link></div>
-          </form>
-        )}
-      </Card>
-    </main>
+    <div className="scroll softbg pad" style={{ paddingBottom: 32 }}>
+      <div className="bar" style={{ padding: "4px 16px 12px" }}>
+        <Link href="/login" className="hbtn" aria-label="Back">
+          <Icon name="back" />
+        </Link>
+        <h1 className="h2 grow" style={{ paddingLeft: 4 }}>Reset password</h1>
+      </div>
+
+      <div className="in">
+        <Card>
+          {sent ? (
+            <div style={{ textAlign: "center", padding: "12px 0", display: "flex", flexDirection: "column", gap: 10 }}>
+              <span className="ic t-green" style={{ width: 52, height: 52, fontSize: 26, margin: "0 auto" }}>
+                <Icon name="check" />
+              </span>
+              <h2 className="h2">Check your email</h2>
+              <p className="sub">If an account exists for <b>{email}</b>, we&apos;ve sent a reset link.</p>
+              <Button href="/login" block style={{ marginTop: 8 }}>
+                Back to log in
+              </Button>
+            </div>
+          ) : (
+            <form onSubmit={submit} noValidate style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <h2 className="h2">Forgot password</h2>
+              <p className="sub">Enter your email and we&apos;ll send you a link to reset your password.</p>
+              <Field label="Email">
+                <input
+                  className="field"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </Field>
+              <Button type="submit" block loading={busy} disabled={!valid} style={{ marginTop: 4 }}>
+                Send reset link
+              </Button>
+              <div style={{ textAlign: "center", marginTop: 4 }}>
+                <Link href="/login" className="link" style={{ fontSize: 14 }}>
+                  Back to log in
+                </Link>
+              </div>
+            </form>
+          )}
+        </Card>
+      </div>
+    </div>
   );
 }

@@ -1,3 +1,5 @@
+export const instant = false;
+
 import { ParentShell } from "@/components/shells";
 
 export default function Layout({ children }: { children: React.ReactNode }) {

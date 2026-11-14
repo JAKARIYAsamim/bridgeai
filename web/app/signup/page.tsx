@@ -1,11 +1,13 @@
 "use client";
 // A-02 Sign up: therapist or centre admin.
-import { ArrowLeft, Building2, Check, Copy, Eye, EyeOff, Stethoscope } from "lucide-react";
+// Rebuilt using prototype cards, personas, fields and buttons.
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Icon } from "@/components/legacy/icons";
+import { Ele } from "@/components/legacy/mascots";
 import { HOME } from "@/components/shells";
-import { Button, Card, cx, Field, inputCls, useToast } from "@/components/ui";
+import { Button, Card, Field, useToast } from "@/components/ui";
 import { useSession } from "@/lib/hooks";
 import { PROFESSIONS } from "@/lib/labels";
 import { authService } from "@/lib/services";
@@ -51,8 +53,14 @@ export default function SignUp() {
   const step2Ok = !errs.name && !errs.email && !errs.password;
   const centreErr =
     kind === "admin"
-      ? !centreName.trim() ? "Please add the centre name" : !city.trim() ? "Please add the city" : null
-      : !independent && centreCode.trim().length !== 6 ? "Enter the 6-character centre code, or choose to work independently" : null;
+      ? !centreName.trim()
+        ? "Please add the centre name"
+        : !city.trim()
+        ? "Please add the city"
+        : null
+      : !independent && centreCode.trim().length !== 6
+      ? "Enter the 6-character centre code, or choose to work independently"
+      : null;
 
   const submit = async () => {
     setTouched(true);
@@ -61,7 +69,11 @@ export default function SignUp() {
     setError(null);
     try {
       await authService.signUp({
-        role: kind, name, email, password, language,
+        role: kind,
+        name,
+        email,
+        password,
+        language,
         profession: kind === "therapist" ? profession : undefined,
         centreName: kind === "admin" ? centreName : undefined,
         city: kind === "admin" ? city : undefined,
@@ -81,123 +93,290 @@ export default function SignUp() {
     }
   };
 
-  const back = () => { setTouched(false); setError(null); setStep((s) => (s > 1 ? ((s - 1) as 1 | 2 | 3) : s)); };
+  const back = () => {
+    setTouched(false);
+    setError(null);
+    setStep((s) => (s > 1 ? ((s - 1) as 1 | 2 | 3) : s));
+  };
 
   return (
-    <main className="mx-auto flex min-h-[calc(100vh-28px)] max-w-md flex-col justify-center px-4 py-10">
-      <Link href="/" className="mb-6 text-center text-2xl font-bold tracking-tight">BridgeAI</Link>
+    <div className="scroll softbg pad" style={{ paddingBottom: 32 }}>
+      <div className="bar" style={{ padding: "4px 16px 12px" }}>
+        {step > 1 && step < 4 ? (
+          <button onClick={back} className="hbtn" aria-label="Back" type="button">
+            <Icon name="back" />
+          </button>
+        ) : (
+          <Link href="/" className="hbtn" aria-label="Back">
+            <Icon name="back" />
+          </Link>
+        )}
+        <h1 className="h2 grow" style={{ paddingLeft: 4 }}>
+          {step === 4 ? "Centre created" : "Sign up"}
+        </h1>
+        {step < 4 && <span className="pill line">{step}/3</span>}
+      </div>
 
-      {step < 4 && (
-        <div className="mb-3 flex items-center gap-2">
-          {step > 1 ? (
-            <button onClick={back} aria-label="Back" className="grid size-12 place-items-center rounded-full hover:bg-primary-soft"><ArrowLeft className="size-5" /></button>
-          ) : <span className="size-12" />}
-          <div className="flex flex-1 gap-1.5">{[1, 2, 3].map((n) => <span key={n} className={cx("h-1.5 flex-1 rounded-full", n <= step ? "bg-primary" : "bg-line")} />)}</div>
-          <span className="w-12 text-right text-xs text-muted">{step}/3</span>
-        </div>
-      )}
+      <div className="in">
+        {step === 1 && (
+          <div>
+            <p className="sub" style={{ marginBottom: 14 }}>Choose how you will use BridgeAI:</p>
 
-      {step === 1 && (
-        <div className="space-y-3 rise">
-          <h1 className="mb-2 text-2xl font-bold">Create an account</h1>
-          {([
-            { k: "therapist" as Kind, title: "I'm a therapist", sub: "Build home plans and follow families between sessions.", icon: <Stethoscope className="size-8" /> },
-            { k: "admin" as Kind, title: "I run a centre", sub: "Invite therapists and see how families are doing.", icon: <Building2 className="size-8" /> },
-          ]).map((o) => (
-            <Card key={o.k} strong onClick={() => { setKind(o.k); setStep(2); }} className="flex min-h-28 items-center gap-4">
-              <span className="grid size-16 shrink-0 place-items-center rounded-2xl bg-primary-soft text-primary">{o.icon}</span>
-              <div><div className="text-lg font-bold">{o.title}</div><div className="text-sm text-text-2">{o.sub}</div></div>
-            </Card>
-          ))}
-          <p className="pt-2 text-center text-sm text-muted">Parent? <Link href="/join" className="font-semibold text-primary">Join with your therapist&apos;s code</Link></p>
-          <p className="text-center text-sm text-muted">Already have an account? <Link href="/login" className="font-semibold text-primary">Log in</Link></p>
-        </div>
-      )}
+            <button
+              className="persona on"
+              type="button"
+              onClick={() => {
+                setKind("therapist");
+                setStep(2);
+              }}
+            >
+              <span className="m t-purple">
+                <Ele mood="calm" extra="doctor" />
+              </span>
+              <span className="grow">
+                <span className="h3" style={{ display: "block" }}>Therapist</span>
+                <span className="small">Set goals, approve AI drafts, and guide home practice.</span>
+              </span>
+              <span className="go"><Icon name="next" /></span>
+            </button>
 
-      {step === 2 && (
-        <Card strong className="space-y-4 rise">
-          <h1 className="text-2xl font-bold">{kind === "therapist" ? "About you" : "Your account"}</h1>
-          <Field label="Full name" error={touched ? errs.name : null}>
-            <input className={inputCls(touched && !!errs.name)} value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" />
-          </Field>
-          <Field label="Email" error={touched ? errs.email : null}>
-            <input className={inputCls(touched && !!errs.email)} type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
-          </Field>
-          <Field label="Password" hint="At least 8 characters" error={touched ? errs.password : null}>
-            <div className="relative">
-              <input className={inputCls(touched && !!errs.password)} type={show ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" />
-              <button type="button" onClick={() => setShow(!show)} aria-label={show ? "Hide password" : "Show password"} className="absolute right-1 top-0 grid size-12 place-items-center text-muted">
-                {show ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
-              </button>
+            <button
+              className="persona"
+              type="button"
+              onClick={() => {
+                setKind("admin");
+                setStep(2);
+              }}
+              style={{ marginTop: 10 }}
+            >
+              <span className="m t-green">
+                <Icon name="building" />
+              </span>
+              <span className="grow">
+                <span className="h3" style={{ display: "block" }}>Centre manager</span>
+                <span className="small">Oversee therapists, families, and centre-wide progress.</span>
+              </span>
+              <span className="go"><Icon name="next" /></span>
+            </button>
+          </div>
+        )}
+
+        {step === 2 && (
+          <Card>
+            <p className="h3" style={{ marginBottom: 12 }}>Your account details</p>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setTouched(true);
+                if (step2Ok) setStep(3);
+              }}
+              style={{ display: "flex", flexDirection: "column", gap: 10 }}
+            >
+              <Field label="Full name" error={touched ? errs.name : null}>
+                <input
+                  className="field"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Dr. Nasrin Akter"
+                />
+              </Field>
+
+              {kind === "therapist" && (
+                <Field label="Profession">
+                  <select
+                    className="field"
+                    value={profession}
+                    onChange={(e) => setProfession(e.target.value)}
+                  >
+                    {PROFESSIONS.map((p) => (
+                      <option key={p} value={p}>{p}</option>
+                    ))}
+                  </select>
+                </Field>
+              )}
+
+              <Field label="Work email" error={touched ? errs.email : null}>
+                <input
+                  className="field"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@centre.org"
+                />
+              </Field>
+
+              <Field label="Password (min 8 chars)" error={touched ? errs.password : null}>
+                <div style={{ position: "relative" }}>
+                  <input
+                    className="field"
+                    type={show ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShow(!show)}
+                    aria-label="Toggle password"
+                    className="xb"
+                    style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)" }}
+                  >
+                    <Icon name={show ? "x" : "ear"} />
+                  </button>
+                </div>
+              </Field>
+
+              <Field label="Preferred language">
+                <div className="seg mini" style={{ display: "flex" }}>
+                  <button
+                    type="button"
+                    className={language === "en" ? "on" : ""}
+                    onClick={() => setLanguage("en")}
+                  >
+                    English
+                  </button>
+                  <button
+                    type="button"
+                    className={language === "bn" ? "on" : ""}
+                    onClick={() => setLanguage("bn")}
+                  >
+                    বাংলা
+                  </button>
+                </div>
+              </Field>
+
+              <Button type="submit" block size="md" style={{ marginTop: 8 }}>
+                Continue
+              </Button>
+            </form>
+          </Card>
+        )}
+
+        {step === 3 && (
+          <Card>
+            <p className="h3" style={{ marginBottom: 12 }}>
+              {kind === "admin" ? "Your centre details" : "Connect to your centre"}
+            </p>
+
+            {kind === "admin" ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <Field label="Centre name">
+                  <input
+                    className="field"
+                    value={centreName}
+                    onChange={(e) => setCentreName(e.target.value)}
+                    placeholder="e.g. Hope Autism Centre"
+                  />
+                </Field>
+                <Field label="City">
+                  <input
+                    className="field"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    placeholder="e.g. Dhaka"
+                  />
+                </Field>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {!independent ? (
+                  <Field label="6-character centre code" hint="Ask your centre manager for this code.">
+                    <input
+                      className="field"
+                      value={centreCode}
+                      maxLength={6}
+                      onChange={(e) => setCentreCode(e.target.value.toUpperCase())}
+                      placeholder="ABC123"
+                      style={{ letterSpacing: "0.2em", font: "700 18px var(--round)" }}
+                    />
+                  </Field>
+                ) : (
+                  <p className="sub">You are signing up as an independent therapist.</p>
+                )}
+                <button
+                  type="button"
+                  className="link"
+                  onClick={() => setIndependent(!independent)}
+                  style={{ alignSelf: "flex-start" }}
+                >
+                  {independent ? "Connect to a centre instead" : "I work independently"}
+                </button>
+              </div>
+            )}
+
+            <label style={{ display: "flex", alignItems: "flex-start", gap: 10, marginTop: 12, cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={agree}
+                onChange={(e) => setAgree(e.target.checked)}
+                style={{ width: 20, height: 20, marginTop: 2, accentColor: "var(--p)" }}
+              />
+              <span className="small">
+                I agree to the terms of service and confirm that therapy strategies and social stories are reviewed before reaching families.
+              </span>
+            </label>
+
+            {error && <p className="err" style={{ marginTop: 10 }}>{error}</p>}
+            {touched && centreErr && <p className="err" style={{ marginTop: 10 }}>{centreErr}</p>}
+
+            <Button
+              type="button"
+              block
+              size="md"
+              loading={busy}
+              disabled={!agree}
+              onClick={submit}
+              style={{ marginTop: 12 }}
+            >
+              Complete registration
+            </Button>
+          </Card>
+        )}
+
+        {step === 4 && (
+          <div className="card" style={{ textAlign: "center", padding: "24px 16px" }}>
+            <span className="ic t-green" style={{ width: 56, height: 56, fontSize: 28, margin: "0 auto 12px" }}>
+              <Icon name="check" />
+            </span>
+            <h1 className="h1" style={{ fontSize: 24 }}>Welcome, {name}!</h1>
+            <p className="sub" style={{ marginTop: 6 }}>
+              {centreName} has been registered. Share this code with therapists at your centre:
+            </p>
+
+            <div
+              className="card"
+              style={{
+                margin: "18px 0",
+                padding: 16,
+                font: "700 32px var(--round)",
+                letterSpacing: "0.2em",
+                color: "var(--p)",
+              }}
+            >
+              {newCode}
             </div>
-          </Field>
-          {kind === "therapist" && (
-            <Field label="Profession">
-              <select className={inputCls()} value={profession} onChange={(e) => setProfession(e.target.value)}>
-                {PROFESSIONS.map((p) => <option key={p}>{p}</option>)}
-              </select>
-            </Field>
-          )}
-          <Field label="Language">
-            <div className="grid grid-cols-2 gap-2">
-              {([["en", "English"], ["bn", "বাংলা"]] as const).map(([v, l]) => (
-                <button key={v} type="button" onClick={() => setLanguage(v)} aria-pressed={language === v}
-                  className={cx("min-h-12 rounded-xl border font-semibold", language === v ? "border-primary bg-primary-soft text-primary" : "border-line text-text-2", v === "bn" && "bn")}>{l}</button>
-              ))}
-            </div>
-          </Field>
-          <Button size="lg" block onClick={() => { setTouched(true); if (step2Ok) { setTouched(false); setStep(3); } }}>Continue</Button>
-        </Card>
-      )}
 
-      {step === 3 && (
-        <Card strong className="space-y-4 rise">
-          {kind === "admin" ? (
-            <>
-              <h1 className="text-2xl font-bold">Your centre</h1>
-              <p className="text-sm text-text-2">We&apos;ll create a 6-character centre code you can share with your therapists.</p>
-              <Field label="Centre name" error={touched && !centreName.trim() ? "Please add the centre name" : null}>
-                <input className={inputCls(touched && !centreName.trim())} value={centreName} onChange={(e) => setCentreName(e.target.value)} />
-              </Field>
-              <Field label="City" error={touched && centreName.trim() && !city.trim() ? "Please add the city" : null}>
-                <input className={inputCls(touched && !city.trim())} value={city} onChange={(e) => setCity(e.target.value)} />
-              </Field>
-            </>
-          ) : (
-            <>
-              <h1 className="text-2xl font-bold">Your centre</h1>
-              <Field label="Centre code" hint="Ask your centre admin. Demo code: HOPE24" error={touched && centreErr && !independent ? centreErr : null}>
-                <input className={cx(inputCls(touched && !!centreErr && !independent), "uppercase tracking-[0.3em] font-semibold")} maxLength={6} value={centreCode} disabled={independent}
-                  onChange={(e) => setCentreCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))} placeholder="HOPE24" />
-              </Field>
-              <button type="button" onClick={() => setIndependent(!independent)} aria-pressed={independent}
-                className={cx("flex min-h-12 w-full items-center gap-3 rounded-xl border px-3.5 text-left font-semibold", independent ? "border-primary bg-primary-soft text-primary" : "border-line text-text-2")}>
-                <span className={cx("grid size-6 place-items-center rounded-md border", independent ? "border-primary bg-primary text-white" : "border-line")}>{independent && <Check className="size-4" />}</span>
-                I work independently
-              </button>
-              {independent && <p className="text-xs text-muted">We&apos;ll set up a one-person centre for you.</p>}
-            </>
-          )}
-          <label className="flex min-h-12 cursor-pointer items-start gap-3 py-1">
-            <input type="checkbox" className="mt-1 size-5 accent-[var(--primary)]" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
-            <span className="text-sm">I agree to the <span className="font-semibold text-primary">terms</span> and the <span className="font-semibold text-primary">data policy</span>.</span>
-          </label>
-          {touched && !agree && <p className="-mt-2 text-sm font-medium text-[#c2410c]">Please agree to continue</p>}
-          {error && <p role="alert" className="text-sm font-semibold text-[#c2410c]">{error}</p>}
-          <Button size="lg" block loading={busy} onClick={submit}>Create account</Button>
-        </Card>
-      )}
+            <Button
+              variant="soft"
+              block
+              icon={<Icon name="doc" />}
+              onClick={async () => {
+                await navigator.clipboard.writeText(newCode);
+                toast("Code copied to clipboard");
+              }}
+            >
+              Copy code
+            </Button>
 
-      {step === 4 && (
-        <Card strong className="space-y-4 text-center rise">
-          <div className="mx-auto grid size-16 place-items-center rounded-full bg-success-soft text-success pop"><Check className="size-8" /></div>
-          <h1 className="text-2xl font-bold">{centreName} is ready</h1>
-          <p className="text-sm text-text-2">Share this centre code with your therapists so they can join.</p>
-          <div className="rounded-2xl bg-primary-soft py-4 text-4xl font-bold tracking-[0.3em] text-primary">{newCode}</div>
-          <Button variant="soft" block icon={<Copy className="size-5" />} onClick={() => { navigator.clipboard?.writeText(newCode).catch(() => {}); toast("Code copied"); }}>Copy code</Button>
-          <Button size="lg" block onClick={() => router.replace("/c")}>Go to dashboard</Button>
-        </Card>
-      )}
-    </main>
+            <Button
+              block
+              style={{ marginTop: 10 }}
+              onClick={() => router.replace("/c")}
+            >
+              Open dashboard
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

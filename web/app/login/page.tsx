@@ -1,11 +1,12 @@
 "use client";
-// A-03 Log in, with Phase 1 demo buttons.
-import { Building2, Eye, EyeOff, Stethoscope, Users } from "lucide-react";
+// A-03 Log in, with prototype persona buttons for demo instant-login.
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Icon } from "@/components/legacy/icons";
+import { Ele, Tiger } from "@/components/legacy/mascots";
 import { HOME } from "@/components/shells";
-import { Button, Card, Field, inputCls } from "@/components/ui";
+import { Button, Card, Field } from "@/components/ui";
 import { useSession } from "@/lib/hooks";
 import { authService } from "@/lib/services";
 import type { Role } from "@/lib/types";
@@ -35,6 +36,7 @@ export default function Login() {
       setBusy(null);
     }
   };
+
   const demo = async (role: Role) => {
     setBusy(role);
     const u = await authService.demoLogIn(role);
@@ -42,37 +44,132 @@ export default function Login() {
   };
 
   return (
-    <main className="mx-auto flex min-h-[calc(100vh-28px)] max-w-md flex-col justify-center px-4 py-10">
-      <Link href="/" className="mb-6 text-center text-2xl font-bold tracking-tight">BridgeAI</Link>
-      <Card strong className="rise">
-        <h1 className="mb-4 text-2xl font-bold">Log in</h1>
-        <form onSubmit={submit} className="space-y-4" noValidate>
-          <Field label="Email">
-            <input className={inputCls()} type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          </Field>
-          <Field label="Password">
-            <div className="relative">
-              <input className={inputCls()} type={show ? "text" : "password"} autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-              <button type="button" onClick={() => setShow(!show)} aria-label={show ? "Hide password" : "Show password"} className="absolute right-1 top-0 grid size-12 place-items-center text-muted">
-                {show ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
-              </button>
-            </div>
-          </Field>
-          {error && <p role="alert" className="text-sm font-semibold text-[#c2410c]">{error}</p>}
-          <Button type="submit" size="lg" block loading={busy === "form"} disabled={!email || !password}>Log in</Button>
-          <div className="text-center"><Link href="/forgot" className="inline-block py-2 text-sm font-semibold text-primary">Forgot password?</Link></div>
-        </form>
-      </Card>
+    <div className="scroll softbg pad" style={{ paddingBottom: 32 }}>
+      <div className="bar" style={{ padding: "4px 16px 12px" }}>
+        <Link href="/" className="hbtn" aria-label="Back">
+          <Icon name="back" />
+        </Link>
+        <h1 className="h2 grow" style={{ paddingLeft: 4 }}>Log in</h1>
+      </div>
 
-      <Card className="mt-4 rise">
-        <p className="mb-3 text-xs font-bold uppercase tracking-wide text-muted">Demo — instant login</p>
-        <div className="space-y-2">
-          <Button variant="soft" block loading={busy === "therapist"} onClick={() => demo("therapist")} icon={<Stethoscope className="size-5" />}>Log in as therapist <span className="font-normal text-muted">· Dr. Nasrin</span></Button>
-          <Button variant="soft" block loading={busy === "parent"} onClick={() => demo("parent")} icon={<Users className="size-5" />}>Log in as parent <span className="font-normal text-muted">· Ayesha</span></Button>
-          <Button variant="soft" block loading={busy === "admin"} onClick={() => demo("admin")} icon={<Building2 className="size-5" />}>Log in as centre admin <span className="font-normal text-muted">· Farhana</span></Button>
+      <div className="in">
+        <Card>
+          <form onSubmit={submit} noValidate style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <Field label="Email">
+              <input
+                className="field"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </Field>
+
+            <Field label="Password">
+              <div style={{ position: "relative" }}>
+                <input
+                  className="field"
+                  type={show ? "text" : "password"}
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShow(!show)}
+                  aria-label={show ? "Hide password" : "Show password"}
+                  className="xb"
+                  style={{
+                    position: "absolute",
+                    right: 8,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                  }}
+                >
+                  <Icon name={show ? "x" : "ear"} />
+                </button>
+              </div>
+            </Field>
+
+            {error && <p className="err">{error}</p>}
+
+            <Button
+              type="submit"
+              size="md"
+              block
+              loading={busy === "form"}
+              disabled={!email || !password}
+              style={{ marginTop: 4 }}
+            >
+              Log in
+            </Button>
+
+            <div style={{ textAlign: "center", marginTop: 2 }}>
+              <Link href="/forgot" className="link" style={{ fontSize: 14 }}>
+                Forgot password?
+              </Link>
+            </div>
+          </form>
+        </Card>
+
+        <div className="sec">
+          <h2 className="h2" style={{ fontSize: 16 }}>Demo — instant login</h2>
         </div>
-        <p className="mt-3 text-xs text-muted">Demo accounts use the password <code>demo1234</code> (e.g. nasrin@hope.demo).</p>
-      </Card>
-    </main>
+
+        <button
+          className="persona"
+          onClick={() => demo("therapist")}
+          disabled={busy !== null}
+          type="button"
+        >
+          <span className="m t-purple">
+            <Ele mood="calm" extra="doctor" />
+          </span>
+          <span className="grow">
+            <span className="h3" style={{ display: "block" }}>Log in as therapist</span>
+            <span className="small">Dr. Nasrin, at the clinic</span>
+          </span>
+          <span className="go"><Icon name="next" /></span>
+        </button>
+
+        <button
+          className="persona"
+          onClick={() => demo("parent")}
+          disabled={busy !== null}
+          type="button"
+        >
+          <span className="m t-orange">
+            <Tiger mood="hi" />
+          </span>
+          <span className="grow">
+            <span className="h3" style={{ display: "block" }}>Log in as parent</span>
+            <span className="small">Ayesha, at home with Rafi</span>
+          </span>
+          <span className="go"><Icon name="next" /></span>
+        </button>
+
+        <button
+          className="persona"
+          onClick={() => demo("admin")}
+          disabled={busy !== null}
+          type="button"
+        >
+          <span className="m t-green">
+            <Icon name="building" />
+          </span>
+          <span className="grow">
+            <span className="h3" style={{ display: "block" }}>Log in as centre admin</span>
+            <span className="small">Farhana, running the centre</span>
+          </span>
+          <span className="go"><Icon name="next" /></span>
+        </button>
+
+        <p className="small" style={{ textAlign: "center", marginTop: 14 }}>
+          Demo accounts use password <code>demo1234</code>.
+        </p>
+      </div>
+    </div>
   );
 }

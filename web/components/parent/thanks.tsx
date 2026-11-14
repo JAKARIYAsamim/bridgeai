@@ -1,12 +1,13 @@
 "use client";
-import { Check } from "lucide-react";
+// "Thank you! Dr. Nasrin will see this." with Bagh the tiger cub and legacy buttons.
+import { Icon } from "@/components/legacy/icons";
+import { Tiger } from "@/components/legacy/mascots";
 import { Button } from "@/components/ui";
-import { useLang } from "@/lib/i18n";
 import { useLoad } from "@/lib/hooks";
-import { authService, childService } from "@/lib/services";
+import { useLang } from "@/lib/i18n";
 import { nameIn } from "@/lib/labels";
+import { authService, childService } from "@/lib/services";
 
-/** "Thank you! Dr. Nasrin will see this." with an amber tick. */
 export function ThanksCard({ onDone, doneLabel }: { onDone: () => void; doneLabel: string }) {
   const { L, lang } = useLang();
   const { data: therapist } = useLoad(async () => {
@@ -15,13 +16,24 @@ export function ThanksCard({ onDone, doneLabel }: { onDone: () => void; doneLabe
     return list.find((u) => u.id === child.therapistId)?.name ?? "Dr. Nasrin";
   }, []);
   const name = nameIn(therapist ?? "Dr. Nasrin", lang);
+
   return (
-    <div className="space-y-5 py-4 text-center">
-      <div className="mx-auto grid size-24 place-items-center rounded-full bg-celebrate text-white shadow-[0_14px_34px_-12px_var(--celebrate)] pop">
-        <Check className="size-12" strokeWidth={3} />
+    <div style={{ textAlign: "center", padding: "16px 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+      <div style={{ width: 96 }}>
+        <Tiger mood="proud" />
       </div>
-      <p className="text-[22px] font-bold">{L(`ধন্যবাদ! ${name} এটি দেখবেন।`, `Thank you! ${name} will see this.`)}</p>
-      <Button block size="lg" onClick={onDone}>{doneLabel}</Button>
+      <div
+        className="tick on"
+        style={{ width: 44, height: 44, fontSize: 24, margin: "0 auto" }}
+      >
+        <Icon name="check" strokeWidth={3} />
+      </div>
+      <h2 className="h2" style={{ padding: "0 10px" }}>
+        {L(`ধন্যবাদ! ${name} এটি দেখবেন।`, `Thank you! ${name} will see this.`)}
+      </h2>
+      <Button block size="md" onClick={onDone} style={{ marginTop: 8 }}>
+        {doneLabel}
+      </Button>
     </div>
   );
 }

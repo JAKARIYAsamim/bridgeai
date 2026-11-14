@@ -1,39 +1,67 @@
 "use client";
-// A-01 Welcome
-import { HeartHandshake, KeyRound, LogIn, Sparkles, UserPlus } from "lucide-react";
+// A-01 Welcome / Persona picker in prototype's exact picker() style.
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { Icon } from "@/components/legacy/icons";
+import { Ele, Tiger } from "@/components/legacy/mascots";
 import { HOME } from "@/components/shells";
-import { Button, Card } from "@/components/ui";
+import { Button } from "@/components/ui";
 import { useSession } from "@/lib/hooks";
 
 export default function Welcome() {
   const { user } = useSession();
   const router = useRouter();
+
   useEffect(() => {
     if (user) router.replace(HOME[user.role]);
   }, [user, router]);
 
   return (
-    <main className="mx-auto flex min-h-[calc(100vh-28px)] max-w-md flex-col justify-center px-4 py-10">
-      <div className="mb-8 text-center rise">
-        <div className="mx-auto mb-4 grid size-20 place-items-center rounded-3xl bg-primary text-white shadow-[0_18px_40px_-14px_var(--primary)]">
-          <Sparkles className="size-10" />
-        </div>
-        <h1 className="text-4xl font-bold tracking-tight">BridgeAI</h1>
-        <p className="mt-2 text-lg text-text-2">Therapist and family, together between sessions.</p>
-        <p className="bn mt-1 text-lg text-text-2">থেরাপিস্ট আর পরিবার — সেশনের মাঝেও একসাথে।</p>
+    <section className="pick pad">
+      <div className="logo">
+        <Icon name="logo" /> BridgeAI
       </div>
-      <Card className="space-y-3 rise">
-        <Button href="/login" size="lg" block icon={<LogIn className="size-5" />}>Log in</Button>
-        <Button href="/join" size="lg" variant="soft" block icon={<KeyRound className="size-5" />}>
-          Join with code <span className="bn font-medium">· কোড দিয়ে যোগ দিন</span>
-        </Button>
-        <Button href="/signup" size="lg" variant="ghost" block icon={<UserPlus className="size-5" />}>Sign up as a therapist or centre</Button>
-      </Card>
-      <p className="mt-6 flex items-center justify-center gap-2 text-center text-sm text-muted">
-        <HeartHandshake className="size-4" /> Parents join through their therapist&apos;s invite code.
+      <h1 className="big">
+        Therapy that<br />
+        <em>continues at home.</em>
+      </h1>
+      <p className="tagline">
+        One small step a day, shared between doctor and parent.
       </p>
-    </main>
+
+      <div className="duo2">
+        <div style={{ left: 42, width: 150 }}>
+          <Ele extra="doctor" />
+        </div>
+        <div style={{ right: 40, width: 110, bottom: 14 }}>
+          <Tiger />
+        </div>
+      </div>
+
+      <div className="sheet0">
+        <h1 className="h1">Welcome</h1>
+        <p className="sub" style={{ marginTop: 4, marginBottom: 14 }}>
+          Log in or join your child&apos;s plan with an invite code.
+        </p>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <Button href="/login" size="md" block>
+            Log in
+          </Button>
+          <Button href="/join" size="md" variant="soft" block>
+            Join with code <span className="bn" style={{ opacity: 0.9 }}>· কোড দিয়ে যোগ দিন</span>
+          </Button>
+          <div style={{ textAlign: "center", marginTop: 4 }}>
+            <Link href="/signup" className="link" style={{ fontSize: 14 }}>
+              Sign up as a therapist or centre
+            </Link>
+          </div>
+          <p className="small" style={{ textAlign: "center", marginTop: 2 }}>
+            Parents join through their therapist&apos;s invite code.
+          </p>
+        </div>
+      </div>
+    </section>
   );
 }

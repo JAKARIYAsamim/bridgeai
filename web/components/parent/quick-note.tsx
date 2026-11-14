@@ -1,10 +1,10 @@
 "use client";
-// Floating mic → quick voice (or text) note about anything.
-import { Keyboard, Mic } from "lucide-react";
+// Quick note floating button / bottom sheet matching the old prototype's noteScreen.
 import { useState } from "react";
 import { EmergencyBox } from "@/components/emergency";
+import { Icon } from "@/components/legacy/icons";
 import { MicButton } from "@/components/media";
-import { BottomSheet, Button, inputCls } from "@/components/ui";
+import { BottomSheet, Button } from "@/components/ui";
 import { useLang } from "@/lib/i18n";
 import { feedbackService } from "@/lib/services";
 import { ThanksCard } from "./thanks";
@@ -17,8 +17,16 @@ export function QuickNoteFab() {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<"ok" | "alert" | null>(null);
 
-  const close = () => { setOpen(false); setResult(null); setText(""); setMode("voice"); };
-  const send = async (input: { type: "voice"; mediaUrl: string } | { type: "text"; text: string }) => {
+  const close = () => {
+    setOpen(false);
+    setResult(null);
+    setText("");
+    setMode("voice");
+  };
+
+  const send = async (
+    input: { type: "voice"; mediaUrl: string } | { type: "text"; text: string },
+  ) => {
     setBusy(true);
     try {
       const { alert } = await feedbackService.addFeedback(input);
@@ -30,29 +38,89 @@ export function QuickNoteFab() {
 
   return (
     <>
-      <button onClick={() => setOpen(true)}
-        className="fixed bottom-24 right-[max(16px,calc(50vw-224px))] z-40 flex min-h-14 items-center gap-2 rounded-full bg-primary px-5 font-semibold text-white shadow-[0_14px_30px_-10px_var(--primary)] active:scale-95">
-        <Mic className="size-6" />{L("ভয়েস নোট", "Voice note")}
+      <button
+        onClick={() => setOpen(true)}
+        type="button"
+        className="btn p"
+        style={{
+          position: "absolute",
+          bottom: 84,
+          right: 20,
+          zIndex: 35,
+          height: 48,
+          padding: "0 18px",
+          borderRadius: 24,
+          boxShadow: "0 12px 26px -8px rgba(88, 86, 214, 0.9)",
+        }}
+      >
+        <Icon name="mic" style={{ fontSize: 20 }} />
+        <span>{L("ভয়েস নোট", "Voice note")}</span>
       </button>
+
       <BottomSheet open={open} onClose={close} title={L("ডাক্তারকে কিছু জানান", "Tell your therapist")}>
         {result === "alert" ? (
-          <div className="space-y-4"><EmergencyBox /><Button block size="lg" variant="soft" onClick={close}>{L("ঠিক আছে", "OK")}</Button></div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <EmergencyBox />
+            <Button block size="md" variant="soft" onClick={close}>
+              {L("ঠিক আছে", "OK")}
+            </Button>
+          </div>
         ) : result === "ok" ? (
           <ThanksCard onDone={close} doneLabel={L("ঠিক আছে", "OK")} />
         ) : busy ? (
-          <div className="py-10 text-center text-muted">{L("পাঠানো হচ্ছে…", "Sending…")}</div>
+          <div className="card thinking">
+            <p className="sub">{L("পাঠানো হচ্ছে…", "Sending…")}</p>
+          </div>
         ) : mode === "voice" ? (
-          <div className="space-y-5 py-2">
-            <p className="text-center text-[17px] text-text-2">{L("যেকোনো কিছু বলুন — কেমন গেল, কী চিন্তা হচ্ছে।", "Say anything — how it went, what's worrying you.")}</p>
-            <MicButton maxSeconds={60} onDone={(r) => send({ type: "voice", mediaUrl: r.url })}
-              labels={{ idle: L("রেকর্ড করতে চাপুন", "Tap to record"), recording: L("শেষ হলে চাপুন", "Tap when done"), hint: L("সর্বোচ্চ ৬০ সেকেন্ড", "Up to 60 seconds") }} />
-            <Button block variant="ghost" icon={<Keyboard className="size-5" />} onClick={() => setMode("text")}>{L("লিখে পাঠান", "Type instead")}</Button>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "8px 0" }}>
+            <p className="sub" style={{ textAlign: "center" }}>
+              {L("যেকোনো কিছু বলুন — কেমন গেল, কী চিন্তা হচ্ছে।", "Say anything — how it went, what's worrying you.")}
+            </p>
+            <MicButton
+              maxSeconds={60}
+              onDone={(r) => send({ type: "voice", mediaUrl: r.url })}
+              labels={{
+                idle: L("রেকর্ড করতে চাপুন", "Tap to record"),
+                recording: L("শেষ হলে চাপুন", "Tap when done"),
+                hint: L("সর্বোচ্চ ৬০ সেকেন্ড", "Up to 60 seconds"),
+              }}
+            />
+            <button
+              className="link"
+              type="button"
+              onClick={() => setMode("text")}
+              style={{ textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+            >
+              <Icon name="type" />
+              <span>{L("লিখে পাঠান", "Type instead")}</span>
+            </button>
           </div>
         ) : (
-          <div className="space-y-3">
-            <textarea className={inputCls() + " min-h-32 py-3 text-[17px]"} value={text} onChange={(e) => setText(e.target.value)} placeholder={L("এখানে লিখুন…", "Write here…")} autoFocus />
-            <Button block size="lg" disabled={!text.trim()} onClick={() => send({ type: "text", text: text.trim() })}>{L("পাঠান", "Send")}</Button>
-            <Button block variant="ghost" icon={<Mic className="size-5" />} onClick={() => setMode("voice")}>{L("ভয়েসে বলুন", "Use voice")}</Button>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div className="ask" style={{ margin: 0 }}>
+              <textarea
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder={L("এখানে লিখুন…", "Write here…")}
+                autoFocus
+              />
+            </div>
+            <Button
+              block
+              disabled={!text.trim()}
+              onClick={() => send({ type: "text", text: text.trim() })}
+            >
+              {L("পাঠান", "Send")}
+            </Button>
+            <button
+              className="link"
+              type="button"
+              onClick={() => setMode("voice")}
+              style={{ textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+            >
+              <Icon name="mic" />
+              <span>{L("ভয়েসে বলুন", "Use voice")}</span>
+            </button>
           </div>
         )}
       </BottomSheet>

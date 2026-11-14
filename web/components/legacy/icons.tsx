@@ -1,0 +1,510 @@
+import React, { type SVGProps } from "react";
+
+// The custom line icon set ported from public/icons.js with exact SVG paths and viewports.
+export type IconName =
+  | "logo"
+  | "arrow"
+  | "back"
+  | "next"
+  | "check"
+  | "x"
+  | "plus"
+  | "mic"
+  | "stop"
+  | "leaf"
+  | "heart"
+  | "spark"
+  | "home"
+  | "book"
+  | "chart"
+  | "users"
+  | "shield"
+  | "clock"
+  | "edit"
+  | "trash"
+  | "play"
+  | "refresh"
+  | "send"
+  | "swap"
+  | "type"
+  | "ear"
+  | "menu"
+  | "bell"
+  | "gear"
+  | "list"
+  | "globe"
+  | "user"
+  | "doc"
+  | "phone"
+  | "alert"
+  | "building"
+  | "lifebuoy"
+  | "faceGood"
+  | "faceMixed"
+  | "faceHard"
+  | "turn"
+  | "wait"
+  | "sound"
+  | "breath"
+  | "playk"
+  | "talk"
+  | "touch"
+  | "food"
+  | "sleep"
+  | "outdoor"
+  | "dress"
+  | "mirror"
+  | "chair"
+  | "scissors"
+  | "star"
+  | "camera"
+  | "video";
+
+export const ICON_PATHS: Record<string, { viewBox: string; strokeWidth?: number; children: React.ReactNode }> = {
+  logo: {
+    viewBox: "0 0 48 34",
+    strokeWidth: 2.6,
+    children: (
+      <>
+        <path d="M6 27C6 13.500 13.500 5 24 5s18 8.500 18 22" />
+        <path d="M15 27c0-6.500 3.600-11 9-11s9 4.500 9 11" opacity=".55" />
+        <circle cx="6" cy="27" r="3.200" fill="currentColor" stroke="none" />
+        <circle cx="42" cy="27" r="3.200" fill="currentColor" stroke="none" />
+      </>
+    ),
+  },
+  arrow: {
+    viewBox: "0 0 24 24",
+    children: <path d="M5 12h14M13 6l6 6-6 6" />,
+  },
+  back: {
+    viewBox: "0 0 24 24",
+    children: <path d="M15 5l-7 7 7 7" />,
+  },
+  next: {
+    viewBox: "0 0 24 24",
+    children: <path d="M9 5l7 7-7 7" />,
+  },
+  check: {
+    viewBox: "0 0 24 24",
+    children: <path d="M5 12.500l4.500 4.500L19 7.500" />,
+  },
+  x: {
+    viewBox: "0 0 24 24",
+    children: <path d="M6 6l12 12M18 6L6 18" />,
+  },
+  plus: {
+    viewBox: "0 0 24 24",
+    children: <path d="M12 5v14M5 12h14" />,
+  },
+  mic: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <rect x="9" y="3" width="6" height="11" rx="3" />
+        <path d="M5.500 11.500a6.500 6.500 0 0 0 13 0M12 18v3" />
+      </>
+    ),
+  },
+  stop: {
+    viewBox: "0 0 24 24",
+    children: <rect x="7" y="7" width="10" height="10" rx="2.500" fill="currentColor" />,
+  },
+  leaf: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14" />
+        <path d="M5 19c2-4 5-7 9-9" />
+      </>
+    ),
+  },
+  heart: {
+    viewBox: "0 0 24 24",
+    children: <path d="M12 20s-7-4.400-7-10a4 4 0 0 1 7-2.600A4 4 0 0 1 19 10c0 5.600-7 10-7 10Z" />,
+  },
+  spark: {
+    viewBox: "0 0 24 24",
+    children: <path d="M12 3c.600 4.800 2.200 6.400 7 7-4.800.600-6.400 2.200-7 7-.600-4.800-2.200-6.400-7-7 4.800-.600 6.400-2.200 7-7Z" />,
+  },
+  home: {
+    viewBox: "0 0 24 24",
+    children: <path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1v-8Z" />,
+  },
+  book: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <path d="M12 6c-2-1.500-4.500-2-8-2v14c3.500 0 6 .500 8 2 2-1.500 4.500-2 8-2V4c-3.500 0-6 .500-8 2Zm0 0v14" />
+      </>
+    ),
+  },
+  chart: {
+    viewBox: "0 0 24 24",
+    children: <path d="M4 20h16M7 16v-5M12 16V6M17 16v-8" />,
+  },
+  users: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <circle cx="9" cy="8" r="3.500" />
+        <path d="M2.500 20c.500-4 3-6 6.500-6s6 2 6.500 6M16 4.800a3.500 3.500 0 0 1 0 6.400M18.500 14.500c1.800.900 2.800 2.800 3 5.500" />
+      </>
+    ),
+  },
+  shield: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <path d="M12 3l8 3v6c0 4.500-3.200 8-8 9-4.800-1-8-4.500-8-9V6l8-3Z" />
+        <path d="M8.500 12l2.500 2.500 4.500-5" />
+      </>
+    ),
+  },
+  clock: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <circle cx="12" cy="12" r="8.500" />
+        <path d="M12 7.500V12l3 2" />
+      </>
+    ),
+  },
+  edit: {
+    viewBox: "0 0 24 24",
+    children: <path d="M4 20l4-1L19 8l-3-3L5 16l-1 4Z" />,
+  },
+  trash: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <path d="M5 7h14M10 7V4.500h4V7M7 7l1 13h8l1-13" />
+      </>
+    ),
+  },
+  play: {
+    viewBox: "0 0 24 24",
+    children: <path d="M8 5l11 7-11 7V5Z" fill="currentColor" />,
+  },
+  refresh: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <path d="M19 5v5h-5M5 19v-5h5" />
+        <path d="M18.500 10A7 7 0 0 0 6 8M5.500 14A7 7 0 0 0 18 16" />
+      </>
+    ),
+  },
+  send: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <path d="M20 4L3 11l7 3 3 7 7-17Z" />
+        <path d="M10 14l4-4" />
+      </>
+    ),
+  },
+  swap: {
+    viewBox: "0 0 24 24",
+    children: <path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7" />,
+  },
+  type: {
+    viewBox: "0 0 24 24",
+    children: <path d="M4 7V5h16v2M12 5v14M9 19h6" />,
+  },
+  ear: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <path d="M7 9a5 5 0 0 1 10 0c0 3-3 3.500-3 6.500a3 3 0 0 1-5.500 1.500" />
+        <path d="M10 10a2 2 0 0 1 4 0" />
+      </>
+    ),
+  },
+  menu: {
+    viewBox: "0 0 24 24",
+    children: <path d="M5 7h14M5 12h14M5 17h14" />,
+  },
+  bell: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <path d="M6 16V11a6 6 0 0 1 12 0v5l1.500 2h-15L6 16Z" />
+        <path d="M10 20a2 2 0 0 0 4 0" />
+      </>
+    ),
+  },
+  gear: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 3l1.600 2.300 2.700-.600.600 2.700L19.200 9 18 11.500l1.200 2.500-2.300 1.600-.600 2.700-2.700-.600L12 20l-1.600-2.300-2.700.600-.600-2.700L4.800 14 6 11.500 4.800 9l2.300-1.600.600-2.700 2.700.600L12 3Z" />
+      </>
+    ),
+  },
+  list: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <path d="M9 7h11M9 12h11M9 17h11" />
+        <path d="M4 6.500l1 1 1.500-2M4 11.500l1 1 1.500-2M4 16.500l1 1 1.500-2" />
+      </>
+    ),
+  },
+  globe: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <circle cx="12" cy="12" r="8.500" />
+        <path d="M3.500 12h17M12 3.500c3 3 3 14 0 17M12 3.500c-3 3-3 14 0 17" />
+      </>
+    ),
+  },
+  user: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <circle cx="12" cy="8.500" r="4" />
+        <path d="M4.500 20c1-4 4-6 7.500-6s6.500 2 7.500 6" />
+      </>
+    ),
+  },
+  doc: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <path d="M7 3h7l4 4v14H7V3Z" />
+        <path d="M14 3v4h4M10 12h5M10 16h5" />
+      </>
+    ),
+  },
+  phone: {
+    viewBox: "0 0 24 24",
+    children: <path d="M5 4h4l2 5-2.500 1.500a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z" />,
+  },
+  alert: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <path d="M12 3.500 2.500 20h19L12 3.500Z" />
+        <path d="M12 10v4.500M12 17.500h.01" />
+      </>
+    ),
+  },
+  building: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <path d="M3 21h18M5 21V8.500l7-4.500 7 4.500V21" />
+        <path d="M10 21v-5h4v5M9 11h.01M15 11h.01" />
+      </>
+    ),
+  },
+  lifebuoy: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <circle cx="12" cy="12" r="8.500" />
+        <circle cx="12" cy="12" r="3.500" />
+        <path d="M6 6l3.500 3.500M14.500 14.500 18 18M18 6l-3.500 3.500M9.500 14.500 6 18" />
+      </>
+    ),
+  },
+  faceGood: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <circle cx="12" cy="12" r="8.500" />
+        <path d="M9 10h.01M15 10h.01M8.500 14c1 1.600 2.100 2.300 3.500 2.300s2.500-.700 3.500-2.300" />
+      </>
+    ),
+  },
+  faceMixed: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <circle cx="12" cy="12" r="8.500" />
+        <path d="M9 10h.01M15 10h.01M9 15h6" />
+      </>
+    ),
+  },
+  faceHard: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <circle cx="12" cy="12" r="8.500" />
+        <path d="M9 10h.01M15 10h.01M8.500 16.500c1-1.600 2.100-2.300 3.500-2.300s2.500.700 3.500 2.300" />
+      </>
+    ),
+  },
+  turn: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <path d="M4 9a8 8 0 0 1 14-3l2 2M20 15a8 8 0 0 1-14 3l-2-2" />
+        <path d="M20 4v4h-4M4 20v-4h4" />
+      </>
+    ),
+  },
+  wait: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <path d="M7 3h10M7 21h10M8 3c0 5 8 5 8 9s-8 4-8 9M16 3c0 5-8 5-8 9s8 4 8 9" />
+      </>
+    ),
+  },
+  sound: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <path d="M4 10v4h3l5 4V6l-5 4H4Z" />
+        <path d="M15.500 9a4 4 0 0 1 0 6M18 6.500a7.500 7.500 0 0 1 0 11" />
+      </>
+    ),
+  },
+  breath: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <path d="M3 9h10a3 3 0 1 0-3-3M3 14h14a3 3 0 1 1-3 3M3 11.500h6" />
+      </>
+    ),
+  },
+  playk: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <rect x="3" y="12" width="7" height="8" rx="1.500" />
+        <rect x="14" y="12" width="7" height="8" rx="1.500" />
+        <rect x="8.500" y="4" width="7" height="8" rx="1.500" />
+      </>
+    ),
+  },
+  talk: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <path d="M4 5h16v11H10l-5 4v-4H4V5Z" />
+        <path d="M8 9.500h8M8 12.500h5" />
+      </>
+    ),
+  },
+  touch: {
+    viewBox: "0 0 24 24",
+    children: <path d="M9 11V5.500a1.500 1.500 0 0 1 3 0V10m0 0V8.500a1.500 1.500 0 0 1 3 0V11m0-.500a1.500 1.500 0 0 1 3 0V15a6 6 0 0 1-6 6c-2.500 0-3.800-1-5-3l-2.500-4.500a1.500 1.500 0 0 1 2.500-1.500L9 14" />,
+  },
+  food: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <path d="M6 3v7a2 2 0 0 0 4 0V3M8 12v9M17 3c-2 1.500-3 4-3 7h3m0-7v18" />
+      </>
+    ),
+  },
+  sleep: {
+    viewBox: "0 0 24 24",
+    children: <path d="M20 14.500A8 8 0 0 1 9.500 4 8 8 0 1 0 20 14.500Z" />,
+  },
+  outdoor: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <circle cx="12" cy="12" r="3.500" />
+        <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.600 5.600l1.400 1.400M17 17l1.400 1.400M5.600 18.400L7 17M17 7l1.400-1.400" />
+      </>
+    ),
+  },
+  dress: {
+    viewBox: "0 0 24 24",
+    children: <path d="M9 3l-5 3 2 4 2-1v11h8V9l2 1 2-4-5-3a3 3 0 0 1-6 0Z" />,
+  },
+  mirror: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <ellipse cx="12" cy="10" rx="6" ry="7" />
+        <path d="M12 17v4M8 21h8M9.500 8.500l2-2" />
+      </>
+    ),
+  },
+  chair: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <path d="M7 4v9h10V4M5 13h14v3H5zM7 16v5M17 16v5" />
+      </>
+    ),
+  },
+  scissors: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <circle cx="6.500" cy="7" r="2.500" />
+        <circle cx="6.500" cy="17" r="2.500" />
+        <path d="M8.500 8.500L20 18M8.500 15.500L20 6" />
+      </>
+    ),
+  },
+  star: {
+    viewBox: "0 0 24 24",
+    children: <path d="M12 3.500l2.600 5.400 5.900.800-4.300 4.100 1 5.900L12 16.900 6.800 19.700l1-5.900L3.500 9.700l5.900-.800L12 3.500Z" />,
+  },
+  camera: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+        <circle cx="12" cy="13" r="4" />
+      </>
+    ),
+  },
+  video: {
+    viewBox: "0 0 24 24",
+    children: (
+      <>
+        <polygon points="23 7 16 12 23 17 23 7" />
+        <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+      </>
+    ),
+  },
+};
+
+export interface IconProps extends SVGProps<SVGSVGElement> {
+  name: IconName | string;
+  size?: number | string;
+}
+
+export function Icon({ name, size, className, strokeWidth, ...props }: IconProps) {
+  const iconKey = name === "play_kind" ? "playk" : name;
+  const def = ICON_PATHS[iconKey] || ICON_PATHS.playk;
+  const sw = strokeWidth ?? def.strokeWidth ?? 1.8;
+
+  return (
+    <svg
+      viewBox={def.viewBox}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={sw}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      width={size ?? "1em"}
+      height={size ?? "1em"}
+      className={className}
+      {...props}
+    >
+      {def.children}
+    </svg>
+  );
+}
+
+export const I = {
+  Icon,
+  ...Object.fromEntries(
+    Object.keys(ICON_PATHS).map((k) => [
+      k,
+      (props?: SVGProps<SVGSVGElement>) => <Icon name={k} {...props} />,
+    ]),
+  ),
+};

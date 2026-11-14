@@ -1,7 +1,9 @@
 "use client";
-// Media capture: mic button (timer, waveform, time cap), media picker tiles, media chips and players.
-import { Camera, FileText, Mic, Pause, Play, Square, Trash2, Video } from "lucide-react";
+// Media capture: mic button with old noteScreen recording UI (timer, waveform, tiger mascot),
+// media picker tiles, chips, and audio players.
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Icon } from "@/components/legacy/icons";
+import { Tiger } from "@/components/legacy/mascots";
 import type { MediaType } from "@/lib/types";
 import { cx } from "./ui";
 
@@ -9,8 +11,13 @@ export const fmtSecs = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor
 
 export type Recorded = { url: string; seconds: number };
 
-/** Tap to record, tap to stop. Falls back to a simulated recording if the mic is unavailable. */
-export function MicButton({ maxSeconds = 60, onDone, labels, size = "lg" }: {
+/** Tap to record, tap to stop. Falls back to simulated audio if the mic is unavailable. */
+export function MicButton({
+  maxSeconds = 60,
+  onDone,
+  labels,
+  size = "lg",
+}: {
   maxSeconds?: number;
   onDone: (r: Recorded) => void;
   labels?: { idle: ReactNode; recording: ReactNode; hint?: ReactNode };
@@ -18,7 +25,7 @@ export function MicButton({ maxSeconds = 60, onDone, labels, size = "lg" }: {
 }) {
   const [rec, setRec] = useState(false);
   const [secs, setSecs] = useState(0);
-  const [levels, setLevels] = useState<number[]>(Array(24).fill(0.15));
+  const [levels, setLevels] = useState<number[]>(Array(20).fill(0.18));
   const [note, setNote] = useState<string | null>(null);
   const mr = useRef<MediaRecorder | null>(null);
   const chunks = useRef<Blob[]>([]);
@@ -67,7 +74,8 @@ export function MicButton({ maxSeconds = 60, onDone, labels, size = "lg" }: {
       };
       m.start();
       mr.current = m;
-      // waveform
+
+      // Web Audio waveform
       const ctx = new AudioContext();
       const an = ctx.createAnalyser();
       an.fftSize = 64;
@@ -75,12 +83,11 @@ export function MicButton({ maxSeconds = 60, onDone, labels, size = "lg" }: {
       const buf = new Uint8Array(an.frequencyBinCount);
       const tick = () => {
         an.getByteFrequencyData(buf);
-        setLevels(Array.from({ length: 24 }, (_, i) => Math.max(0.12, (buf[i % buf.length] || 0) / 255)));
+        setLevels(Array.from({ length: 20 }, (_, i) => Math.max(0.15, (buf[i % buf.length] || 0) / 255)));
         raf.current = requestAnimationFrame(tick);
       };
       tick();
     } catch {
-      // No microphone (or permission denied, or http on a phone): simulate so the demo still flows.
       simulated.current = true;
       setNote("Microphone not available — recording a sample note for the demo.");
       const tick = () => {
@@ -98,55 +105,122 @@ export function MicButton({ maxSeconds = 60, onDone, labels, size = "lg" }: {
   };
 
   const big = size === "lg";
+
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+      {rec && big && (
+        <div className="hello" style={{ padding: 0, minHeight: 0, marginBottom: 8 }}>
+          <div className="m listen" style={{ width: 84, margin: "0 auto" }}>
+            <span className="fl a"><Icon name="mic" /></span>
+            <span className="fl b"><Icon name="book" /></span>
+            <span className="fl c"><Icon name="heart" /></span>
+            <Tiger mood="hi" />
+          </div>
+        </div>
+      )}
+
       <button
         onClick={rec ? stop : start}
         aria-label={rec ? "Stop recording" : "Start recording"}
-        className={cx("relative grid place-items-center rounded-full text-white transition active:scale-95", big ? "size-24" : "size-16",
-          rec ? "bg-[#ff9500] shadow-[0_0_0_10px_rgba(255,149,0,.18)]" : "bg-primary shadow-[0_12px_28px_-10px_var(--primary)]")}
+        className={cx("rb", rec ? "rec" : "send")}
+        type="button"
+        style={{
+          width: big ? 76 : 52,
+          height: big ? 76 : 52,
+          fontSize: big ? 32 : 24,
+          borderRadius: "50%",
+        }}
       >
-        {rec ? <Square className={big ? "size-9" : "size-6"} fill="currentColor" /> : <Mic className={big ? "size-10" : "size-7"} />}
+        <Icon name={rec ? "stop" : "mic"} />
       </button>
+
       {rec ? (
         <>
-          <div className="flex h-10 items-center gap-[3px]" aria-hidden>
-            {levels.map((l, i) => <span key={i} className="w-[4px] rounded-full bg-[#ff9500]" style={{ height: `${Math.round(l * 40)}px` }} />)}
+          <div className="timer">{fmtSecs(secs)}</div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              height: 36,
+              justifyContent: "center",
+            }}
+            aria-hidden
+          >
+            {levels.map((l, i) => (
+              <span
+                key={i}
+                style={{
+                  width: 4,
+                  height: `${Math.round(l * 32)}px`,
+                  borderRadius: 2,
+                  background: "var(--pink)",
+                  transition: "height 0.08s ease",
+                }}
+              />
+            ))}
           </div>
-          <div className="text-2xl font-bold tabular-nums">{fmtSecs(secs)} <span className="text-sm font-medium text-muted">/ {fmtSecs(maxSeconds)}</span></div>
-          <div className="text-sm font-semibold">{labels?.recording ?? "Tap to stop"}</div>
+          <div className="small" style={{ fontWeight: 600, color: "var(--pink)" }}>
+            {labels?.recording ?? "Tap the pink button to finish"}
+          </div>
         </>
       ) : (
-        <div className="text-center">
-          <div className="text-[15px] font-semibold">{labels?.idle ?? "Tap to record"}</div>
-          {labels?.hint && <div className="mt-0.5 text-xs text-muted">{labels.hint}</div>}
+        <div style={{ textAlign: "center" }}>
+          <div className="h3">{labels?.idle ?? "Tap to record"}</div>
+          {labels?.hint && <div className="small" style={{ marginTop: 2 }}>{labels.hint}</div>}
         </div>
       )}
-      {note && <div className="max-w-xs text-center text-xs text-muted">{note}</div>}
+
+      {note && (
+        <p className="small" style={{ maxWidth: 280, textAlign: "center", color: "var(--mute)" }}>
+          {note}
+        </p>
+      )}
     </div>
   );
 }
 
-const PICK_ICONS: Record<MediaType, ReactNode> = {
-  voice: <Mic className="size-7" />, photo: <Camera className="size-7" />, video: <Video className="size-7" />, text: <FileText className="size-7" />,
+const PICK_ICONS: Record<MediaType, string> = {
+  voice: "mic",
+  photo: "camera",
+  video: "video",
+  text: "type",
 };
 
 /** Four equal tiles: Voice, Photo, Video, Text. */
-export function MediaPicker({ onPick, labels, active, disabled = [] }: {
+export function MediaPicker({
+  onPick,
+  labels,
+  active,
+  disabled = [],
+}: {
   onPick: (t: MediaType) => void;
   labels?: Partial<Record<MediaType, ReactNode>>;
   active?: MediaType | null;
   disabled?: MediaType[];
 }) {
   const def: Record<MediaType, string> = { voice: "Voice", photo: "Photo", video: "Video", text: "Text" };
+
   return (
-    <div className="grid grid-cols-4 gap-2.5">
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
       {(Object.keys(def) as MediaType[]).map((t) => (
-        <button key={t} onClick={() => onPick(t)} disabled={disabled.includes(t)}
-          className={cx("glass flex min-h-24 flex-col items-center justify-center gap-1.5 rounded-2xl text-primary transition active:scale-95 disabled:opacity-40",
-            active === t && "ring-3 ring-primary bg-primary-soft")}>
-          {PICK_ICONS[t]}
-          <span className="text-[13px] font-semibold text-text">{labels?.[t] ?? def[t]}</span>
+        <button
+          key={t}
+          type="button"
+          onClick={() => onPick(t)}
+          disabled={disabled.includes(t)}
+          className={cx("tile", active === t && "is-pressed")}
+          style={{
+            padding: "10px 4px",
+            border: active === t ? "1.5px solid var(--p)" : undefined,
+          }}
+        >
+          <span className="ic" style={{ fontSize: 22, color: "var(--p)" }}>
+            <Icon name={PICK_ICONS[t]} />
+          </span>
+          <span className="lab" style={{ marginTop: 4 }}>
+            {labels?.[t] ?? def[t]}
+          </span>
         </button>
       ))}
     </div>
@@ -154,11 +228,21 @@ export function MediaPicker({ onPick, labels, active, disabled = [] }: {
 }
 
 /** Hidden file input helper for photo/video. */
-export function useFilePicker(accept: string, onFile: (f: { url: string; name: string; seconds?: number }) => void, maxSeconds?: number) {
+export function useFilePicker(
+  accept: string,
+  onFile: (f: { url: string; name: string; seconds?: number }) => void,
+  maxSeconds?: number,
+) {
   const ref = useRef<HTMLInputElement | null>(null);
   const [error, setError] = useState<string | null>(null);
+
   const input = (
-    <input ref={ref} type="file" accept={accept} capture={accept.startsWith("video") ? "environment" : undefined} hidden
+    <input
+      ref={ref}
+      type="file"
+      accept={accept}
+      capture={accept.startsWith("video") ? "environment" : undefined}
+      hidden
       onChange={(e) => {
         const f = e.target.files?.[0];
         e.target.value = "";
@@ -168,8 +252,12 @@ export function useFilePicker(accept: string, onFile: (f: { url: string; name: s
           const v = document.createElement("video");
           v.preload = "metadata";
           v.onloadedmetadata = () => {
-            if (v.duration > maxSeconds + 0.5) setError(`Please choose a video of ${maxSeconds} seconds or less.`);
-            else { setError(null); onFile({ url, name: f.name, seconds: Math.round(v.duration) }); }
+            if (v.duration > maxSeconds + 0.5) {
+              setError(`Please choose a video of ${maxSeconds} seconds or less.`);
+            } else {
+              setError(null);
+              onFile({ url, name: f.name, seconds: Math.round(v.duration) });
+            }
           };
           v.onerror = () => onFile({ url, name: f.name });
           v.src = url;
@@ -177,18 +265,52 @@ export function useFilePicker(accept: string, onFile: (f: { url: string; name: s
           setError(null);
           onFile({ url, name: f.name });
         }
-      }} />
+      }}
+    />
   );
+
   return { open: () => ref.current?.click(), input, error };
 }
 
-export function MediaChip({ type, label, onRemove, onPlay }: { type: MediaType; label: string; onRemove?: () => void; onPlay?: () => void }) {
-  const icons: Record<MediaType, ReactNode> = { voice: <Mic className="size-4" />, photo: <Camera className="size-4" />, video: <Video className="size-4" />, text: <FileText className="size-4" /> };
+export function MediaChip({
+  type,
+  label,
+  onRemove,
+  onPlay,
+}: {
+  type: MediaType;
+  label: string;
+  onRemove?: () => void;
+  onPlay?: () => void;
+}) {
   return (
-    <span className="glass inline-flex min-h-11 items-center gap-2 rounded-full pl-3.5 pr-1 text-sm font-semibold">
-      <span className="text-primary">{icons[type]}</span>{label}
-      {onPlay && <button aria-label="Play" onClick={onPlay} className="grid size-9 place-items-center rounded-full hover:bg-primary-soft"><Play className="size-4" /></button>}
-      {onRemove && <button aria-label="Remove" onClick={onRemove} className="grid size-9 place-items-center rounded-full text-muted hover:bg-primary-soft"><Trash2 className="size-4" /></button>}
+    <span className="chipb" style={{ paddingLeft: 10, paddingRight: 6 }}>
+      <span className="ic" style={{ width: 24, height: 24, fontSize: 13, color: "var(--p)" }}>
+        <Icon name={PICK_ICONS[type]} />
+      </span>
+      <span style={{ fontSize: 13, fontWeight: 600 }}>{label}</span>
+      {onPlay && (
+        <button
+          aria-label="Play"
+          onClick={onPlay}
+          className="xb"
+          type="button"
+          style={{ width: 26, height: 26, fontSize: 13, marginLeft: 4 }}
+        >
+          <Icon name="play" />
+        </button>
+      )}
+      {onRemove && (
+        <button
+          aria-label="Remove"
+          onClick={onRemove}
+          className="xb"
+          type="button"
+          style={{ width: 26, height: 26, fontSize: 13, marginLeft: 4 }}
+        >
+          <Icon name="trash" />
+        </button>
+      )}
     </span>
   );
 }
@@ -198,20 +320,40 @@ export function AudioPlayer({ src, label = "Voice note" }: { src?: string; label
   const [playing, setPlaying] = useState(false);
   const [t, setT] = useState(0);
   const [d, setD] = useState(0);
+
   if (!src) return null;
+
   return (
-    <div className="flex items-center gap-3 rounded-2xl bg-primary-soft px-2 py-1.5">
-      <button aria-label={playing ? "Pause" : "Play"} onClick={() => (playing ? a.current?.pause() : a.current?.play())}
-        className="grid size-10 place-items-center rounded-full bg-primary text-white">
-        {playing ? <Pause className="size-4" fill="currentColor" /> : <Play className="size-4 translate-x-[1px]" fill="currentColor" />}
+    <div className="card" style={{ padding: "8px 12px", margin: "6px 0", display: "flex", alignItems: "center", gap: 10 }}>
+      <button
+        aria-label={playing ? "Pause" : "Play"}
+        onClick={() => (playing ? a.current?.pause() : a.current?.play())}
+        className="rb send"
+        type="button"
+        style={{ width: 34, height: 34, fontSize: 15 }}
+      >
+        <Icon name={playing ? "stop" : "play"} />
       </button>
-      <div className="flex-1">
-        <div className="text-xs font-semibold text-primary">{label}</div>
-        <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-white/60"><div className="h-full bg-primary" style={{ width: d ? `${(t / d) * 100}%` : "0%" }} /></div>
+      <div className="grow">
+        <div className="small" style={{ fontWeight: 600, color: "var(--p)" }}>{label}</div>
+        <div className="pbar" style={{ marginTop: 4, height: 6 }}>
+          <i style={{ width: d ? `${(t / d) * 100}%` : "0%" }} />
+        </div>
       </div>
-      <span className="pr-2 text-xs tabular-nums text-text-2">{fmtSecs(d ? d - t : 0)}</span>
-      <audio ref={a} src={src} preload="metadata" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => { setPlaying(false); setT(0); }}
-        onTimeUpdate={(e) => setT(e.currentTarget.currentTime)} onLoadedMetadata={(e) => setD(Number.isFinite(e.currentTarget.duration) ? e.currentTarget.duration : 0)} />
+      <span className="small" style={{ fontVariantNumeric: "tabular-nums" }}>{fmtSecs(d ? d - t : 0)}</span>
+      <audio
+        ref={a}
+        src={src}
+        preload="metadata"
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+        onEnded={() => {
+          setPlaying(false);
+          setT(0);
+        }}
+        onTimeUpdate={(e) => setT(e.currentTarget.currentTime)}
+        onLoadedMetadata={(e) => setD(Number.isFinite(e.currentTarget.duration) ? e.currentTarget.duration : 0)}
+      />
     </div>
   );
 }
