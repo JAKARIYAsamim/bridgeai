@@ -34,6 +34,13 @@ window.I = {
   globe: svg('<circle cx="12" cy="12" r="8.500"/><path d="M3.500 12h17M12 3.500c3 3 3 14 0 17M12 3.500c-3 3-3 14 0 17"/>'),
   user: svg('<circle cx="12" cy="8.500" r="4"/><path d="M4.500 20c1-4 4-6 7.500-6s6.500 2 7.500 6"/>'),
   doc: svg('<path d="M7 3h7l4 4v14H7V3Z"/><path d="M14 3v4h4M10 12h5M10 16h5"/>'),
+  phone: svg('<path d="M5 4h4l2 5-2.500 1.500a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/>'),
+  alert: svg('<path d="M12 3.500 2.500 20h19L12 3.500Z"/><path d="M12 10v4.500M12 17.500h.01"/>'),
+  building: svg('<path d="M3 21h18M5 21V8.500l7-4.500 7 4.500V21"/><path d="M10 21v-5h4v5M9 11h.01M15 11h.01"/>'),
+  lifebuoy: svg('<circle cx="12" cy="12" r="8.500"/><circle cx="12" cy="12" r="3.500"/><path d="M6 6l3.500 3.500M14.500 14.500 18 18M18 6l-3.500 3.500M9.500 14.500 6 18"/>'),
+  faceGood: svg('<circle cx="12" cy="12" r="8.500"/><path d="M9 10h.01M15 10h.01M8.500 14c1 1.600 2.100 2.300 3.500 2.300s2.500-.700 3.500-2.300"/>'),
+  faceMixed: svg('<circle cx="12" cy="12" r="8.500"/><path d="M9 10h.01M15 10h.01M9 15h6"/>'),
+  faceHard: svg('<circle cx="12" cy="12" r="8.500"/><path d="M9 10h.01M15 10h.01M8.500 16.500c1-1.600 2.100-2.300 3.500-2.300s2.500.700 3.500 2.300"/>'),
   // activity kinds
   turn: svg('<path d="M4 9a8 8 0 0 1 14-3l2 2M20 15a8 8 0 0 1-14 3l-2-2"/><path d="M20 4v4h-4M4 20v-4h4"/>'),
   wait: svg('<path d="M7 3h10M7 21h10M8 3c0 5 8 5 8 9s-8 4-8 9M16 3c0 5-8 5-8 9s8 4 8 9"/>'),

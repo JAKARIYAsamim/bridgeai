@@ -4,12 +4,14 @@
 (() => {
   const KEY = 'bridgeai:preview-db';
   const NO_AI = 'This online preview has no AI connected.';
-  let lib = null, db = null;
+  let lib = null, care = null, db = null;
   const load = async () => {
     lib ||= await import('./seed-data.js');
+    care ||= await import('./care-logic.js');
     try { db = JSON.parse(localStorage.getItem(KEY)); } catch { db = null; }
     const today = lib.dayKey();
     if (!db || db.seededOn !== today) { db = { ...lib.seed(), seededOn: today, rev: (db?.rev || 0) + 1 }; save(); } // a fresh week each day
+    care.ensureCare(db, lib.seed); // a copy saved before Help, Alerts and the centre view existed gets what it lacks
     return db;
   };
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch {} };
@@ -70,12 +72,22 @@
       if (done) db.done.push({ childId, activityId, date });
     },
     '/api/transcribe'() { fail(NO_AI); },
-    '/api/note'({ childId, text, lang }) {
-      const c = child(childId), said = clean(text, 1200);
+    '/api/note'({ childId, text, lang, mood, tags }) {
+      const c = child(childId), L = lang === 'en' ? 'en' : 'bn';
+      const chosen = ['good', 'mixed', 'hard'].includes(mood) ? mood : null;
+      const picked = (Array.isArray(tags) ? tags : []).filter((x) => care.QUICK_TAGS.some((t) => t.id === x));
+      const typed = clean(text, 1200), said = typed || care.quickText(picked, L) || (chosen ? care.MOOD_WORDS[L][chosen] : '');
       if (!said) fail('The note is empty.');
-      const note = { id: id('log'), childId, date: lib.dayKey(), at: new Date().toISOString(), lang: lang === 'en' ? 'en' : 'bn', text: said, en: '', wins: [], struggles: [], triggers: [], mood: 'unknown', sleep: 'unknown', audio: null, analysed: false, source: 'parent' };
+      const quick = care.quickFields(picked);
+      const note = { id: id('log'), childId, date: lib.dayKey(), at: new Date().toISOString(), lang: L, text: said, en: '', ...quick, mood: chosen || 'unknown', audio: null, analysed: false, source: 'parent' };
+      if (!typed) {
+        Object.assign(note, { en: care.quickText(picked, 'en') || care.MOOD_WORDS.en[chosen], analysed: true, quick: true });
+        db.logs.push(note);
+        return note;
+      }
       if (Object.values(lib.EXAMPLE_NOTES).includes(said)) {
-        Object.assign(note, lib.preparedNote(), { analysed: true });
+        const made = lib.preparedNote();
+        Object.assign(note, made, { wins: care.union(quick.wins, made.wins), struggles: care.union(quick.struggles, made.struggles), triggers: care.union(quick.triggers, made.triggers), mood: chosen || made.mood, analysed: true });
         logAi({ step: 'Voice note organised', child: c.name, model: 'Prepared sample', check: 'Parent confirmed the words; the therapist sees the original note beside it', status: 'info' });
       }
       db.logs.push(note);
@@ -89,6 +101,7 @@
       logAi({ step: 'Weekly summary', child: c.name, model: 'Prepared sample', check: 'Read by the therapist against the original notes; not shown to the parent', status: 'info' });
     },
     '/api/summary/send'({ childId }) { (db.summaries[childId] || fail('No summary yet.')).parentMessageSent = true; },
+    ...Object.fromEntries(['/api/help', '/api/help/feedback', '/api/help/seen', '/api/reminder', '/api/report/send'].map((p) => [p, (body) => care.careAction(db, p, body, { id, fail })])),
     '/api/reset'() { db = { ...lib.seed(), seededOn: lib.dayKey(), rev: db.rev }; },
   };
 

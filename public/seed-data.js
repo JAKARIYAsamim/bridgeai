@@ -121,31 +121,52 @@ export function seed({ barberSheet = false } = {}) {
       rows: 2,
       pages: [
         {
-          en: 'Rafi’s hair has grown long. Today Rafi is going to the barber with Ma.',
-          bn: 'রাফির চুল বড় হয়ে গেছে। আজ রাফি মায়ের সাথে চুল কাটতে যাবে।',
+          step: 'situation',
+          en: 'My hair has grown long. Today Ma and I are going to the barber.',
+          bn: 'আমার চুল বড় হয়ে গেছে। আজ আমি মায়ের সাথে চুল কাটতে যাব।',
         },
         {
-          en: 'At the barbershop, other people are first. Rafi sits with his train and waits for his turn.',
-          bn: 'সেলুনে আগে অন্যদের পালা। রাফি তার ট্রেন নিয়ে বসে নিজের পালার জন্য অপেক্ষা করে।',
+          step: 'situation',
+          en: 'At the barbershop, other people go first. I sit with my train and wait for my turn.',
+          bn: 'সেলুনে আগে অন্যদের পালা। আমি আমার ট্রেন নিয়ে বসে নিজের পালার জন্য অপেক্ষা করি।',
         },
         {
-          en: 'Now it is Rafi’s turn. He sits in the big chair. The barber puts a soft cape on him.',
-          bn: 'এবার রাফির পালা। রাফি বড় চেয়ারে বসে। নাপিত চাচা ওর গায়ে একটি নরম কাপড় জড়িয়ে দেন।',
+          step: 'situation',
+          en: 'Now it is my turn. I sit in the big chair. The barber puts a soft cape on me.',
+          bn: 'এবার আমার পালা। আমি বড় চেয়ারে বসি। নাপিত চাচা আমার গায়ে একটি নরম কাপড় জড়িয়ে দেন।',
         },
         {
-          en: 'The clipper makes a buzzing sound. It is only a sound. Rafi holds his train and takes a slow, deep breath.',
-          bn: 'মেশিনটা ভোঁ ভোঁ শব্দ করে। এটা শুধুই একটা শব্দ। রাফি ট্রেনটা ধরে ধীরে ধীরে লম্বা শ্বাস নেয়।',
+          step: 'feeling',
+          en: 'The clipper makes a buzzing sound. It is only a sound, and that is okay. I hold my train and take a slow, deep breath.',
+          bn: 'মেশিনটা ভোঁ ভোঁ শব্দ করে। এটা শুধুই একটা শব্দ, আর এটা ঠিক আছে। আমি ট্রেনটা ধরে ধীরে ধীরে লম্বা শ্বাস নিই।',
         },
         {
-          en: 'The barber cuts Rafi’s hair. It tickles a little. Rafi sits still. Ma is right beside him.',
-          bn: 'নাপিত চাচা রাফির চুল কাটেন। একটু সুড়সুড়ি লাগে। রাফি চুপ করে বসে থাকে। মা পাশেই আছেন।',
+          step: 'do',
+          en: 'The barber cuts my hair. It tickles a little. I sit still. Ma is right beside me.',
+          bn: 'নাপিত চাচা আমার চুল কাটেন। একটু সুড়সুড়ি লাগে। আমি চুপ করে বসে থাকি। মা পাশেই আছেন।',
         },
         {
-          en: 'All done! Rafi looks in the mirror. His hair looks nice. Ma is proud, and Rafi is proud too.',
-          bn: 'শেষ! রাফি আয়নায় দেখে। চুল খুব সুন্দর লাগছে। মা খুশি, রাফিও খুব খুশি।',
+          step: 'ending',
+          en: 'All done! I look in the mirror. My hair looks nice. Ma is proud, and I am proud too.',
+          bn: 'শেষ! আমি আয়নায় দেখি। আমার চুল খুব সুন্দর লাগছে। মা খুশি, আমিও খুব খুশি।',
         },
       ],
     },
+  };
+
+  // An earlier week. It is not the live plan, but its story stays in the family's library.
+  const earlier = preparedPlan();
+  const olderPlan = {
+    id: 'plan-rafi-0',
+    childId: 'rafi',
+    createdAt: iso(14, 16, 10),
+    approvedAt: iso(14, 16, 14),
+    status: 'approved',
+    source: 'sample',
+    model: 'Prepared sample',
+    goals: [{ id: 'g1', text: EXAMPLE_GOAL }],
+    activities: earlier.activities.map((a, i) => ({ ...a, id: 'a-old-' + (i + 1), goal: 'g1' })),
+    story: { ...earlier.story, sheet: null, sheetStatus: 'none', cols: 3, rows: 2 },
   };
 
   const note = (n, h, m, o) => ({
@@ -260,10 +281,62 @@ export function seed({ barberSheet = false } = {}) {
     parentMessageSent: true,
   };
 
+  // Strategies Dr. Farhana has approved for Rafi. The Help screen can only ever offer these.
+  const rafiStrategies = [
+    {
+      id: 'noise',
+      keys: { en: ['noise', 'noisy', 'loud', 'blender', 'drill', 'clipper', 'sound', 'scream', 'cover'], bn: ['শব্দ', 'ব্লেন্ডার', 'চিৎকার', 'ড্রিল', 'কান চেপে'] },
+      title: { en: 'When a loud noise upsets Rafi', bn: 'জোরে শব্দে রাফি অস্থির হলে' },
+      steps: {
+        en: ['Switch the noise off, or take Rafi to a quieter room.', 'Offer his ear defenders or headphones if he will wear them.', 'Speak softly and sit beside him until he calms.'],
+        bn: ['শব্দ বন্ধ করুন, অথবা রাফিকে শান্ত ঘরে নিয়ে যান।', 'ওর হেডফোন বা কান ঢাকার জিনিস দিন, যদি পরতে চায়।', 'নরম গলায় কথা বলুন, শান্ত না হওয়া পর্যন্ত পাশে বসে থাকুন।'],
+      },
+      say: { en: 'The noise is gone. You are safe.', bn: 'শব্দ চলে গেছে। তুমি নিরাপদ।' },
+    },
+    {
+      id: 'wait',
+      keys: { en: ['wait', 'turn', 'grab', 'share', 'snatch'], bn: ['পালা', 'অপেক্ষা', 'কেড়ে'] },
+      title: { en: 'When Rafi cannot wait', bn: 'রাফি অপেক্ষা করতে না পারলে' },
+      steps: {
+        en: ['Show the wait card and count slowly to 5.', 'Say in a calm voice: “Rafi’s turn is coming.”', 'Give the toy or snack as soon as the count ends and praise him: “Nice waiting!”'],
+        bn: ['“অপেক্ষা” কার্ড দেখিয়ে ধীরে ধীরে ৫ পর্যন্ত গুনুন।', 'শান্ত গলায় বলুন: “রাফির পালা আসছে।”', 'গোনা শেষ হলেই খেলনা বা নাস্তা দিন আর প্রশংসা করুন: “খুব সুন্দর অপেক্ষা করেছ!”'],
+      },
+      say: { en: 'First wait, then your turn.', bn: 'আগে অপেক্ষা, তারপর তোমার পালা।' },
+    },
+    {
+      id: 'food',
+      keys: { en: ['eat', 'eating', 'food', 'meal', 'refuse', 'refusing', 'hungry', 'lunch', 'dinner', 'breakfast'], bn: ['খেতে', 'খাবার', 'খাচ্ছে না', 'ভাত'] },
+      title: { en: 'When Rafi does not want to eat', bn: 'রাফি খেতে না চাইলে' },
+      steps: {
+        en: ['Stay calm and keep the meal short and quiet.', 'Put one small bite of a food he likes beside the new food.', 'Do not force him. Praise any touch or taste, and try again at the next meal.'],
+        bn: ['শান্ত থাকুন, খাওয়ার সময় ছোট আর নিরিবিলি রাখুন।', 'নতুন খাবারের পাশে ওর পছন্দের খাবারের একটি ছোট টুকরো রাখুন।', 'জোর করবেন না। ছুঁয়ে দেখলে বা চাখলেও প্রশংসা করুন, পরের বেলায় আবার চেষ্টা করুন।'],
+      },
+      say: { en: 'You can try one small bite.', bn: 'তুমি ছোট একটু চেখে দেখতে পারো।' },
+    },
+    {
+      id: 'sleep',
+      keys: { en: ['sleep', 'sleeping', 'bed', 'bedtime', 'night', 'awake'], bn: ['ঘুম', 'ঘুমাতে', 'রাতে'] },
+      title: { en: 'When Rafi will not go to sleep', bn: 'রাফি ঘুমাতে না চাইলে' },
+      steps: {
+        en: ['Dim the lights and turn off screens and loud sounds.', 'Follow the same short routine: wash, pyjamas, one quiet story.', 'Sit beside him quietly, and keep bedtime at the same hour each night.'],
+        bn: ['আলো কমিয়ে দিন, মোবাইল-টিভি ও জোরে শব্দ বন্ধ করুন।', 'প্রতিদিন একই ছোট নিয়ম: মুখ ধোয়া, ঘুমের জামা, একটি শান্ত গল্প।', 'পাশে চুপচাপ বসে থাকুন, আর প্রতি রাতে একই সময়ে শুতে নিন।'],
+      },
+      say: { en: 'It is time to rest. I am right here.', bn: 'এখন বিশ্রামের সময়। আমি এখানেই আছি।' },
+    },
+  ];
+
   return {
     rev: 1,
-    centre: { name: 'Shishu Bikash Therapy Centre', city: 'Dhaka' },
-    therapist: { name: 'Dr. Farhana Rahman', short: 'Dr. Farhana' },
+    // The other therapists are sample figures. Dr. Farhana's own row is worked out live from the data below.
+    centre: {
+      name: 'Shishu Bikash Therapy Centre', city: 'Dhaka', manager: 'Shirin Akter',
+      team: [
+        { name: 'Sadia Rahman', children: 9, active: 5, summaries: 6 },
+        { name: 'Farhan Ahmed', children: 7, active: 6, summaries: 7 },
+        { name: 'Tania Sultana', children: 8, active: 7, summaries: 8 },
+      ],
+    },
+    therapist: { name: 'Dr. Farhana Rahman', short: 'Dr. Farhana', phone: '+880 1700 000 000' },
     children: [
       {
         id: 'rafi',
@@ -278,6 +351,9 @@ export function seed({ barberSheet = false } = {}) {
         look: 'a 5-year-old Bangladeshi boy with warm brown skin and short black hair, wearing a plain yellow t-shirt and blue shorts, often holding a small red toy train',
         family: 'his mother, a Bangladeshi woman with a long black braid wearing a teal salwar kameez',
         tint: 'lime',
+        phone: '+880 1700 000 001',
+        invite: 'SHI-RAFI-26',
+        strategies: rafiStrategies,
       },
       {
         id: 'ayaan',
@@ -292,6 +368,9 @@ export function seed({ barberSheet = false } = {}) {
         look: 'a 6-year-old Bangladeshi boy with warm brown skin and curly black hair, wearing a green t-shirt and grey trousers',
         family: 'his mother, a Bangladeshi woman wearing a soft pink sari',
         tint: 'teal',
+        phone: '+880 1700 000 002',
+        invite: 'SHI-AYAAN-26',
+        strategies: [],
       },
       {
         id: 'mehjabin',
@@ -306,9 +385,12 @@ export function seed({ barberSheet = false } = {}) {
         look: 'a 4-year-old Bangladeshi girl with warm brown skin and two short black pigtails, wearing a light orange frock',
         family: 'her father, a Bangladeshi man with glasses wearing a white shirt',
         tint: 'sun',
+        phone: '+880 1700 000 003',
+        invite: 'SHI-MEHJABIN-26',
+        strategies: [],
       },
     ],
-    plans: [rafiPlan],
+    plans: [rafiPlan, olderPlan],
     logs,
     done: [
       [0, 'a1'],
@@ -320,6 +402,12 @@ export function seed({ barberSheet = false } = {}) {
       [6, 'a1'], [6, 'a4'],
     ].map(([n, activityId]) => ({ childId: 'rafi', date: dayKey(daysAgo(n)), activityId })),
     summaries: { rafi: summary },
+    // Help a parent asked for. Yesterday's is a sample, so the doctor's Alerts screen is not empty on day one.
+    helps: [
+      { id: 'help-seed-1', childId: 'rafi', parent: 'Nusrat', at: iso(1, 18, 5), text: 'Screaming and covering his ears when the blender is on', lang: 'en', kind: 'advice', strategyId: 'noise', helped: true, seen: true },
+    ],
+    reminders: [],
+    reports: [],
     aiLog: [
       {
         id: 'ai-seed-1',
@@ -390,12 +478,10 @@ export function preparedPlan() {
     story: {
       title: { en: 'Rafi and the blender', bn: 'রাফি ও ব্লেন্ডার' },
       pages: [
-        { en: 'Ma is making a mango drink in the kitchen. Rafi likes mango drink.', bn: 'মা রান্নাঘরে আমের শরবত বানাচ্ছেন। রাফি আমের শরবত খুব পছন্দ করে।' },
-        { en: 'The blender makes the drink. The blender is loud.', bn: 'ব্লেন্ডার দিয়ে শরবত তৈরি হয়। ব্লেন্ডারে জোরে শব্দ হয়।' },
-        { en: 'Ma says, “Noise coming!” Now Rafi knows the sound will start.', bn: 'মা বলেন, “শব্দ আসছে!” এখন রাফি জানে শব্দ শুরু হবে।' },
-        { en: 'The blender goes whirr. Rafi holds his train and takes a slow, deep breath.', bn: 'ব্লেন্ডার ঘরঘর শব্দ করে। রাফি ট্রেনটা ধরে ধীরে ধীরে লম্বা শ্বাস নেয়।' },
-        { en: 'The sound is short. Then it stops. The kitchen is quiet again.', bn: 'শব্দটা অল্প সময়ের। তারপর থেমে যায়। রান্নাঘর আবার শান্ত।' },
-        { en: 'The drink is ready! Rafi drinks it with Ma. Rafi stayed calm.', bn: 'শরবত তৈরি! রাফি মায়ের সাথে শরবত খায়। রাফি শান্ত ছিল।' },
+        { step: 'situation', art: 'blender1', en: 'My name is Rafi. This is our kitchen. Ma cooks here.', bn: 'আমার নাম রাফি। এটা আমাদের রান্নাঘর। মা এখানে রান্না করেন।' },
+        { step: 'feeling', art: 'blender2', en: 'Sometimes Ma uses the blender. It makes a loud noise. My ears can feel uncomfortable. That is okay.', bn: 'মা মাঝে মাঝে ব্লেন্ডার চালান। এতে জোরে শব্দ হয়। আমার কানে অস্বস্তি লাগতে পারে। এটা ঠিক আছে।' },
+        { step: 'do', art: 'blender3', en: 'When it is loud, I can put on my blue headphones. Or I can say, “Ma, please stop for a moment.”', bn: 'শব্দ হলে আমি আমার নীল হেডফোন পরতে পারি। অথবা বলতে পারি, “মা, একটু থামো।”' },
+        { step: 'ending', art: 'blender4', en: 'The noise stops soon. Then Ma and I drink yummy juice. I did it!', bn: 'শব্দ একটু পরেই থেমে যায়। তারপর মা আর আমি মজার জুস খাই। আমি পেরেছি!' },
       ],
     },
   };

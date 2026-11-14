@@ -1,5 +1,5 @@
 .env
-data/
+/data/
 node_modules/
 .DS_Store
 # earlier design experiments, kept on the laptop only

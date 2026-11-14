@@ -7,6 +7,7 @@ import crypto from 'crypto';
 import { seed, dayKey, daysAgo } from './seed.js';
 import { ask, aiStatus, drawImage, ping } from './ai.js';
 import { planPrompt, storySheetPrompt, notePrompt, transcribePrompt, summaryPrompt, ICONS } from './prompts.js';
+import { CARE_PATHS, careAction, ensureCare, QUICK_TAGS, MOOD_WORDS, quickText, quickFields, union } from '../public/care-logic.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const PUBLIC = path.join(ROOT, 'public');
@@ -25,6 +26,7 @@ try {
 } catch {
   db = seed();
 }
+ensureCare(db, seed); // a db.json saved before Help, Alerts and the centre view existed gets what it lacks
 let saveTimer = null;
 function touch() {
   db.rev = (db.rev || 0) + 1;
@@ -39,7 +41,8 @@ const weekStart = () => dayKey(daysAgo(6));
 const weekLogs = (cid) => db.logs.filter((l) => l.childId === cid && l.date >= weekStart()).sort((a, b) => a.at.localeCompare(b.at));
 const livePlan = (cid) => db.plans.filter((p) => p.childId === cid && p.status === 'approved').sort((a, b) => b.approvedAt.localeCompare(a.approvedAt))[0];
 function weekGoals(cid) {
-  const plans = db.plans.filter((p) => p.childId === cid && p.status === 'approved').sort((a, b) => a.approvedAt.localeCompare(b.approvedAt)).slice(-2);
+  const recent = daysAgo(10).toISOString(); // an older week's goals are not this week's
+  const plans = db.plans.filter((p) => p.childId === cid && p.status === 'approved' && p.approvedAt >= recent).sort((a, b) => a.approvedAt.localeCompare(b.approvedAt)).slice(-2);
   return [...new Set(plans.flatMap((p) => p.goals.map((g) => g.text)))].slice(0, 5);
 }
 const text = (v, max = 400) => String(v ?? '').trim().slice(0, max);
@@ -76,7 +79,7 @@ async function generatePlan({ childId, goals }) {
     when: pair(a.when, 40),
     steps: { en: list(a.steps?.en, 4, 220), bn: list(a.steps?.bn, 4, 220) },
   }));
-  const pages = (Array.isArray(data.story?.pages) ? data.story.pages : []).slice(0, 6).map((p) => ({ en: text(p.en, 300), bn: text(p.bn, 300), scene: text(p.scene, 300) }));
+  const pages = (Array.isArray(data.story?.pages) ? data.story.pages : []).slice(0, 6).map((p) => ({ step: ['situation', 'feeling', 'do', 'ending'].includes(p.step) ? p.step : undefined, en: text(p.en, 300), bn: text(p.bn, 300), scene: text(p.scene, 300) }));
   if (!activities.length || pages.length < 3) throw fail(502, 'The AI answer was incomplete. Please try again.');
 
   // Only one draft per child at a time.
@@ -185,12 +188,25 @@ async function transcribe({ audio, mime }) {
   return { text: text(data.text, 1200), lang: data.lang === 'bn' ? 'bn' : 'en', model };
 }
 
-async function addNote({ childId, text: raw, lang, audio, mime, heardBy }) {
+async function addNote({ childId, text: raw, lang, audio, mime, heardBy, mood, tags }) {
   const c = child(childId);
   if (!c) throw fail(404, 'Child not found.');
-  const said = text(raw, 1200);
+  // The one-tap log: a face and a few tags are enough. What the parent chose is theirs, so it is kept as chosen.
+  const chosen = ['good', 'mixed', 'hard'].includes(mood) ? mood : null;
+  const picked = (Array.isArray(tags) ? tags : []).filter((x) => QUICK_TAGS.some((t) => t.id === x));
+  const L = lang === 'en' ? 'en' : 'bn';
+  const typed = text(raw, 1200);
+  const said = typed || quickText(picked, L) || (chosen ? MOOD_WORDS[L][chosen] : '');
   if (!said) throw fail(400, 'The note is empty.');
-  const note = { id: id('log'), childId, date: dayKey(), at: new Date().toISOString(), lang: lang === 'en' ? 'en' : 'bn', text: said, en: '', wins: [], struggles: [], triggers: [], mood: 'unknown', sleep: 'unknown', audio: null, analysed: false, source: 'parent' };
+  const quick = quickFields(picked);
+  const note = { id: id('log'), childId, date: dayKey(), at: new Date().toISOString(), lang: L, text: said, en: '', ...quick, mood: chosen || 'unknown', audio: null, analysed: false, source: 'parent' };
+  if (!typed) {
+    // Nothing to read or translate, so there is nothing for the AI to do.
+    Object.assign(note, { en: quickText(picked, 'en') || MOOD_WORDS.en[chosen], analysed: true, quick: true });
+    db.logs.push(note);
+    touch();
+    return note;
+  }
   if (audio) {
     const ext = /mp4|m4a|aac/.test(mime || '') ? 'm4a' : /ogg/.test(mime || '') ? 'ogg' : 'webm';
     fs.writeFileSync(path.join(MEDIA, `${note.id}.${ext}`), Buffer.from(audio, 'base64'));
@@ -205,11 +221,11 @@ async function addNote({ childId, text: raw, lang, audio, mime, heardBy }) {
       text: text(data.clean, 1200) || said,
       lang: data.lang === 'en' ? 'en' : data.lang === 'bn' ? 'bn' : note.lang,
       en: text(data.en, 1200),
-      wins: list(data.wins, 3),
-      struggles: list(data.struggles, 3),
-      triggers: list(data.triggers, 3),
-      mood: ['good', 'mixed', 'hard'].includes(data.mood) ? data.mood : 'unknown',
-      sleep: ['good', 'poor'].includes(data.sleep) ? data.sleep : 'unknown',
+      wins: union(quick.wins, list(data.wins, 3)),
+      struggles: union(quick.struggles, list(data.struggles, 3)),
+      triggers: union(quick.triggers, list(data.triggers, 3)),
+      mood: chosen || (['good', 'mixed', 'hard'].includes(data.mood) ? data.mood : 'unknown'),
+      sleep: quick.sleep === 'poor' ? 'poor' : ['good', 'poor'].includes(data.sleep) ? data.sleep : 'unknown',
       analysed: true,
     });
     logAi({ step: 'Voice note organised', child: c.name, model: `${heardBy ? heardBy + ' + ' : ''}${model}${cached ? ' (saved answer)' : ''}`, check: 'Parent confirmed the words; the therapist sees the original note beside it', status: 'info' });
@@ -280,6 +296,8 @@ const actions = {
   '/api/summary/send': sendMessage,
   '/api/reset': reset,
 };
+// Help, reminders and reports share their code with the browser-only preview.
+for (const p of CARE_PATHS) actions[p] = (body) => { const out = careAction(db, p, body, { id, fail: (m) => { throw fail(400, m); } }); touch(); return out; };
 
 // ---------- http ----------
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.json': 'application/json', '.webm': 'audio/webm', '.m4a': 'audio/mp4', '.ogg': 'audio/ogg', '.woff2': 'font/woff2', '.ico': 'image/x-icon' };

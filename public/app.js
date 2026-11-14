@@ -10,11 +10,11 @@ const S = {
   db: null,
   role: FORCED || saved.role || null,   // 'parent' | 'doctor' | null (persona picker)
   lang: saved.lang || 'en',             // parent side: en | bn
-  tab: { parent: 'home', doctor: 'home', ...(saved.tab || {}) },
+  tab: { parent: 'home', doctor: 'home', centre: 'home', ...(saved.tab || {}) },
   push: null,                           // a screen opened on top of the tabs: note | child | ai
   page: 0, open: null,
   childId: saved.childId || 'rafi', ctab: 'summary',
-  edit: null, busy: {},
+  edit: null, busy: {}, rid: null,        // rid: the child shown in the centre's report
 };
 const PARENT_CHILD = 'rafi';
 const keep = () => { try { localStorage.setItem(STORE, JSON.stringify({ role: S.role, lang: S.lang, tab: S.tab, childId: S.childId })); } catch {} };
@@ -97,6 +97,8 @@ const avatar = (c, size = 46) => {
 
 /** One picture of a story. All six are drawn on one sheet, so each page shows its own part of it. */
 function pic(story, i, extra = '') {
+  const art = story.pages?.[i]?.art;
+  if (art && window.STORY_ART?.[art]) return artPic(art, extra); // pages drawn in the app (story.js)
   const fallback = ['mirror', 'wait', 'chair', 'sound', 'scissors', 'star'][i % 6];
   if (story.sheet && story.sheetStatus === 'ready') {
     const { cols, rows } = story, z = 1.07, c = i % cols, r = Math.floor(i / cols);
@@ -135,6 +137,7 @@ function notice(a, b) {
     const count = (db) => db.plans.filter((p) => p.childId === PARENT_CHILD && p.status === 'approved').length;
     if (count(b) > count(a)) { toast(t('newPlan', b.therapist.short)); S.page = 0; }
   }
+  careNotice(a, b);
   if (S.role === 'doctor' && b.logs.length > a.logs.length) {
     const n = b.logs[b.logs.length - 1], c = b.children.find((x) => x.id === n.childId);
     if (c && n.source === 'parent') toast(`New note from ${c.parent} about ${c.name}`);
@@ -162,7 +165,7 @@ function render(force) {
   const sc = $('.scroll', app);
   const top = sc && app.dataset.key === key ? sc.scrollTop : 0;
   document.documentElement.lang = S.role === 'parent' ? S.lang : 'en';
-  const html = !S.role ? picker() : S.role === 'parent' ? parent() : doctor();
+  const html = !S.role ? picker() : S.role === 'parent' ? parent() : S.role === 'centre' ? centre() : doctor();
   const snap = app.dataset.key === key ? Motion.before() : null; // same screen: remember where things are, so they can glide
   const now = { role: S.role, tab: S.tab[S.role], push: S.push };
   const kind = !shown ? null : shown.role !== now.role ? 'role' : !shown.push && now.push ? 'push' : shown.push && !now.push ? 'pop' : shown.tab !== now.tab ? 'tab' : null;
@@ -201,7 +204,8 @@ function picker() {
 }
 function personaBtns() {
   const b = (role, m, tint, title, sub) => `<button class="persona ${S.role === role ? 'on' : ''}" data-act="role" data-role="${role}"><span class="m ${tint}">${m}</span><span class="grow"><span class="h3" style="display:block">${title}</span><span class="small">${sub}</span></span><span class="go">${S.role === role ? I.check : I.next}</span></button>`;
-  return b('parent', M.tiger(), 't-orange', 'View as a parent', 'Nusrat, at home with Rafi') + b('doctor', M.ele({ mood: 'calm', extra: 'doctor' }), 't-purple', 'View as a doctor', 'Dr. Farhana, at the therapy centre');
+  return b('parent', M.tiger(), 't-orange', 'View as a parent', 'Nusrat, at home with Rafi') + b('doctor', M.ele({ mood: 'calm', extra: 'doctor' }), 't-purple', 'View as a doctor', 'Dr. Farhana, at the therapy centre')
+    + b('centre', I.building, 't-green', 'View as the centre', `${esc(S.db.centre.manager.split(' ')[0])}, running the centre`);
 }
 
 // ----- parent -----
@@ -209,9 +213,11 @@ function parent() {
   const c = kid(PARENT_CHILD), plan = livePlan(c.id);
   if (S.push === 'note') return noteScreen(c);
   if (S.push === 'ai') return aiUse(true);
+  if (S.push === 'helpans') return helpAnswer(c);
+  if (S.push === 'privacy') return privacyScreen();
   const tab = S.tab.parent;
-  const body = tab === 'tracker' ? parentTracker(c, plan) : tab === 'story' ? parentStory(c, plan) : tab === 'settings' ? settings() : parentHome(c, plan);
-  return body + nav([['home', 'home', t('nHome')], ['tracker', 'chart', t('nTracker')], ['story', 'book', t('nStory')], ['settings', 'gear', t('nSettings')]]);
+  const body = tab === 'help' ? parentHelp(c) : tab === 'tracker' ? parentTracker(c, plan) : tab === 'story' ? storyTab(c) : tab === 'settings' ? settings() : parentHome(c, plan);
+  return body + nav([['home', 'home', t('nHome')], ['help', 'lifebuoy', t('nHelp')], ['tracker', 'chart', t('nTracker')], ['story', 'book', t('nStory')], ['settings', 'gear', t('nSettings')]]);
 }
 function parentHome(c, plan) {
   const name = S.lang === 'bn' ? c.name_bn : c.name, dr = S.db.therapist.short;
@@ -245,9 +251,10 @@ function parentHome(c, plan) {
         </div>`;
       }).join('')}` : `<div class="card empty" style="margin-top:16px"><div class="m">${M.ele({ mood: 'calm' })}</div>${t('waiting', esc(dr))}</div>`}
       <button class="cta" data-act="note"><span class="m">${M.tiger({ mood: todayNote ? 'proud' : 'hi' })}</span><span class="grow"><span class="h3" style="display:block">${todayNote ? t('saved') : t('how')}</span><span class="small" style="color:#a8603a">${todayNote ? t('another') : t('tell', esc(dr))}</span></span><span class="go">${I.mic}</span></button>
+      ${parentExtras(c, todayNote)}
       ${hasMsg ? `<div class="msg"><span class="m">${M.ele({ mood: 'calm', extra: 'doctor' })}</span><div><p class="small">${t('from', esc(dr))}</p><p class="sub" style="color:var(--ink)">${esc(L(sum.parentMessage))}</p></div></div>` : ''}
       ${plan ? `<div class="sec"><h2 class="h2">${t('story')}</h2></div>
-      <button class="storycard" data-act="tab" data-tab="story">${pic(plan.story, 0)}<span class="grow"><span class="h3" style="display:block">${esc(L(plan.story.title))}</span><span class="small">${t('pagesN', num(plan.story.pages.length))}</span></span><span class="pill dark" style="margin-right:6px">${t('read')}</span></button>` : ''}
+      <button class="storycard" data-act="story" data-id="${plan.id}">${pic(plan.story, 0)}<span class="grow"><span class="h3" style="display:block">${esc(L(plan.story.title))}</span><span class="small">${t('pagesN', num(plan.story.pages.length))}</span></span><span class="pill dark" style="margin-right:6px">${t('read')}</span></button>` : ''}
     </div></div>`;
 }
 /** The row of seven days. With `mood` the dots are coloured by how the day went (doctor); without, noted days join into a streak (parent). */
@@ -279,24 +286,11 @@ function parentTracker(c, plan) {
       ${logs.length ? logs.slice().reverse().map((l) => `<div class="card note"><p class="small" style="margin-bottom:6px">${esc(niceDate(l.at, S.lang))}</p><p class="orig" lang="${l.lang}">${esc(l.text)}</p>${l.wins?.length ? `<div class="tags">${l.wins.map((w) => `<span class="pill good">${I.check}${esc(w)}</span>`).join('')}</div>` : ''}</div>`).join('') : `<div class="card empty">${t('noNotes')}</div>`}
     </div></div>`;
 }
-function parentStory(c, plan) {
-  if (!plan) return `<div class="scroll softbg pad"><div class="in"><div class="card empty" style="margin-top:20px"><div class="m">${M.ele({ mood: 'calm' })}</div>${t('waiting', esc(S.db.therapist.short))}</div></div></div>`;
-  const st = plan.story, n = st.pages.length;
-  S.page = Math.min(S.page, n - 1);
-  const p = st.pages[S.page];
-  return `<div class="softbg pad" style="flex:1;display:flex;flex-direction:column;min-height:0">
-    <div class="bar"><h1 class="h2 grow" style="padding-left:4px;font-size:21px">${esc(L(st.title))}</h1>${langSeg()}</div>
-    <div class="reader">${pic(st, S.page)}<p class="words" lang="${S.lang}">${esc(p[S.lang] || p.en)}</p>
-      <div class="pager"><button class="hbtn" data-act="page" data-d="-1" ${S.page === 0 ? 'disabled' : ''} aria-label="Back">${I.back}</button>
-        <span class="pdots">${st.pages.map((_, i) => `<i class="${i === S.page ? 'on' : ''}"></i>`).join('')}</span>
-        <button class="hbtn" data-act="page" data-d="1" ${S.page === n - 1 ? 'disabled' : ''} aria-label="Next">${I.next}</button></div></div></div>`;
-}
-
 // ----- the daily note (parent) -----
 let V = null, recStream = null, recorder = null, recog = null, recTimer = null;
 const EXAMPLE = { en: 'He waited his turn twice today, but cried at the blender noise.', bn: 'আজ দুইবার নিজের পালার জন্য অপেক্ষা করেছে, কিন্তু ব্লেন্ডারের শব্দে কেঁদেছে।' }; // same words as EXAMPLE_NOTES in seed-data.js
 function noteScreen(c) {
-  if (!V) V = { step: 'compose', lang: S.lang, text: '', left: 30, audio: null, mime: null, heardBy: null, note: null, msg: '' };
+  if (!V) V = { step: 'compose', lang: S.lang, text: '', left: 30, audio: null, mime: null, heardBy: null, note: null, msg: '', mood: null, tags: [] };
   const name = S.lang === 'bn' ? c.name_bn : c.name, dr = S.db.therapist.short;
   const bar = `<div class="bar"><button class="hbtn" data-act="back" aria-label="Back">${I.back}</button><span class="grow"></span>${langSeg()}</div>`;
   const tiger = (mood, cls = '') => `<div class="m ${cls}"><span class="fl a">${I.mic}</span><span class="fl b">${I.book}</span><span class="fl c">${I.heart}</span>${M.tiger({ mood })}</div>`;
@@ -313,11 +307,12 @@ function noteScreen(c) {
   return `<div class="notescr peachbg pad">${bar}
     <div class="hello">${tiger('hi', rec ? 'listen' : '')}<h1>${rec ? t('listening') : t('hello', esc(name))}</h1>${rec ? `<p class="timer" id="timer">0:${String(V.left).padStart(2, '0')}</p><p>${t('tapStop')}</p>` : `<p>${t('helloSub', esc(dr))}</p>`}</div>
     ${V.msg ? `<div class="in"><div class="err">${esc(V.msg)}</div></div>` : ''}
+    ${rec ? '' : quickRow()}
     ${rec ? '' : `<div class="chips"><button class="chipb" data-act="vexample"><span class="ic t-yellow">${I.spark}</span>${t('example')}</button><button class="chipb ${V.lang === 'bn' ? 'on' : ''}" data-act="vlang" data-lang="bn"><span class="ic t-pink">${I.mic}</span>${t('speakBn')}</button><button class="chipb ${V.lang === 'en' ? 'on' : ''}" data-act="vlang" data-lang="en"><span class="ic t-blue">${I.mic}</span>${t('speakEn')}</button></div>`}
     <div class="ask">${rec ? `<div class="live" id="live" lang="${V.lang}">${esc(V.text) || '…'}</div>` : `<textarea id="vtext" lang="${V.lang}" placeholder="${t('ph')}">${esc(V.text)}</textarea>`}
       <div class="tools"><button class="rb ${rec ? 'rec' : ''}" data-act="${rec ? 'recstop' : 'recstart'}" aria-label="${rec ? 'Stop' : 'Record'}">${rec ? I.stop : I.mic}</button><span class="grow small">${rec ? '' : V.lang === 'bn' ? 'বাংলা' : 'English'}</span>${rec ? '' : `<button class="rb send" data-act="vsave" aria-label="Save note">${I.arrow}</button>`}</div></div></div>`;
 }
-const grabText = () => { const el = $('#vtext'); if (el && V) V.text = el.value; };
+const grabText = () => { const el = $('#vtext'); if (el && V) V.text = el.value; const h = $('#htext'); if (h && H) H.text = h.value; };
 async function startRecording() {
   grabText();
   V.msg = '';
@@ -389,10 +384,10 @@ async function finishRecording(blob) {
 async function saveNote() {
   grabText();
   V.text = V.text.trim();
-  if (!V.text) return $('#vtext')?.focus();
+  if (!V.text && !V.mood && !V.tags.length) return $('#vtext')?.focus(); // a face or a tag is enough
   V.step = 'saving'; V.msg = ''; render(true);
   try {
-    V.note = await api('/api/note', { childId: PARENT_CHILD, text: V.text, lang: V.lang, audio: V.audio, mime: V.mime, heardBy: V.heardBy });
+    V.note = await api('/api/note', { childId: PARENT_CHILD, text: V.text, lang: V.lang, audio: V.audio, mime: V.mime, heardBy: V.heardBy, mood: V.mood, tags: V.tags });
     V.step = 'done';
     await pull();
   } catch (e) {
@@ -403,15 +398,16 @@ async function saveNote() {
 
 // ----- settings (both personas) -----
 function settings() {
-  const p = S.role === 'parent', c = kid(PARENT_CHILD);
+  const p = S.role === 'parent', ce = S.role === 'centre', c = kid(PARENT_CHILD);
   const line = (ic, tint, label, act, right = I.next) => `<button class="row" data-act="${act}"><span class="ic ${tint}" style="width:38px;height:38px;font-size:18px">${I[ic]}</span><span class="grow h3" style="font-weight:500">${label}</span><span style="color:var(--mute);font-size:17px">${right}</span></button>`;
   return `<div class="scroll softbg pad"><div class="bar"><h1 class="h2" style="padding-left:4px">${t('settings')}</h1></div><div class="in">
-    <div class="card" style="display:flex;gap:14px;align-items:center"><span class="persona" style="width:auto;padding:0;margin:0;background:none"><span class="m ${p ? 't-orange' : 't-purple'}">${p ? M.tiger() : M.ele({ mood: 'calm', extra: 'doctor' })}</span></span>
-      <div><p class="h2">${esc(p ? c.parent : S.db.therapist.name)}</p><p class="small">${esc(p ? t('parentOf', S.lang === 'bn' ? c.name_bn : c.name) : S.db.centre.name)}</p></div></div>
+    <div class="card" style="display:flex;gap:14px;align-items:center"><span class="persona" style="width:auto;padding:0;margin:0;background:none"><span class="m ${p ? 't-orange' : ce ? 't-green' : 't-purple'}">${p ? M.tiger() : ce ? I.building : M.ele({ mood: 'calm', extra: 'doctor' })}</span></span>
+      <div><p class="h2">${esc(p ? c.parent : ce ? S.db.centre.manager : S.db.therapist.name)}</p><p class="small">${esc(p ? t('parentOf', S.lang === 'bn' ? c.name_bn : c.name) : S.db.centre.name)}</p></div></div>
     ${FORCED ? '' : `<div class="sec"><h2 class="h2">${t('viewAs')}</h2></div>${personaBtns()}`}
     <div class="sec"><h2 class="h2">${p && S.lang === 'bn' ? 'আরও' : 'More'}</h2></div>
     ${p ? `<div class="row"><span class="ic t-blue" style="width:38px;height:38px;font-size:18px">${I.globe}</span><span class="grow h3" style="font-weight:500">${t('language')}</span>${langSeg()}</div>` : ''}
     ${p ? line('shield', 't-green', t('aiHow'), 'ai') : ''}
+    ${p ? line('doc', 't-blue', t('privacy'), 'privacy') : ''}
     ${line('refresh', 't-orange', t('reset'), 'reset')}
     <p class="small" style="text-align:center;margin-top:18px">${t('about')}</p>
   </div></div>`;
@@ -421,8 +417,8 @@ function settings() {
 function doctor() {
   if (S.push === 'child' && kid(S.childId)) return childView(kid(S.childId));
   const tab = S.tab.doctor, waiting = kids().filter((c) => draftPlan(c.id)).length;
-  const body = tab === 'children' ? childList() : tab === 'ai' ? aiUse(false) : tab === 'settings' ? settings() : doctorHome();
-  return body + nav([['home', 'home', 'Home'], ['children', 'users', 'Children', waiting], ['ai', 'shield', 'AI use'], ['settings', 'gear', 'Settings']]);
+  const body = tab === 'children' ? childList() : tab === 'alerts' ? doctorAlerts() : tab === 'ai' ? aiUse(false) : tab === 'settings' ? settings() : doctorHome();
+  return body + nav([['home', 'home', 'Home'], ['children', 'users', 'Children', waiting], ['alerts', 'bell', 'Alerts', alertCount()], ['ai', 'shield', 'AI use'], ['settings', 'gear', 'Settings']]);
 }
 const kidStatus = (c) => (draftPlan(c.id) ? `<span class="pill warn">Draft to review</span>` : livePlan(c.id) ? `<span class="pill good">Plan live</span>` : `<span class="pill line">No plan yet</span>`);
 function doctorHome() {
@@ -436,8 +432,8 @@ function doctorHome() {
     if (!livePlan(c.id) && !draftPlan(c.id)) todo.push([c, 'plan', 'plus', 't-blue', `Plan ${c.name}’s week`, 'Set goals and let AI draft the home practice']);
   }
   return `<div class="scroll homebg pad">
-    ${homeTop(drafts.length || fresh)}
-    <div class="greet"><h1>Hey, ${esc(S.db.therapist.short)}</h1><p>${esc(S.db.centre.name)}</p><span class="bubble">${drafts.length ? `${drafts.length} to review` : fresh ? `${fresh} new note${fresh > 1 ? 's' : ''}!` : 'All caught up!'}</span><div class="masc">${M.ele({ mood: 'hi', extra: 'doctor' })}</div></div>
+    ${homeTop(drafts.length || fresh || alertCount())}
+    <div class="greet"><h1>Hey, ${esc(S.db.therapist.short)}</h1><p>${esc(S.db.centre.name)}</p><span class="bubble">${alertCount() ? `${alertCount()} alert${alertCount() > 1 ? 's' : ''}!` : drafts.length ? `${drafts.length} to review` : fresh ? `${fresh} new note${fresh > 1 ? 's' : ''}!` : 'All caught up!'}</span><div class="masc">${M.ele({ mood: 'hi', extra: 'doctor' })}</div></div>
     <div class="tiles">
       <button class="tile" data-act="tab" data-tab="children"><span class="ic" style="color:var(--p)">${I.users}</span><span class="lab">Children</span><b>${all.length}</b><span class="unit">in your care</span></button>
       <button class="tile" data-act="tab" data-tab="children"><span class="ic" style="color:var(--orange)">${I.edit}</span><span class="lab">To review</span><b>${drafts.length}</b><span class="unit">${drafts.length === 1 ? 'draft' : 'drafts'}</span></button>
@@ -448,7 +444,7 @@ function doctorHome() {
       <div class="bchips"><span>${live} plan${live === 1 ? '' : 's'} live</span><span>${notes} parent notes</span></div></div>
     <div class="in">
       <div class="sec"><h2 class="h2">Needs your attention</h2></div>
-      ${todo.length ? todo.map(([c, tab, ic, tint, title, sub]) => `<button class="row" data-act="kid" data-id="${c.id}" data-tab="${tab}"><span class="ic ${tint}">${I[ic]}</span><span class="grow"><span class="h3" style="display:block">${esc(title)}</span><span class="small">${esc(sub)}</span></span><span style="color:var(--mute);font-size:17px">${I.next}</span></button>`).join('') : `<div class="card empty"><div class="m">${M.ele({ mood: 'proud' })}</div>Nothing is waiting for you.</div>`}
+      ${alertRow()}${todo.length ? todo.map(([c, tab, ic, tint, title, sub]) => `<button class="row" data-act="kid" data-id="${c.id}" data-tab="${tab}"><span class="ic ${tint}">${I[ic]}</span><span class="grow"><span class="h3" style="display:block">${esc(title)}</span><span class="small">${esc(sub)}</span></span><span style="color:var(--mute);font-size:17px">${I.next}</span></button>`).join('') : alertCount() ? '' : `<div class="card empty"><div class="m">${M.ele({ mood: 'proud' })}</div>Nothing is waiting for you.</div>`}
       <div class="sec"><h2 class="h2">My children</h2><button class="link" data-act="tab" data-tab="children">See all</button></div>
       ${all.map((c) => `<button class="row" data-act="kid" data-id="${c.id}">${avatar(c)}<span class="grow"><span class="h3" style="display:block">${esc(c.name)}, ${c.age}</span><span class="small">${weekLogs(c.id).length} of 7 days noted</span></span>${kidStatus(c)}</button>`).join('')}
     </div></div>`;
@@ -512,13 +508,13 @@ function planBody(c, plan, editable) {
   const st = plan.story;
   const pages = st.pages.map((p, i) => {
     const ed = editable && S.edit === 'page' + i;
-    return `<div class="pg">${pic(st, i)}<div class="num"><span>Page ${i + 1}</span>${editable && !ed ? `<button data-act="edit" data-id="page${i}" aria-label="Edit page ${i + 1}">${I.edit}</button>` : ''}</div>
+    return `<div class="pg">${pic(st, i)}<div class="num"><span>Page ${i + 1} · ${stepName(st, i)}</span>${editable && !ed ? `<button data-act="edit" data-id="page${i}" aria-label="Edit page ${i + 1}">${I.edit}</button>` : ''}</div>
       ${ed ? `<div class="editbox" data-edit="page${i}"><textarea name="en" rows="4">${esc(p.en)}</textarea><textarea class="bn" name="bn" rows="4">${esc(p.bn)}</textarea><button class="btn p sm" data-act="savepage" data-i="${i}">Save</button></div>` : `<p>${esc(p.en)}</p><p class="bn" lang="bn">${esc(p.bn)}</p>`}</div>`;
   }).join('');
   return `<div class="card"><p class="small" style="margin-bottom:8px">This week’s goals</p>${plan.goals.map((g, i) => `<div class="rowline"><span class="count" style="min-width:28px">${i + 1}</span><span class="h3" style="font-weight:500;align-self:center">${esc(g.text)}</span></div>`).join('')}</div>
     <div class="sec"><h2 class="h2">Home activities</h2><span class="small">${plan.activities.length} · ${plan.activities.reduce((n, a) => n + a.minutes, 0)} min a day</span></div>${acts}
     <div class="sec"><h2 class="h2">Social story</h2>${st.sheetStatus === 'making' ? `<span class="pill warn">Pictures being drawn</span>` : st.sheetStatus === 'failed' && editable ? `<button class="pill line" data-act="redraw" data-id="${plan.id}">${I.refresh} Draw pictures</button>` : ''}</div>
-    <div class="card"><p class="h3">${esc(st.title.en)}</p><p class="bn sub" lang="bn">${esc(st.title.bn)}</p></div>
+    <div class="card"><p class="h3">${esc(st.title.en)}</p><p class="bn sub" lang="bn">${esc(st.title.bn)}</p><button class="link" style="margin-top:8px" data-act="rules">${I.book} Story rules</button></div>
     <div class="pages">${pages}</div>`;
 }
 function planTab(c) {
@@ -530,7 +526,7 @@ function planTab(c) {
 function notesTab(c) {
   const logs = weekLogs(c.id).slice().reverse();
   if (!logs.length) return `<div class="card empty"><div class="m">${M.tiger()}</div>No notes from ${esc(c.parent)} yet this week.</div>`;
-  return logs.map((l) => `<div class="card note"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><i class="mood ${l.mood}"></i><span class="small grow">${esc(niceDate(l.at))} · ${esc(niceTime(l.at))}</span>${l.analysed ? '' : `<span class="pill line">As spoken</span>`}</div>
+  return logs.map((l) => `<div class="card note"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><i class="mood ${l.mood}"></i><span class="small grow">${esc(niceDate(l.at))} · ${esc(niceTime(l.at))}</span>${l.quick ? `<span class="pill line">Quick log</span>` : l.analysed ? '' : `<span class="pill line">As spoken</span>`}</div>
     <p class="orig" lang="${l.lang}">${esc(l.text)}</p>${l.en && l.lang !== 'en' ? `<p class="tr">${esc(l.en)}</p>` : ''}
     ${l.audio ? `<audio controls preload="none" src="${esc(l.audio.replace(/^\//, ''))}"></audio>` : ''}
     <div class="tags">${(l.wins || []).map((w) => `<span class="pill good">${esc(w)}</span>`).join('')}${(l.struggles || []).map((w) => `<span class="pill warn">${esc(w)}</span>`).join('')}${(l.triggers || []).map((w) => `<span class="pill bad">Trigger: ${esc(w)}</span>`).join('')}${l.sleep === 'poor' ? `<span class="pill line">Poor sleep</span>` : ''}</div></div>`).join('');
@@ -585,13 +581,14 @@ function bellSheet() {
     const c = kid(PARENT_CHILD), s = S.db.summaries[c.id], p = livePlan(c.id);
     if (s?.parentMessageSent) items.push(['heart', 't-pink', t('from', S.db.therapist.short), L(s.parentMessage)]);
     if (p) items.push(['book', 't-green', L(p.story.title), niceDate(p.approvedAt, S.lang)]);
-  } else {
+  } else if (S.role === 'doctor') {
     for (const c of kids()) {
       if (draftPlan(c.id)) items.push(['edit', 't-orange', `${c.name}’s draft plan is waiting`, 'Review and approve it to send it home']);
       const l = weekLogs(c.id).pop();
       if (l) items.push(['mic', 't-green', `${c.parent} left a note about ${c.name}`, `${niceDate(l.at)} · ${niceTime(l.at)}`]);
     }
   }
+  careBell(items);
   openSheet(`${shead(S.role === 'parent' && S.lang === 'bn' ? 'নোটিফিকেশন' : 'Notifications')}${items.map(([ic, tint, a, b]) => `<div class="row"><span class="ic ${tint}">${I[ic]}</span><span class="grow"><span class="h3" style="display:block">${esc(a)}</span><span class="small">${esc(b)}</span></span></div>`).join('') || '<p class="empty">Nothing new.</p>'}`);
 }
 
@@ -640,7 +637,7 @@ const act = {
   menu: menuSheet,
   bell: bellSheet,
   role(el) { if (FORCED) return; S.role = el.dataset.role; S.push = null; S.tab[S.role] = 'home'; closeSheet(); render(true); },
-  tab(el) { S.tab[S.role] = el.dataset.tab; S.push = null; S.open = null; render(true); },
+  tab(el) { stopDictation(); S.tab[S.role] = el.dataset.tab; S.push = null; S.open = null; render(true); },
   back() { if (S.push === 'note') { stopRecording(true); V = null; } S.push = null; S.edit = null; render(true); },
   lang(el) { grabText(); S.lang = el.dataset.lang; if (V && V.step === 'compose') V.lang = S.lang; render(true); },
   open(el) { S.open = S.open === el.dataset.id ? null : el.dataset.id; FX.open = S.open; render(); },
@@ -699,5 +696,5 @@ document.addEventListener('click', (e) => {
   if (e.target === sheetEl() && !G?.busy) closeSheet();
 });
 
-pull();
-setInterval(pull, 2000);
+// start once every script (including care.js) has loaded
+addEventListener('DOMContentLoaded', () => { pull(); setInterval(pull, 2000); });

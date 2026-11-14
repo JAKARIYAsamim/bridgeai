@@ -22,7 +22,13 @@ Write a home practice plan and one social story.
 
 ACTIVITIES: exactly ${Math.min(4, Math.max(2, goals.length * 2))} in total, shared evenly across the goals. Each one takes 3 to 6 minutes, needs only things found in an ordinary Bangladeshi home, uses what the child likes where it fits, and has exactly 3 short steps a tired parent can follow. The last step says what to do if the child gets upset or how to praise.
 
-SOCIAL STORY: one story of exactly 6 pages about the situation in the goals that would most benefit from preparation. Write it about ${child.name} by name, in the present tense, positive and literal, 1 to 3 short sentences per page. Say what happens, what ${child.name} can do to stay calm, and end with success. No metaphors, no scary words.
+SOCIAL STORY: one story of exactly 6 pages about the situation in the goals that would most benefit from preparation. Follow these rules:
+1. Four steps in this order: the situation (pages 1 and 2), how I feel (page 3), what I can do (pages 4 and 5), a good ending (page 6). Give every page its "step": situation, feeling, do or ending.
+2. One idea per page, 1 to 3 short sentences, present tense, concrete and literal. No metaphors, no scary words.
+3. Write it in the child's own voice ("I"), and say the child's name on page 1 ("My name is ${child.name}.").
+4. Make the feeling ordinary, never frightening: say that it is okay.
+5. For "what I can do", use only calming strategies the therapist has approved for this child: ${(child.strategies || []).map((x) => x.title.en).join('; ') || 'none listed, so keep it to a slow deep breath, a favourite toy, or asking an adult for a break'}. Do not invent other techniques.
+6. The same place and the same people on every page.
 For each page also give "scene": one sentence in English describing exactly what the picture shows (who, where, doing what), for an illustrator. Scenes must not need any written words in the picture.
 
 Every text is needed in English ("en") and in natural, simple Bangla ("bn") as spoken in Dhaka. Use Bangla numerals in Bangla text.
@@ -37,7 +43,7 @@ Return JSON in exactly this shape:
   "story": {
     "title": {"en": "", "bn": ""},
     "setting": "one sentence in English describing the place and any other recurring people and how they look",
-    "pages": [ {"en": "", "bn": "", "scene": ""} ]
+    "pages": [ {"step": "situation | feeling | do | ending", "en": "", "bn": "", "scene": ""} ]
   }
 }
 "goal" is the number of the goal the activity belongs to.`,
