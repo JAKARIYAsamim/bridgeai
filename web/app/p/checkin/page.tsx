@@ -12,6 +12,7 @@ import { useLoad } from "@/lib/hooks";
 import { useLang } from "@/lib/i18n";
 import { nameIn } from "@/lib/labels";
 import { childService, feedbackService } from "@/lib/services";
+import { uploadMedia } from "@/lib/supabase/media";
 import type { Checkin } from "@/lib/types";
 
 type Opt<T> = { v: T; bn: string; en: string };
@@ -76,6 +77,7 @@ export default function CheckinPage() {
   const [edited, setF] = useState<Partial<Checkin> | null>(null);
   const f: Partial<Checkin> = edited ?? data?.existing ?? {};
   const [noteMode, setNoteMode] = useState<"none" | "voice" | "text">("none");
+  const [voiceBlob, setVoiceBlob] = useState<Blob | undefined>(undefined);
   const [busy, setBusy] = useState(false);
   const [alerted, setAlerted] = useState(false);
 
@@ -93,12 +95,15 @@ export default function CheckinPage() {
   const save = async () => {
     if (!ready) return;
     setBusy(true);
+    // f.voiceUrl may still be a local blob: URL (only resolves in this tab) — upload it
+    // so the recording survives past this session.
+    const voiceUrl = voiceBlob && data ? await uploadMedia(data.child.id, "checkin", voiceBlob, "webm") : f.voiceUrl;
     const { alert } = await feedbackService.saveCheckin({
       mood: f.mood!,
       sleep: f.sleep!,
       meals: f.meals!,
       meltdowns: f.meltdowns!,
-      voiceUrl: f.voiceUrl,
+      voiceUrl,
       note: f.note,
     });
     setBusy(false);
@@ -211,7 +216,7 @@ export default function CheckinPage() {
                   <MediaChip
                     type="voice"
                     label={L("ভয়েস নোট যুক্ত হয়েছে", "Voice note added")}
-                    onRemove={() => setF({ ...f, voiceUrl: undefined })}
+                    onRemove={() => { setF({ ...f, voiceUrl: undefined }); setVoiceBlob(undefined); }}
                   />
                 </div>
               ) : noteMode === "voice" ? (
@@ -221,6 +226,7 @@ export default function CheckinPage() {
                     maxSeconds={60}
                     onDone={(r) => {
                       setF({ ...f, voiceUrl: r.url });
+                      setVoiceBlob(r.blob);
                       setNoteMode("none");
                     }}
                     labels={{

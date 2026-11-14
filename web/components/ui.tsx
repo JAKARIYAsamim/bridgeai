@@ -387,25 +387,34 @@ export function AIDraftBanner({
   if (approved) {
     return (
       <div className="ai-draft-banner approved">
-        <Icon name="check" style={{ fontSize: 18 }} />
-        <span className="grow">{L("থেরাপিস্ট দ্বারা অনুমোদিত", "Approved by therapist")}</span>
+        <Icon name="check" style={{ fontSize: 18, flexShrink: 0 }} />
+        <div className="ai-draft-banner-body">
+          <div className="ai-draft-banner-title">{L("থেরাপিস্ট দ্বারা অনুমোদিত", "Approved by therapist")}</div>
+          {children && <div className="ai-draft-banner-sub">{children}</div>}
+        </div>
       </div>
     );
   }
   return (
     <div className="ai-draft-banner">
-      <Icon name="spark" style={{ fontSize: 18, color: "var(--blue)" }} />
-      <span className="grow">{defaultText}</span>
-      {children}
-      {onEdit && (
-        <button className="link" onClick={onEdit} type="button" style={{ fontSize: 13 }}>
-          {L("সম্পাদনা", "Edit")}
-        </button>
-      )}
-      {onApprove && (
-        <Button size="sm" onClick={onApprove} style={{ height: 30, padding: "0 12px", fontSize: 13 }}>
-          {L("অনুমোদন", "Approve")}
-        </Button>
+      <Icon name="spark" style={{ fontSize: 18, color: "var(--blue)", flexShrink: 0 }} />
+      <div className="ai-draft-banner-body">
+        <div className="ai-draft-banner-title">{defaultText}</div>
+        {children && <div className="ai-draft-banner-sub">{children}</div>}
+      </div>
+      {(onEdit || onApprove) && (
+        <div className="ai-draft-banner-actions">
+          {onEdit && (
+            <button className="link" onClick={onEdit} type="button" style={{ fontSize: 13, minHeight: 36, display: "inline-flex", alignItems: "center" }}>
+              {L("সম্পাদনা", "Edit")}
+            </button>
+          )}
+          {onApprove && (
+            <Button size="sm" onClick={onApprove} style={{ height: 36, padding: "0 14px", fontSize: 13, flexShrink: 0 }}>
+              {L("অনুমোদন", "Approve")}
+            </Button>
+          )}
+        </div>
       )}
     </div>
   );

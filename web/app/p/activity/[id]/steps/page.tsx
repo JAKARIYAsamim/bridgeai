@@ -13,6 +13,7 @@ import { useLoad, useMounted } from "@/lib/hooks";
 import { useLang } from "@/lib/i18n";
 import { nameIn, num } from "@/lib/labels";
 import { childService, feedbackService, libraryService, planService } from "@/lib/services";
+import { uploadMedia } from "@/lib/supabase/media";
 import type { Activity, Mood } from "@/lib/types";
 
 type Stage = "steps" | "mood" | "feedback" | "sending" | "alert" | "thanks";
@@ -34,7 +35,7 @@ export default function Steps() {
   const [stage, setStage] = useState<Stage>("steps");
   const [mood, setMood] = useState<Mood | null>(null);
   const [logId, setLogId] = useState<string | undefined>();
-  const [extra, setExtra] = useState<{ type: "photo" | "video" | "text"; url?: string } | null>(null);
+  const [extra, setExtra] = useState<{ type: "photo" | "video" | "text"; url?: string; file?: File } | null>(null);
   const [text, setText] = useState("");
   const touchX = useRef<number | null>(null);
 
@@ -52,8 +53,8 @@ export default function Steps() {
     return { activity, item: today.find((t) => t.activity.id === id)?.item, child };
   }, [id]);
 
-  const photo = useFilePicker("image/*", (f) => setExtra({ type: "photo", url: f.url }));
-  const video = useFilePicker("video/*", (f) => setExtra({ type: "video", url: f.url }), 30);
+  const photo = useFilePicker("image/*", (f) => setExtra({ type: "photo", url: f.url, file: f.file }));
+  const video = useFilePicker("video/*", (f) => setExtra({ type: "video", url: f.url, file: f.file }), 30);
 
   if (error) {
     return (
@@ -87,9 +88,15 @@ export default function Steps() {
     setStage("feedback");
   };
 
-  const send = async (input: { type: "voice" | "photo" | "video" | "text"; mediaUrl?: string; text?: string }) => {
+  const send = async (input: { type: "voice" | "photo" | "video" | "text"; mediaUrl?: string; blob?: Blob; text?: string }) => {
     setStage("sending");
-    const { alert } = await feedbackService.addFeedback({ ...input, activityId: activity.id, logId });
+    let mediaUrl = input.mediaUrl;
+    if (input.blob) {
+      // Local blob: URLs only resolve inside this tab — upload so the therapist can play it back.
+      const ext = input.type === "voice" ? "webm" : input.blob.type.split("/")[1] || "bin";
+      mediaUrl = await uploadMedia(child.id, input.type, input.blob, ext);
+    }
+    const { alert } = await feedbackService.addFeedback({ type: input.type, mediaUrl, text: input.text, activityId: activity.id, logId });
     setStage(alert ? "alert" : "thanks");
   };
 
@@ -229,7 +236,7 @@ export default function Steps() {
                 <Card style={{ padding: 20 }}>
                   <MicButton
                     maxSeconds={60}
-                    onDone={(r) => send({ type: "voice", mediaUrl: r.url })}
+                    onDone={(r) => send({ type: "voice", mediaUrl: r.url, blob: r.blob })}
                     labels={{
                       idle: L("ভয়েস নোট পাঠান", "Send a voice note"),
                       recording: L("শেষ হলে চাপুন — পাঠানো হবে", "Tap when done — it will send"),
@@ -300,7 +307,7 @@ export default function Steps() {
                   size="lg"
                   variant="primary"
                   disabled={extra.type === "text" && !text.trim()}
-                  onClick={() => send({ type: extra.type, mediaUrl: extra.url, text: text.trim() || undefined })}
+                  onClick={() => send({ type: extra.type, mediaUrl: extra.url, blob: extra.file, text: text.trim() || undefined })}
                 >
                   {L("পাঠান", "Send")}
                 </Button>

@@ -68,11 +68,11 @@ export default function Login() {
       <div className="in">
         <Card>
           <form onSubmit={submit} noValidate style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <Field label={L("ইমেইল", "Email")}>
+            <Field label={L("মোবাইল নম্বর বা ইমেইল", "Phone or email")}>
               <input
                 className="field"
-                type="email"
-                autoComplete="email"
+                type="text"
+                autoComplete="username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

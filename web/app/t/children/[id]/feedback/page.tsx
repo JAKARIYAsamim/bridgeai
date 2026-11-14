@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Icon } from "@/components/legacy/icons";
-import { AudioPlayer, fmtSecs, MicButton } from "@/components/media";
+import { AudioPlayer, MicButton } from "@/components/media";
 import {
   AIBlock,
   Button,
@@ -20,6 +20,7 @@ import { useLoad } from "@/lib/hooks";
 import { useLang } from "@/lib/i18n";
 import { ago, FEEDBACK_FLAGS, MOODS, nameIn, num } from "@/lib/labels";
 import { childService, feedbackService, libraryService } from "@/lib/services";
+import { uploadMedia, useMediaUrl } from "@/lib/supabase/media";
 import type { Activity, ActivityLog, Feedback, MediaType } from "@/lib/types";
 
 export default function FeedbackInbox() {
@@ -173,15 +174,22 @@ function FeedbackCard({
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const safety = f.flags.includes("safety_concern");
+  const mediaUrl = useMediaUrl(f.mediaUrl);
 
-  const send = async (msg: string) => {
+  const send = async (msg?: string, replyMediaUrl?: string) => {
     setBusy(true);
-    await feedbackService.reply(f.id, msg);
+    await feedbackService.reply(f.id, msg, replyMediaUrl);
     setBusy(false);
     setReplying(false);
     setVoice(false);
     setText("");
     toast(L("উত্তর পাঠানো হয়েছে", "Reply sent to family"));
+  };
+
+  const sendVoice = async (blob: Blob) => {
+    setBusy(true);
+    const path = await uploadMedia(f.childId, "voice", blob, "webm");
+    await send(undefined, path);
   };
 
   const actTitle = activity ? (lang === "bn" ? activity.title_bn : activity.title_en) : L("সাধারণ নোট", "General note");
@@ -210,16 +218,16 @@ function FeedbackCard({
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {f.type === "voice" && <AudioPlayer src={f.mediaUrl} label={L("মূল ভয়েস নোট", "Original voice note")} />}
-        {f.type === "photo" && f.mediaUrl && (
+        {f.type === "photo" && mediaUrl && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={f.mediaUrl}
+            src={mediaUrl}
             alt={f.text ?? "Photo from family"}
             style={{ maxHeight: 200, width: "100%", objectFit: "cover", borderRadius: 12 }}
           />
         )}
-        {f.type === "video" && f.mediaUrl && (
-          <video src={f.mediaUrl} controls style={{ maxHeight: 200, width: "100%", borderRadius: 12 }} />
+        {f.type === "video" && mediaUrl && (
+          <video src={mediaUrl} controls style={{ maxHeight: 200, width: "100%", borderRadius: 12 }} />
         )}
         {f.text && (
           <blockquote style={{ borderLeft: "3px solid var(--p)", paddingLeft: 10, margin: 0, fontStyle: "italic" }}>
@@ -234,12 +242,13 @@ function FeedbackCard({
             )}
           </AIBlock>
         )}
-        {f.therapistReply && (
+        {(f.therapistReply || f.therapistReplyMediaUrl) && (
           <div className="note2" style={{ padding: "8px 12px" }}>
             <p className="small" style={{ fontWeight: 600, color: "var(--p)" }}>
               {L("আপনার উত্তর", "Your reply")} · {f.repliedAt ? ago(f.repliedAt, lang) : ""}
             </p>
-            <p className="sub" style={{ fontSize: 14 }}>{f.therapistReply}</p>
+            {f.therapistReply && <p className="sub" style={{ fontSize: 14 }}>{f.therapistReply}</p>}
+            {f.therapistReplyMediaUrl && <AudioPlayer src={f.therapistReplyMediaUrl} label={L("ভয়েস উত্তর", "Voice reply")} />}
           </div>
         )}
       </div>
@@ -251,7 +260,7 @@ function FeedbackCard({
               <MicButton
                 size="md"
                 maxSeconds={60}
-                onDone={(r) => send(`🎤 ভয়েস বার্তা (${fmtSecs(r.seconds)})`)}
+                onDone={(r) => r.blob && sendVoice(r.blob)}
                 labels={{ idle: L("রেকর্ড করতে চাপুন", "Tap to record reply"), recording: L("শেষ হলে চাপুন", "Tap to stop and send") }}
               />
             </div>

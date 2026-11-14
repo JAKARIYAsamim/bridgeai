@@ -66,7 +66,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </div>
               </ToastProvider>
             </LangProvider>
-            <div id="topedge" aria-hidden="true" />
           </main>
         </div>
       </body>

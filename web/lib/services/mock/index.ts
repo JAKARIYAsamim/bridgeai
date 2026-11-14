@@ -391,9 +391,10 @@ export const feedbackService: FeedbackService = {
     await wait();
     return clone(getDB().feedback.filter((f) => f.childId === childId)).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   },
-  async reply(feedbackId, text) {
+  async reply(feedbackId, text, mediaUrl) {
     const f = getDB().feedback.find((x) => x.id === feedbackId)!;
     f.therapistReply = text;
+    f.therapistReplyMediaUrl = mediaUrl;
     f.repliedAt = new Date().toISOString();
     f.reviewedAt ??= f.repliedAt;
     commit();
@@ -450,7 +451,7 @@ export const feedbackService: FeedbackService = {
   async myReplies() {
     await wait(150);
     const cg = myCaregiverRow();
-    return clone(getDB().feedback.filter((f) => f.childId === cg.childId && f.therapistReply)).sort((a, b) => (b.repliedAt || "").localeCompare(a.repliedAt || ""));
+    return clone(getDB().feedback.filter((f) => f.childId === cg.childId && (f.therapistReply || f.therapistReplyMediaUrl))).sort((a, b) => (b.repliedAt || "").localeCompare(a.repliedAt || ""));
   },
   async mySharedSummaries() {
     const cg = myCaregiverRow();

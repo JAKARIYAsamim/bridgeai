@@ -45,7 +45,7 @@ export default function Join() {
   const code = digits.join("");
 
   const setAt = (i: number, v: string) => {
-    const clean = v.replace(/\D/g, "");
+    const clean = v.replace(/[^0-9a-zA-Z]/g, "").toUpperCase();
     if (clean.length > 1) {
       const next = [...digits];
       clean.slice(0, 6 - i).split("").forEach((d, k) => (next[i + k] = d));
@@ -124,7 +124,7 @@ export default function Join() {
               <div style={{ width: 76, margin: "0 auto 10px" }}>
                 <Tiger mood="hi" />
               </div>
-              <h2 className="h2">{L("৬ সংখ্যার কোড দিন", "Enter 6-digit code")}</h2>
+              <h2 className="h2">{L("৬ অক্ষরের কোড দিন", "Enter 6-character code")}</h2>
               <p className="small" style={{ marginTop: 2 }}>
                 {L("আপনার থেরাপিস্টের দেওয়া কোডটি লিখুন", "Enter the code given by your therapist")}
               </p>
@@ -137,8 +137,12 @@ export default function Join() {
                   ref={(el) => { refs.current[i] = el; }}
                   className="field"
                   type="text"
-                  inputMode="numeric"
-                  pattern="\d*"
+                  inputMode="text"
+                  autoCapitalize="characters"
+                  autoCorrect="off"
+                  autoComplete="off"
+                  spellCheck={false}
+                  pattern="[0-9a-zA-Z]*"
                   maxLength={1}
                   value={d}
                   onChange={(e) => setAt(i, e.target.value)}

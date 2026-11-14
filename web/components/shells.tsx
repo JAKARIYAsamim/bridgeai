@@ -61,7 +61,7 @@ export function ShellTopBar({
   const langBtn = (
     <button
       className={cx("hbtn", lang === "bn" ? "" : "bn")}
-      style={{ fontSize: 12.5, fontWeight: 600, minWidth: 38 }}
+      style={{ fontSize: 13, fontWeight: 700, minWidth: 40, height: 40 }}
       onClick={toggleLang}
       aria-label="Change language"
       type="button"

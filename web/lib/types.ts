@@ -201,6 +201,7 @@ export type Feedback = {
   summary_bn?: string;
   flags: string[];
   therapistReply?: string;
+  therapistReplyMediaUrl?: string;
   repliedAt?: string;
   reviewedAt?: string;
   createdAt: string;

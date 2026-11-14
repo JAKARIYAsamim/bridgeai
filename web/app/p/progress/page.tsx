@@ -1,5 +1,6 @@
 "use client";
 // P-07 Progress: this week's wins. No streaks, no missed counts, no comparisons.
+import { AudioPlayer } from "@/components/media";
 import { ActivityArt, Card, EmptyState, ErrorState, Skeleton, SkeletonList } from "@/components/ui";
 import { useLoad } from "@/lib/hooks";
 import { useLang } from "@/lib/i18n";
@@ -132,9 +133,14 @@ export default function Progress() {
                 <p className="small" style={{ fontWeight: 600, color: "var(--p)", marginBottom: 4 }}>
                   {title(r.activityId) || L("আপনার নোট", "Your note")} · {fmtDate(r.repliedAt ?? r.createdAt, lang)}
                 </p>
-                <p className="sub" style={{ fontSize: 15, color: "var(--ink)" }}>
-                  {r.therapistReply}
-                </p>
+                {r.therapistReply && (
+                  <p className="sub" style={{ fontSize: 15, color: "var(--ink)" }}>
+                    {r.therapistReply}
+                  </p>
+                )}
+                {r.therapistReplyMediaUrl && (
+                  <AudioPlayer src={r.therapistReplyMediaUrl} label={L("ভয়েস বার্তা", "Voice message")} />
+                )}
               </Card>
             ))}
           </div>

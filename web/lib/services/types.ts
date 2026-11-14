@@ -81,7 +81,7 @@ export interface FeedbackService {
   logActivity(planItemId: string, mood: Mood): Promise<ActivityLog>;
   addFeedback(input: Omit<Feedback, "id" | "createdAt" | "caregiverId" | "childId" | "flags">): Promise<{ feedback: Feedback; alert: Alert | null }>;
   listFeedback(childId: string): Promise<Feedback[]>;
-  reply(feedbackId: string, text: string): Promise<Feedback>;
+  reply(feedbackId: string, text?: string, mediaUrl?: string): Promise<Feedback>;
   markReviewed(feedbackId: string): Promise<Feedback>;
   saveCheckin(input: Omit<Checkin, "id" | "caregiverId" | "childId" | "date">): Promise<{ checkin: Checkin; alert: Alert | null }>;
   listCheckins(childId: string, days?: number): Promise<Checkin[]>;

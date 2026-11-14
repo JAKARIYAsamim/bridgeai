@@ -4,12 +4,13 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Icon } from "@/components/legacy/icons";
 import { Tiger } from "@/components/legacy/mascots";
+import { useMediaUrl } from "@/lib/supabase/media";
 import type { MediaType } from "@/lib/types";
 import { cx } from "./ui";
 
 export const fmtSecs = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
-export type Recorded = { url: string; seconds: number };
+export type Recorded = { url: string; seconds: number; blob?: Blob };
 
 /** Tap to record, tap to stop. Falls back to simulated audio if the mic is unavailable. */
 export function MicButton({
@@ -70,7 +71,7 @@ export function MicButton({
         const s = Math.max(1, Math.round((Date.now() - started.current) / 1000));
         const blob = new Blob(chunks.current, { type: m.mimeType || "audio/webm" });
         cleanup();
-        onDone({ url: URL.createObjectURL(blob), seconds: s });
+        onDone({ url: URL.createObjectURL(blob), seconds: s, blob });
       };
       m.start();
       mr.current = m;
@@ -230,7 +231,7 @@ export function MediaPicker({
 /** Hidden file input helper for photo/video. */
 export function useFilePicker(
   accept: string,
-  onFile: (f: { url: string; name: string; seconds?: number }) => void,
+  onFile: (f: { url: string; name: string; seconds?: number; file: File }) => void,
   maxSeconds?: number,
 ) {
   const ref = useRef<HTMLInputElement | null>(null);
@@ -256,14 +257,14 @@ export function useFilePicker(
               setError(`Please choose a video of ${maxSeconds} seconds or less.`);
             } else {
               setError(null);
-              onFile({ url, name: f.name, seconds: Math.round(v.duration) });
+              onFile({ url, name: f.name, seconds: Math.round(v.duration), file: f });
             }
           };
-          v.onerror = () => onFile({ url, name: f.name });
+          v.onerror = () => onFile({ url, name: f.name, file: f });
           v.src = url;
         } else {
           setError(null);
-          onFile({ url, name: f.name });
+          onFile({ url, name: f.name, file: f });
         }
       }}
     />
@@ -315,11 +316,12 @@ export function MediaChip({
   );
 }
 
-export function AudioPlayer({ src, label = "Voice note" }: { src?: string; label?: string }) {
+export function AudioPlayer({ src: srcProp, label = "Voice note" }: { src?: string; label?: string }) {
   const a = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
   const [t, setT] = useState(0);
   const [d, setD] = useState(0);
+  const src = useMediaUrl(srcProp);
 
   if (!src) return null;
 
