@@ -1,0 +1,44 @@
+[
+  {
+    "id": "doctor-visit",
+    "title_bn": "রাফি ডাক্তারের কাছে যায়",
+    "title_en": "Rafi visits the doctor",
+    "cover": "🩺",
+    "pages": [
+      { "emoji": "🏥", "tint": "blue", "text_bn": "আজ আমি মায়ের সাথে ডাক্তারের কাছে যাব। ডাক্তার আমাকে সুস্থ থাকতে সাহায্য করেন।", "text_en": "Today Ma and I are going to the doctor. The doctor helps me stay healthy." },
+      { "emoji": "🪑", "tint": "orange", "text_bn": "ক্লিনিকে আমরা চেয়ারে বসে আমার নাম ডাকার জন্য অপেক্ষা করি। আমি আমার প্রিয় খেলনাটা সাথে রাখি।", "text_en": "At the clinic we sit on chairs and wait for my name. I keep my favourite toy with me." },
+      { "emoji": "😟", "tint": "pink", "text_bn": "নতুন জায়গায় একটু ভয় লাগতে পারে। এটা ঠিক আছে। মা পাশেই আছেন।", "text_en": "A new place can feel a little scary. That is okay. Ma is right beside me." },
+      { "emoji": "👂", "tint": "purple", "text_bn": "ডাক্তার আমার বুকে ঠান্ডা যন্ত্র রাখেন আর কানে আলো দিয়ে দেখেন। এতে ব্যথা লাগে না।", "text_en": "The doctor puts a cool tool on my chest and shines a light in my ears. It does not hurt." },
+      { "emoji": "🌬️", "tint": "green", "text_bn": "আমি খেলনাটা ধরে ধীরে ধীরে লম্বা শ্বাস নিই আর চুপ করে বসে থাকি।", "text_en": "I hold my toy, take slow deep breaths and sit still." },
+      { "emoji": "⭐", "tint": "yellow", "text_bn": "শেষ! ডাক্তার বলেন, \"খুব ভালো!\" মা খুশি, আমিও খুশি।", "text_en": "All done! The doctor says, \"Very good!\" Ma is happy, and so am I." }
+    ]
+  },
+  {
+    "id": "haircut",
+    "title_bn": "রাফি চুল কাটতে যায়",
+    "title_en": "Rafi goes to the barber",
+    "cover": "💇",
+    "pages": [
+      { "emoji": "💈", "tint": "blue", "text_bn": "আমার চুল বড় হয়ে গেছে। আজ আমি মায়ের সাথে চুল কাটতে যাব।", "text_en": "My hair has grown long. Today Ma and I are going to the barber." },
+      { "emoji": "🚂", "tint": "orange", "text_bn": "সেলুনে আগে অন্যদের পালা। আমি আমার ট্রেন নিয়ে বসে নিজের পালার জন্য অপেক্ষা করি।", "text_en": "At the barbershop, other people go first. I sit with my train and wait for my turn." },
+      { "emoji": "🪑", "tint": "purple", "text_bn": "এবার আমার পালা। আমি বড় চেয়ারে বসি। নাপিত চাচা আমার গায়ে একটি নরম কাপড় জড়িয়ে দেন।", "text_en": "Now it is my turn. I sit in the big chair. The barber puts a soft cape on me." },
+      { "emoji": "🌬️", "tint": "pink", "text_bn": "মেশিনটা ভোঁ ভোঁ শব্দ করে। এটা শুধুই একটা শব্দ, আর এটা ঠিক আছে। আমি ট্রেনটা ধরে ধীরে ধীরে লম্বা শ্বাস নিই।", "text_en": "The clipper makes a buzzing sound. It is only a sound, and that is okay. I hold my train and take a slow, deep breath." },
+      { "emoji": "✂️", "tint": "green", "text_bn": "নাপিত চাচা আমার চুল কাটেন। একটু সুড়সুড়ি লাগে। আমি চুপ করে বসে থাকি। মা পাশেই আছেন।", "text_en": "The barber cuts my hair. It tickles a little. I sit still. Ma is right beside me." },
+      { "emoji": "🪞", "tint": "yellow", "text_bn": "শেষ! আমি আয়নায় দেখি। আমার চুল খুব সুন্দর লাগছে। মা খুশি, আমিও খুব খুশি।", "text_en": "All done! I look in the mirror. My hair looks nice. Ma is proud, and I am proud too." }
+    ]
+  },
+  {
+    "id": "new-school",
+    "title_bn": "রাফির নতুন স্কুল",
+    "title_en": "Rafi's new school",
+    "cover": "🎒",
+    "pages": [
+      { "emoji": "🎒", "tint": "blue", "text_bn": "আজ আমি নতুন স্কুলে যাব। আমার ব্যাগে বই, পানির বোতল আর টিফিন আছে।", "text_en": "Today I am going to a new school. My bag has books, a water bottle and my lunch." },
+      { "emoji": "🏫", "tint": "orange", "text_bn": "স্কুলে অনেক শিশু আর একজন শিক্ষক আছেন। শিক্ষক হাসিমুখে আমাকে \"স্বাগতম\" বলেন।", "text_en": "At school there are many children and a teacher. The teacher smiles and says \"Welcome.\"" },
+      { "emoji": "😟", "tint": "pink", "text_bn": "সবকিছু নতুন, তাই একটু ভয় লাগতে পারে। এটা ঠিক আছে। অনেক শিশুরই প্রথম দিনে এমন লাগে।", "text_en": "Everything is new, so I might feel a little scared. That is okay. Many children feel this way on the first day." },
+      { "emoji": "🙋", "tint": "purple", "text_bn": "কিছু দরকার হলে আমি শিক্ষকের কাছে গিয়ে বলি বা আমার কার্ডটা দেখাই।", "text_en": "If I need something, I go to the teacher and tell them or show my card." },
+      { "emoji": "🧩", "tint": "green", "text_bn": "আমরা একসাথে গান গাই আর খেলি। আমি পাশের শিশুর সাথে খেলনা ভাগ করি।", "text_en": "We sing and play together. I share a toy with the child next to me." },
+      { "emoji": "🤗", "tint": "yellow", "text_bn": "ছুটির সময় মা আমাকে নিতে আসেন। আমি মাকে বলি স্কুলে কী কী করেছি। আজ ভালো দিন ছিল!", "text_en": "At home time Ma comes to pick me up. I tell her what I did at school. It was a good day!" }
+    ]
+  }
+]

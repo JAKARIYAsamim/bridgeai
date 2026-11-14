@@ -1,0 +1,52 @@
+[
+  {
+    "id": "L1", "n": 1,
+    "title_bn": "একসাথে খেলুন, শিশুকে পথ দেখাতে দিন",
+    "title_en": "Play together and follow your child's lead",
+    "tips": [
+      { "emoji": "👀", "text_bn": "শিশু কী নিয়ে খেলতে চায় দেখুন, সেটা দিয়েই শুরু করুন।", "text_en": "Watch what your child wants to play with and start there." },
+      { "emoji": "🧎", "text_bn": "শিশুর চোখের সমান উচ্চতায় মুখোমুখি বসুন।", "text_en": "Sit face to face at your child's eye level." },
+      { "emoji": "😊", "text_bn": "শিশু যা করছে তা নকল করুন আর আনন্দ দেখান।", "text_en": "Copy what your child does and show you are enjoying it." }
+    ]
+  },
+  {
+    "id": "L2", "n": 2,
+    "title_bn": "অপেক্ষা করুন, শিশুকে বলার সুযোগ দিন",
+    "title_en": "Wait and give your child a chance to communicate",
+    "tips": [
+      { "emoji": "⏳", "text_bn": "প্রশ্ন বা খেলার পরে মনে মনে ৫ পর্যন্ত গুনে অপেক্ষা করুন।", "text_en": "After a question or game, count to 5 in your head and wait." },
+      { "emoji": "👉", "text_bn": "তাকানো, আঙুল দেখানো বা শব্দ, সবই কথা বলা।", "text_en": "A look, a point or a sound all count as communicating." },
+      { "emoji": "🎉", "text_bn": "শিশু চেষ্টা করলেই সঙ্গে সঙ্গে সাড়া দিন।", "text_en": "Respond right away whenever your child tries." }
+    ]
+  },
+  {
+    "id": "L3", "n": 3,
+    "title_bn": "নতুন কাজ ছোট ছোট ধাপে শেখান",
+    "title_en": "Break new skills into small steps",
+    "tips": [
+      { "emoji": "🪜", "text_bn": "একটি কাজকে ৩–৬টি ছোট ধাপে ভাগ করুন।", "text_en": "Split a task into 3–6 small steps." },
+      { "emoji": "🖼️", "text_bn": "প্রতিটি ধাপের ছবি ব্যবহার করুন।", "text_en": "Use a picture for each step." },
+      { "emoji": "🤝", "text_bn": "প্রথমে সাহায্য করুন, তারপর প্রতি সপ্তাহে একটু কম সাহায্য করুন।", "text_en": "Help at first, then help a little less each week." }
+    ]
+  },
+  {
+    "id": "L4", "n": 4,
+    "title_bn": "সতর্কতা আর ছবি দিয়ে কঠিন মুহূর্ত এড়ান",
+    "title_en": "Prevent hard moments with warnings and pictures",
+    "tips": [
+      { "emoji": "⏰", "text_bn": "কোনো কাজ শেষ হওয়ার আগে \"আর ২ মিনিট\" বলে জানান।", "text_en": "Say \"2 more minutes\" before an activity ends." },
+      { "emoji": "🗂️", "text_bn": "\"আগে–পরে\" ছবি দিয়ে দেখান কী হবে।", "text_en": "Show what comes next with \"first–then\" pictures." },
+      { "emoji": "🔊", "text_bn": "জোরে শব্দের আগে শিশুকে জানিয়ে দিন।", "text_en": "Warn your child before a loud sound." }
+    ]
+  },
+  {
+    "id": "L5", "n": 5,
+    "title_bn": "নিজের যত্নও নিন",
+    "title_en": "Look after yourself too",
+    "tips": [
+      { "emoji": "🌬️", "text_bn": "প্রতিদিন ২ মিনিট ধীরে ধীরে শ্বাস নিন।", "text_en": "Take 2 minutes of slow breathing every day." },
+      { "emoji": "👨‍👩‍👧", "text_bn": "পরিবারের অন্যদের সাথে দায়িত্ব ভাগ করুন।", "text_en": "Share the care with other family members." },
+      { "emoji": "📞", "text_bn": "মন ভারী লাগলে ক্লিনিকে কথা বলুন। আপনি একা নন।", "text_en": "If you feel low, talk to the clinic. You are not alone." }
+    ]
+  }
+]

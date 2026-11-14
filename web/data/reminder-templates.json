@@ -1,0 +1,22 @@
+[
+  { "id": "r01", "text_bn": "{child}-এর সাথে {activity} খেলার সময়!", "text_en": "Time for {activity} with {child}!" },
+  { "id": "r02", "text_bn": "আজ ব্যস্ত? ২ মিনিটের ছোট খেলাও কাজে লাগে।", "text_en": "Busy today? Even a 2-minute game helps." },
+  { "id": "r03", "text_bn": "{child} আপনার অপেক্ষায়! চলুন {activity} একসাথে করি।", "text_en": "{child} is waiting for you! Let's do {activity} together." },
+  { "id": "r04", "text_bn": "ছোট্ট একটু সময়, বড় আনন্দ: {child}-এর সাথে {activity}।", "text_en": "A little time, a lot of joy: {activity} with {child}." },
+  { "id": "r05", "text_bn": "আপনি দারুণ করছেন! আজকের {activity} কি একবার হবে?", "text_en": "You're doing great! Shall we try today's {activity}?" },
+  { "id": "r06", "text_bn": "{child}-এর হাসি দেখার সময়: {activity}।", "text_en": "Time to see {child} smile: {activity}." },
+  { "id": "r07", "text_bn": "খাওয়ার সময় হলো? {activity} এর জন্য এটাই সুন্দর সময়।", "text_en": "Mealtime? It's a lovely moment for {activity}." },
+  { "id": "r08", "text_bn": "মাত্র ৫ মিনিট। {child} আর আপনি, {activity}।", "text_en": "Just 5 minutes. You and {child}, {activity}." },
+  { "id": "r09", "text_bn": "আজ যতটুকু পারেন, ততটুকুই যথেষ্ট। {activity} চেষ্টা করবেন?", "text_en": "Whatever you can do today is enough. Try {activity}?" },
+  { "id": "r10", "text_bn": "{child}-এর সাথে খেলা মানেই শেখা। চলুন {activity}!", "text_en": "Playing with {child} is learning. Let's do {activity}!" },
+  { "id": "r11", "text_bn": "একটু থামুন, একটু খেলুন: {activity}।", "text_en": "Pause for a moment and play: {activity}." },
+  { "id": "r12", "text_bn": "গতকালের চেয়ে আজ নতুন কিছু হতে পারে! {child}-এর সাথে {activity}।", "text_en": "Something new might happen today! {activity} with {child}." },
+  { "id": "r13", "text_bn": "{activity} এর সময় হয়েছে। ধীরে, আনন্দ নিয়ে করুন।", "text_en": "It's time for {activity}. Go slowly and enjoy it." },
+  { "id": "r14", "text_bn": "{child} আজ কী নতুন করে, দেখার অপেক্ষায় আছি। {activity} শুরু করুন!", "text_en": "We can't wait to hear what {child} does today. Start {activity}!" },
+  { "id": "r15", "text_bn": "নিজের জন্যও একটু সময় নিন। তারপর {child}-এর সাথে {activity}।", "text_en": "Take a moment for yourself too. Then {activity} with {child}." },
+  { "id": "r16", "text_bn": "ছোট ছোট ধাপেই বড় পরিবর্তন। আজকের ধাপ: {activity}।", "text_en": "Small steps make big changes. Today's step: {activity}." },
+  { "id": "r17", "text_bn": "{child}-এর প্রিয় সময় আসছে: {activity}!", "text_en": "{child}'s favourite time is here: {activity}!" },
+  { "id": "r18", "text_bn": "আজ কেমন যাচ্ছে? সুযোগ হলে {activity} একবার করে দেখুন।", "text_en": "How is today going? If you get a chance, try {activity}." },
+  { "id": "r19", "text_bn": "আপনার পাশে আছি। {child}-এর সাথে {activity} এর সময় হলো।", "text_en": "We're with you. It's time for {activity} with {child}." },
+  { "id": "r20", "text_bn": "ঘুমের আগে শান্ত সময়: {child}-এর সাথে {activity}।", "text_en": "A calm moment before sleep: {activity} with {child}." }
+]

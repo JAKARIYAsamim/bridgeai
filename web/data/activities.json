@@ -1,0 +1,1112 @@
+[
+  {
+    "id": "COM-01",
+    "title_en": "Two-choice snack",
+    "title_bn": "দুটি খাবারের মধ্যে বাছাই",
+    "domain": "communication",
+    "routine_slot": "mealtime",
+    "age_bands": [
+      "under_3",
+      "3_5",
+      "6_9"
+    ],
+    "comm_levels": [
+      "preverbal",
+      "words_gestures",
+      "phrases",
+      "conversational",
+      "aac"
+    ],
+    "difficulty": 1,
+    "minutes": 5,
+    "why_bn": "শিশু চাওয়ার জন্য তাকানো, আঙুল দেখানো বা শব্দ ব্যবহার করতে শেখে।",
+    "why_en": "Your child learns to look, point or use a word to ask for what they want.",
+    "needs_bn": [
+      "শিশুর পছন্দের দুটি খাবার",
+      "একটি ছোট প্লেট"
+    ],
+    "needs_en": [
+      "Two snacks your child likes",
+      "A small plate"
+    ],
+    "steps": [
+      {
+        "text_bn": "শিশুর সামনে বসুন, দুই হাতে দুটি খাবার ধরুন।",
+        "text_en": "Sit in front of your child and hold one snack in each hand.",
+        "image": "/library/COM-01/step-1.webp"
+      },
+      {
+        "text_bn": "খাবার দুটির নাম বলুন: \"বিস্কুট না কলা?\"",
+        "text_en": "Name both snacks: \"Biscuit or banana?\"",
+        "image": "/library/COM-01/step-2.webp"
+      },
+      {
+        "text_bn": "চুপ করে ৫ সেকেন্ড অপেক্ষা করুন।",
+        "text_en": "Stay quiet and wait 5 seconds.",
+        "image": "/library/COM-01/step-3.webp"
+      },
+      {
+        "text_bn": "শিশু তাকালে, আঙুল দেখালে বা শব্দ বললে সেটির নাম বলে দিন: \"কলা!\"",
+        "text_en": "When your child looks, points or says a word, name it: \"Banana!\"",
+        "image": "/library/COM-01/step-4.webp"
+      },
+      {
+        "text_bn": "সঙ্গে সঙ্গে বেছে নেওয়া খাবারের ছোট একটি টুকরো দিন।",
+        "text_en": "Give a small piece of the chosen snack right away.",
+        "image": "/library/COM-01/step-5.webp"
+      }
+    ],
+    "success_bn": "শিশু তাকিয়ে, আঙুল দেখিয়ে বা শব্দ বলে অন্তত ৩ বার বেছে নেয়।",
+    "success_en": "Your child chooses by looking, pointing or saying a word at least 3 times.",
+    "if_upset_bn": "থামুন, শান্তভাবে একটু বিরতি দিন, পরে বা আগামীকাল আবার চেষ্টা করুন।",
+    "if_upset_en": "Stop, give a calm break, and try again later or tomorrow.",
+    "safety_note_bn": "শিশুকে কখনো জোর করবেন না বা চেপে ধরবেন না। শিশু অস্থির হলে থামুন। শাস্তি হিসেবে কখনো খাবার বা আদর বন্ধ করবেন না। নতুন কোনো চিন্তার আচরণ দেখলে ক্লিনিকে যোগাযোগ করুন।",
+    "safety_note_en": "Never force or hold your child down. Stop if your child is distressed. Never withhold food or comfort as punishment. Contact the clinic about any new worrying behaviour.",
+    "conflicts_with_flags": [
+      "food_allergy"
+    ],
+    "evidence": [
+      "PRT",
+      "NCAEP: time delay"
+    ],
+    "status": "reviewed",
+    "version": 1,
+    "cover": "/library/COM-01/cover.webp"
+  },
+  {
+    "id": "COM-02",
+    "title_en": "Ready, set… go!",
+    "title_bn": "রেডি, সেট… গো!",
+    "domain": "communication",
+    "routine_slot": "play",
+    "age_bands": [
+      "under_3",
+      "3_5",
+      "6_9"
+    ],
+    "comm_levels": [
+      "preverbal",
+      "words_gestures",
+      "phrases",
+      "aac"
+    ],
+    "difficulty": 1,
+    "minutes": 5,
+    "why_bn": "শিশু খেলা চালু রাখতে একটি শব্দ বা ইশারা ব্যবহার করতে শেখে।",
+    "why_en": "Your child learns to use a word or sign to keep a fun game going.",
+    "needs_bn": [
+      "একটি বল বা খেলনা গাড়ি"
+    ],
+    "needs_en": [
+      "A ball or toy car"
+    ],
+    "steps": [
+      {
+        "text_bn": "মেঝেতে শিশুর মুখোমুখি বসুন, মাঝখানে বলটি রাখুন।",
+        "text_en": "Sit on the floor facing your child with the ball between you.",
+        "image": "/library/COM-02/step-1.webp"
+      },
+      {
+        "text_bn": "আনন্দ করে বলুন: \"রেডি, সেট… গো!\" আর বলটি গড়িয়ে দিন।",
+        "text_en": "Say happily: \"Ready, set… go!\" and roll the ball.",
+        "image": "/library/COM-02/step-2.webp"
+      },
+      {
+        "text_bn": "আবার বলুন \"রেডি, সেট…\" তারপর থেমে শিশুর দিকে তাকিয়ে অপেক্ষা করুন।",
+        "text_en": "Say \"Ready, set…\" again, then stop and wait, looking at your child.",
+        "image": "/library/COM-02/step-3.webp"
+      },
+      {
+        "text_bn": "শিশু \"গো\" বললে, ইশারা করলে বা শব্দ করলে সঙ্গে সঙ্গে বল গড়িয়ে দিন।",
+        "text_en": "When your child says \"go\", signs or makes a sound, roll the ball right away.",
+        "image": "/library/COM-02/step-4.webp"
+      },
+      {
+        "text_bn": "শিশু আনন্দ পাওয়া পর্যন্ত কয়েকবার করুন।",
+        "text_en": "Repeat a few times while your child is having fun.",
+        "image": "/library/COM-02/step-5.webp"
+      }
+    ],
+    "success_bn": "শিশু অন্তত ২ বার \"গো\" বলে বা ইশারা করে খেলা শুরু করায়।",
+    "success_en": "Your child says or signs \"go\" to start the game at least 2 times.",
+    "if_upset_bn": "থামুন, শান্তভাবে একটু বিরতি দিন, পরে বা আগামীকাল আবার চেষ্টা করুন।",
+    "if_upset_en": "Stop, give a calm break, and try again later or tomorrow.",
+    "safety_note_bn": "শিশুকে কখনো জোর করবেন না বা চেপে ধরবেন না। শিশু অস্থির হলে থামুন। শাস্তি হিসেবে কখনো খাবার বা আদর বন্ধ করবেন না। নতুন কোনো চিন্তার আচরণ দেখলে ক্লিনিকে যোগাযোগ করুন।",
+    "safety_note_en": "Never force or hold your child down. Stop if your child is distressed. Never withhold food or comfort as punishment. Contact the clinic about any new worrying behaviour.",
+    "conflicts_with_flags": [],
+    "evidence": [
+      "NCAEP: time delay",
+      "NCAEP: naturalistic intervention"
+    ],
+    "status": "reviewed",
+    "version": 1,
+    "cover": "/library/COM-02/cover.webp"
+  },
+  {
+    "id": "COM-03",
+    "title_en": "Picture card for \"more\"",
+    "title_bn": "\"আরও\" ছবির কার্ড",
+    "domain": "communication",
+    "routine_slot": "mealtime",
+    "age_bands": [
+      "under_3",
+      "3_5",
+      "6_9",
+      "10_plus"
+    ],
+    "comm_levels": [
+      "preverbal",
+      "words_gestures",
+      "phrases",
+      "conversational",
+      "aac"
+    ],
+    "difficulty": 1,
+    "minutes": 5,
+    "why_bn": "কথা না বললেও শিশু ছবি দিয়ে \"আরও\" চাইতে শেখে।",
+    "why_en": "Your child learns to ask for \"more\" with a picture, even without words.",
+    "needs_bn": [
+      "\"আরও\" লেখা একটি ছবির কার্ড",
+      "শিশুর পছন্দের খাবার"
+    ],
+    "needs_en": [
+      "A \"more\" picture card",
+      "A food your child likes"
+    ],
+    "steps": [
+      {
+        "text_bn": "খাবারের সময় \"আরও\" কার্ডটি শিশুর পাশে টেবিলে রাখুন।",
+        "text_en": "At mealtime, put the \"more\" card on the table next to your child.",
+        "image": "/library/COM-03/step-1.webp"
+      },
+      {
+        "text_bn": "খাবারের ছোট একটি টুকরো দিন, শেষ হওয়া পর্যন্ত অপেক্ষা করুন।",
+        "text_en": "Give a small bite and wait until it is finished.",
+        "image": "/library/COM-03/step-2.webp"
+      },
+      {
+        "text_bn": "শিশু আরও চাইলে কার্ডটি দেখান আর বলুন \"আরও?\"",
+        "text_en": "When your child wants more, show the card and say \"More?\"",
+        "image": "/library/COM-03/step-3.webp"
+      },
+      {
+        "text_bn": "শিশু কার্ডটি ছুঁলে বা আপনার হাতে দিলে বলুন \"আরও!\" আর আরেকটি টুকরো দিন।",
+        "text_en": "When your child touches or hands you the card, say \"More!\" and give another bite.",
+        "image": "/library/COM-03/step-4.webp"
+      },
+      {
+        "text_bn": "প্রথম দিকে দরকার হলে শিশুর হাত আলতো করে কার্ডের দিকে নিয়ে যান, পরে সাহায্য কমান।",
+        "text_en": "At first, gently guide your child's hand to the card if needed, then help less.",
+        "image": "/library/COM-03/step-5.webp"
+      }
+    ],
+    "success_bn": "শিশু নিজে থেকে কার্ড ছুঁয়ে বা দিয়ে অন্তত ৩ বার আরও চায়।",
+    "success_en": "Your child touches or gives the card on their own to ask for more at least 3 times.",
+    "if_upset_bn": "থামুন, শান্তভাবে একটু বিরতি দিন, পরে বা আগামীকাল আবার চেষ্টা করুন।",
+    "if_upset_en": "Stop, give a calm break, and try again later or tomorrow.",
+    "safety_note_bn": "শিশুকে কখনো জোর করবেন না বা চেপে ধরবেন না। শিশু অস্থির হলে থামুন। শাস্তি হিসেবে কখনো খাবার বা আদর বন্ধ করবেন না। নতুন কোনো চিন্তার আচরণ দেখলে ক্লিনিকে যোগাযোগ করুন।",
+    "safety_note_en": "Never force or hold your child down. Stop if your child is distressed. Never withhold food or comfort as punishment. Contact the clinic about any new worrying behaviour.",
+    "conflicts_with_flags": [
+      "food_allergy"
+    ],
+    "evidence": [
+      "NCAEP: AAC",
+      "NCAEP: functional communication training"
+    ],
+    "status": "reviewed",
+    "version": 1,
+    "cover": "/library/COM-03/cover.webp"
+  },
+  {
+    "id": "SOC-01",
+    "title_en": "Face-to-face bubbles",
+    "title_bn": "মুখোমুখি বাবল খেলা",
+    "domain": "social",
+    "routine_slot": "play",
+    "age_bands": [
+      "under_3",
+      "3_5",
+      "6_9"
+    ],
+    "comm_levels": [
+      "preverbal",
+      "words_gestures",
+      "phrases",
+      "conversational",
+      "aac"
+    ],
+    "difficulty": 1,
+    "minutes": 5,
+    "why_bn": "শিশু আপনার মুখের দিকে তাকাতে আর আনন্দ ভাগ করতে শেখে।",
+    "why_en": "Your child learns to look at your face and share fun with you.",
+    "needs_bn": [
+      "একটি বাবল বোতল"
+    ],
+    "needs_en": [
+      "A bubble bottle"
+    ],
+    "steps": [
+      {
+        "text_bn": "শিশুর চোখের সমান উচ্চতায় মুখোমুখি বসুন।",
+        "text_en": "Sit face to face at your child's eye level.",
+        "image": "/library/SOC-01/step-1.webp"
+      },
+      {
+        "text_bn": "কয়েকটি বাবল উড়িয়ে আনন্দ করে বলুন: বাবল!",
+        "text_en": "Blow a few bubbles and say \"bubbles!\" happily.",
+        "image": "/library/SOC-01/step-2.webp"
+      },
+      {
+        "text_bn": "থামুন, বোতলটি আপনার মুখের কাছে ধরে ৫ সেকেন্ড অপেক্ষা করুন।",
+        "text_en": "Stop, hold the bottle near your face and wait 5 seconds.",
+        "image": "/library/SOC-01/step-3.webp"
+      },
+      {
+        "text_bn": "শিশু তাকালে, আঙুল দেখালে বা শব্দ করলে সঙ্গে সঙ্গে আবার বাবল উড়ান।",
+        "text_en": "When your child looks, points or makes a sound, blow bubbles again right away.",
+        "image": "/library/SOC-01/step-4.webp"
+      },
+      {
+        "text_bn": "শিশু যতক্ষণ আনন্দ পাচ্ছে, ৫–১০ বার করুন।",
+        "text_en": "Repeat 5–10 times while your child enjoys it.",
+        "image": "/library/SOC-01/step-5.webp"
+      }
+    ],
+    "success_bn": "শিশু আরও চাওয়ার জন্য অন্তত ৩ বার আপনার মুখের দিকে তাকায়।",
+    "success_en": "Your child looks at your face to ask for more at least 3 times.",
+    "if_upset_bn": "থামুন, শান্তভাবে একটু বিরতি দিন, পরে বা আগামীকাল আবার চেষ্টা করুন।",
+    "if_upset_en": "Stop, give a calm break, and try again later or tomorrow.",
+    "safety_note_bn": "শিশুকে কখনো জোর করবেন না বা চেপে ধরবেন না। শিশু অস্থির হলে থামুন। শাস্তি হিসেবে কখনো খাবার বা আদর বন্ধ করবেন না। নতুন কোনো চিন্তার আচরণ দেখলে ক্লিনিকে যোগাযোগ করুন।",
+    "safety_note_en": "Never force or hold your child down. Stop if your child is distressed. Never withhold food or comfort as punishment. Contact the clinic about any new worrying behaviour.",
+    "conflicts_with_flags": [],
+    "evidence": [
+      "JASPER",
+      "PACT",
+      "NCAEP: time delay",
+      "NCAEP: naturalistic intervention"
+    ],
+    "status": "reviewed",
+    "version": 1,
+    "cover": "/library/SOC-01/cover.webp"
+  },
+  {
+    "id": "SOC-02",
+    "title_en": "Song with a pause",
+    "title_bn": "থেমে থেমে গান",
+    "domain": "social",
+    "routine_slot": "any",
+    "age_bands": [
+      "under_3",
+      "3_5"
+    ],
+    "comm_levels": [
+      "preverbal",
+      "words_gestures",
+      "phrases",
+      "conversational",
+      "aac"
+    ],
+    "difficulty": 1,
+    "minutes": 5,
+    "why_bn": "শিশু আপনার সাথে পালা করে খেলতে আর যোগ দিতে শেখে।",
+    "why_en": "Your child learns to take turns and join in with you.",
+    "needs_bn": [
+      "শিশুর প্রিয় একটি ছড়া বা গান"
+    ],
+    "needs_en": [
+      "A rhyme or song your child loves"
+    ],
+    "steps": [
+      {
+        "text_bn": "শিশুর মুখোমুখি বসে প্রিয় গানটি হাসিমুখে গাইতে শুরু করুন।",
+        "text_en": "Sit facing your child and start singing the favourite song with a smile.",
+        "image": "/library/SOC-02/step-1.webp"
+      },
+      {
+        "text_bn": "কয়েকবার পুরো গানটি গেয়ে শোনান, সাথে হাতের ভঙ্গি করুন।",
+        "text_en": "Sing the whole song a few times with hand actions.",
+        "image": "/library/SOC-02/step-2.webp"
+      },
+      {
+        "text_bn": "এবার একটি চেনা শব্দের ঠিক আগে থেমে শিশুর দিকে তাকিয়ে অপেক্ষা করুন।",
+        "text_en": "Now stop just before a familiar word and wait, looking at your child.",
+        "image": "/library/SOC-02/step-3.webp"
+      },
+      {
+        "text_bn": "শিশু শব্দ, আওয়াজ বা ভঙ্গি করলে খুশি হয়ে গান আবার চালিয়ে যান।",
+        "text_en": "When your child makes a word, sound or action, happily carry on singing.",
+        "image": "/library/SOC-02/step-4.webp"
+      }
+    ],
+    "success_bn": "শিশু থামার জায়গায় অন্তত ২ বার শব্দ, আওয়াজ বা ভঙ্গি দিয়ে যোগ দেয়।",
+    "success_en": "Your child fills the pause with a word, sound or action at least 2 times.",
+    "if_upset_bn": "থামুন, শান্তভাবে একটু বিরতি দিন, পরে বা আগামীকাল আবার চেষ্টা করুন।",
+    "if_upset_en": "Stop, give a calm break, and try again later or tomorrow.",
+    "safety_note_bn": "শিশুকে কখনো জোর করবেন না বা চেপে ধরবেন না। শিশু অস্থির হলে থামুন। শাস্তি হিসেবে কখনো খাবার বা আদর বন্ধ করবেন না। নতুন কোনো চিন্তার আচরণ দেখলে ক্লিনিকে যোগাযোগ করুন।",
+    "safety_note_en": "Never force or hold your child down. Stop if your child is distressed. Never withhold food or comfort as punishment. Contact the clinic about any new worrying behaviour.",
+    "conflicts_with_flags": [],
+    "evidence": [
+      "JASPER",
+      "PACT"
+    ],
+    "status": "reviewed",
+    "version": 1,
+    "cover": "/library/SOC-02/cover.webp"
+  },
+  {
+    "id": "PLY-01",
+    "title_en": "Copy, then add one",
+    "title_bn": "নকল করুন, তারপর একটি যোগ করুন",
+    "domain": "imitation_play",
+    "routine_slot": "play",
+    "age_bands": [
+      "under_3",
+      "3_5",
+      "6_9"
+    ],
+    "comm_levels": [
+      "preverbal",
+      "words_gestures",
+      "phrases",
+      "conversational",
+      "aac"
+    ],
+    "difficulty": 1,
+    "minutes": 5,
+    "why_bn": "শিশু আপনাকে দেখে নতুন উপায়ে খেলতে শেখে।",
+    "why_en": "Your child learns new ways to play by watching you.",
+    "needs_bn": [
+      "একই রকম দুটি খেলনা (যেমন দুটি গাড়ি বা দুটি ব্লক)"
+    ],
+    "needs_en": [
+      "Two matching toys (for example two cars or two blocks)"
+    ],
+    "steps": [
+      {
+        "text_bn": "শিশুর পাশে বসুন, একই রকম খেলনা নিজের হাতে নিন।",
+        "text_en": "Sit beside your child and take a matching toy for yourself.",
+        "image": "/library/PLY-01/step-1.webp"
+      },
+      {
+        "text_bn": "শিশু খেলনা দিয়ে যা করছে, ঠিক সেটাই নকল করুন।",
+        "text_en": "Copy exactly what your child does with the toy.",
+        "image": "/library/PLY-01/step-2.webp"
+      },
+      {
+        "text_bn": "আপনি কী করছেন সহজ শব্দে বলুন: \"গাড়ি চলে!\"",
+        "text_en": "Say what you are doing in simple words: \"Car goes!\"",
+        "image": "/library/PLY-01/step-3.webp"
+      },
+      {
+        "text_bn": "কিছুক্ষণ পর নতুন একটি কাজ যোগ করুন, যেমন গাড়িকে ব্লকের উপর তুলুন।",
+        "text_en": "After a while, add one new action, like driving the car up a block.",
+        "image": "/library/PLY-01/step-4.webp"
+      },
+      {
+        "text_bn": "শিশু নকল করলে খুশি হয়ে প্রশংসা করুন, না করলে আবার শিশুকে নকল করুন।",
+        "text_en": "If your child copies you, praise happily; if not, go back to copying your child.",
+        "image": "/library/PLY-01/step-5.webp"
+      }
+    ],
+    "success_bn": "শিশু আপনার নতুন কাজটি অন্তত একবার নকল করে।",
+    "success_en": "Your child copies your new action at least once.",
+    "if_upset_bn": "থামুন, শান্তভাবে একটু বিরতি দিন, পরে বা আগামীকাল আবার চেষ্টা করুন।",
+    "if_upset_en": "Stop, give a calm break, and try again later or tomorrow.",
+    "safety_note_bn": "শিশুকে কখনো জোর করবেন না বা চেপে ধরবেন না। শিশু অস্থির হলে থামুন। শাস্তি হিসেবে কখনো খাবার বা আদর বন্ধ করবেন না। নতুন কোনো চিন্তার আচরণ দেখলে ক্লিনিকে যোগাযোগ করুন।",
+    "safety_note_en": "Never force or hold your child down. Stop if your child is distressed. Never withhold food or comfort as punishment. Contact the clinic about any new worrying behaviour.",
+    "conflicts_with_flags": [],
+    "evidence": [
+      "Project ImPACT: reciprocal imitation",
+      "NCAEP: modelling"
+    ],
+    "status": "reviewed",
+    "version": 1,
+    "cover": "/library/PLY-01/cover.webp"
+  },
+  {
+    "id": "PLY-02",
+    "title_en": "Feed the doll",
+    "title_bn": "পুতুলকে খাওয়ানো",
+    "domain": "imitation_play",
+    "routine_slot": "play",
+    "age_bands": [
+      "3_5",
+      "6_9"
+    ],
+    "comm_levels": [
+      "preverbal",
+      "words_gestures",
+      "phrases",
+      "conversational",
+      "aac"
+    ],
+    "difficulty": 1,
+    "minutes": 5,
+    "why_bn": "শিশু ভান করে খেলা আর অন্যের কথা ভাবা শেখে।",
+    "why_en": "Your child learns pretend play and to think about others.",
+    "needs_bn": [
+      "একটি পুতুল বা নরম খেলনা",
+      "একটি খেলনা চামচ ও বাটি"
+    ],
+    "needs_en": [
+      "A doll or soft toy",
+      "A toy spoon and bowl"
+    ],
+    "steps": [
+      {
+        "text_bn": "পুতুল, চামচ আর বাটি শিশুর সামনে রাখুন।",
+        "text_en": "Put the doll, spoon and bowl in front of your child.",
+        "image": "/library/PLY-02/step-1.webp"
+      },
+      {
+        "text_bn": "বলুন \"পুতুলের খিদে পেয়েছে!\" আর চামচ দিয়ে পুতুলকে ভান করে খাওয়ান।",
+        "text_en": "Say \"Dolly is hungry!\" and pretend to feed the doll with the spoon.",
+        "image": "/library/PLY-02/step-2.webp"
+      },
+      {
+        "text_bn": "\"হাম হাম, মজা!\" বলে আনন্দ দেখান।",
+        "text_en": "Show the fun: \"Yum yum, tasty!\"",
+        "image": "/library/PLY-02/step-3.webp"
+      },
+      {
+        "text_bn": "চামচটি শিশুর দিকে এগিয়ে দিয়ে বলুন: \"তোমার পালা।\"",
+        "text_en": "Hold the spoon out to your child and say: \"Your turn.\"",
+        "image": "/library/PLY-02/step-4.webp"
+      },
+      {
+        "text_bn": "শিশু খাওয়ালে বা চেষ্টা করলে প্রশংসা করুন: \"পুতুল খুশি!\"",
+        "text_en": "When your child feeds the doll or tries, praise them: \"Dolly is happy!\"",
+        "image": "/library/PLY-02/step-5.webp"
+      }
+    ],
+    "success_bn": "শিশু অন্তত একবার নিজে পুতুলকে ভান করে খাওয়ায়।",
+    "success_en": "Your child pretends to feed the doll on their own at least once.",
+    "if_upset_bn": "থামুন, শান্তভাবে একটু বিরতি দিন, পরে বা আগামীকাল আবার চেষ্টা করুন।",
+    "if_upset_en": "Stop, give a calm break, and try again later or tomorrow.",
+    "safety_note_bn": "শিশুকে কখনো জোর করবেন না বা চেপে ধরবেন না। শিশু অস্থির হলে থামুন। শাস্তি হিসেবে কখনো খাবার বা আদর বন্ধ করবেন না। নতুন কোনো চিন্তার আচরণ দেখলে ক্লিনিকে যোগাযোগ করুন।",
+    "safety_note_en": "Never force or hold your child down. Stop if your child is distressed. Never withhold food or comfort as punishment. Contact the clinic about any new worrying behaviour.",
+    "conflicts_with_flags": [],
+    "evidence": [
+      "JASPER: symbolic play",
+      "NCAEP: modelling"
+    ],
+    "status": "reviewed",
+    "version": 1,
+    "cover": "/library/PLY-02/cover.webp"
+  },
+  {
+    "id": "SEN-01",
+    "title_en": "Calm-down corner",
+    "title_bn": "শান্ত হওয়ার কোণ",
+    "domain": "sensory",
+    "routine_slot": "any",
+    "age_bands": [
+      "under_3",
+      "3_5",
+      "6_9",
+      "10_plus"
+    ],
+    "comm_levels": [
+      "preverbal",
+      "words_gestures",
+      "phrases",
+      "conversational",
+      "aac"
+    ],
+    "difficulty": 1,
+    "minutes": 10,
+    "why_bn": "অস্থির লাগলে শিশু শান্ত হওয়ার একটি নিরাপদ জায়গা পায়।",
+    "why_en": "Your child gets a safe place to calm down when upset.",
+    "needs_bn": [
+      "ঘরের একটি নিরিবিলি কোণ",
+      "একটি নরম বালিশ বা কম্বল",
+      "শিশুর প্রিয় নরম খেলনা"
+    ],
+    "needs_en": [
+      "A quiet corner of the home",
+      "A soft cushion or blanket",
+      "Your child's favourite soft toy"
+    ],
+    "steps": [
+      {
+        "text_bn": "ঘরের একটি নিরিবিলি কোণে নরম বালিশ আর প্রিয় খেলনা রাখুন।",
+        "text_en": "Put a soft cushion and a favourite toy in a quiet corner.",
+        "image": "/library/SEN-01/step-1.webp"
+      },
+      {
+        "text_bn": "শিশু শান্ত থাকা অবস্থায় একসাথে কোণে গিয়ে কিছুক্ষণ বসুন।",
+        "text_en": "While your child is calm, go and sit in the corner together for a little while.",
+        "image": "/library/SEN-01/step-2.webp"
+      },
+      {
+        "text_bn": "শিশু অস্থির হতে শুরু করলে শান্ত গলায় বলুন \"চলো, শান্ত কোণে যাই।\"",
+        "text_en": "When your child starts to get upset, say calmly: \"Let's go to the calm corner.\"",
+        "image": "/library/SEN-01/step-3.webp"
+      },
+      {
+        "text_bn": "কোণে শিশুর পাশে চুপচাপ থাকুন, কম কথা বলুন।",
+        "text_en": "Stay quietly beside your child in the corner and talk very little.",
+        "image": "/library/SEN-01/step-4.webp"
+      },
+      {
+        "text_bn": "শিশু শান্ত হলে নরম গলায় প্রশংসা করুন।",
+        "text_en": "When your child is calm, praise them softly.",
+        "image": "/library/SEN-01/step-5.webp"
+      }
+    ],
+    "success_bn": "শিশু অস্থির হলে আপনার সাথে কোণে যায় এবং আগের চেয়ে তাড়াতাড়ি শান্ত হয়।",
+    "success_en": "Your child goes to the corner with you when upset and calms sooner than before.",
+    "if_upset_bn": "থামুন, শান্তভাবে একটু বিরতি দিন, পরে বা আগামীকাল আবার চেষ্টা করুন।",
+    "if_upset_en": "Stop, give a calm break, and try again later or tomorrow.",
+    "safety_note_bn": "শিশুকে কখনো জোর করবেন না বা চেপে ধরবেন না। শিশু অস্থির হলে থামুন। শাস্তি হিসেবে কখনো খাবার বা আদর বন্ধ করবেন না। নতুন কোনো চিন্তার আচরণ দেখলে ক্লিনিকে যোগাযোগ করুন।",
+    "safety_note_en": "Never force or hold your child down. Stop if your child is distressed. Never withhold food or comfort as punishment. Contact the clinic about any new worrying behaviour.",
+    "conflicts_with_flags": [],
+    "evidence": [
+      "NCAEP: antecedent-based intervention"
+    ],
+    "status": "reviewed",
+    "version": 1,
+    "cover": "/library/SEN-01/cover.webp"
+  },
+  {
+    "id": "SEN-02",
+    "title_en": "Noise warning",
+    "title_bn": "শব্দের আগে সতর্ক করা",
+    "domain": "sensory",
+    "routine_slot": "mealtime",
+    "age_bands": [
+      "under_3",
+      "3_5",
+      "6_9",
+      "10_plus"
+    ],
+    "comm_levels": [
+      "preverbal",
+      "words_gestures",
+      "phrases",
+      "conversational",
+      "aac"
+    ],
+    "difficulty": 1,
+    "minutes": 2,
+    "why_bn": "আগে থেকে জানলে জোরে শব্দে শিশু কম ভয় পায়।",
+    "why_en": "Knowing first helps your child feel less scared of loud sounds.",
+    "needs_bn": [
+      "প্রেশার কুকার বা ব্লেন্ডারের একটি ছবি"
+    ],
+    "needs_en": [
+      "A picture of the pressure cooker or blender"
+    ],
+    "steps": [
+      {
+        "text_bn": "প্রেশার কুকার বা ব্লেন্ডার চালু করার আগে শিশুর কাছে যান।",
+        "text_en": "Before you start the pressure cooker or blender, go to your child.",
+        "image": "/library/SEN-02/step-1.webp"
+      },
+      {
+        "text_bn": "ছবিটি দেখিয়ে শান্তভাবে বলুন: \"এখন জোরে শব্দ হবে।\"",
+        "text_en": "Show the picture and say calmly: \"A loud sound is coming.\"",
+        "image": "/library/SEN-02/step-2.webp"
+      },
+      {
+        "text_bn": "শিশুকে চাইলে কান ঢাকতে বা দূরে সরে যেতে সাহায্য করুন।",
+        "text_en": "Help your child cover their ears or move away if they want.",
+        "image": "/library/SEN-02/step-3.webp"
+      },
+      {
+        "text_bn": "শব্দ শেষ হলে বলুন \"শেষ!\" আর প্রশংসা করুন।",
+        "text_en": "When the sound ends, say \"All done!\" and praise your child.",
+        "image": "/library/SEN-02/step-4.webp"
+      }
+    ],
+    "success_bn": "সতর্ক করার পর শিশু শব্দে আগের চেয়ে কম অস্থির হয়।",
+    "success_en": "After the warning, your child gets less upset by the sound than before.",
+    "if_upset_bn": "থামুন, শান্তভাবে একটু বিরতি দিন, পরে বা আগামীকাল আবার চেষ্টা করুন।",
+    "if_upset_en": "Stop, give a calm break, and try again later or tomorrow.",
+    "safety_note_bn": "শিশুকে কখনো জোর করবেন না বা চেপে ধরবেন না। শিশু অস্থির হলে থামুন। শাস্তি হিসেবে কখনো খাবার বা আদর বন্ধ করবেন না। নতুন কোনো চিন্তার আচরণ দেখলে ক্লিনিকে যোগাযোগ করুন।",
+    "safety_note_en": "Never force or hold your child down. Stop if your child is distressed. Never withhold food or comfort as punishment. Contact the clinic about any new worrying behaviour.",
+    "conflicts_with_flags": [],
+    "evidence": [
+      "NCAEP: antecedent-based intervention",
+      "NCAEP: visual supports"
+    ],
+    "status": "reviewed",
+    "version": 1,
+    "cover": "/library/SEN-02/cover.webp"
+  },
+  {
+    "id": "DLY-01",
+    "title_en": "Handwashing in 6 steps",
+    "title_bn": "৬ ধাপে হাত ধোয়া",
+    "domain": "daily_living",
+    "routine_slot": "bath_toilet",
+    "age_bands": [
+      "3_5",
+      "6_9",
+      "10_plus"
+    ],
+    "comm_levels": [
+      "preverbal",
+      "words_gestures",
+      "phrases",
+      "conversational",
+      "aac"
+    ],
+    "difficulty": 1,
+    "minutes": 3,
+    "why_bn": "ছবি দেখে দেখে শিশু নিজে হাত ধুতে শেখে।",
+    "why_en": "Your child learns to wash hands alone by following pictures.",
+    "needs_bn": [
+      "বেসিনের উপরে ৬টি ছবির ধাপ",
+      "সাবান",
+      "তোয়ালে"
+    ],
+    "needs_en": [
+      "6 picture steps above the sink",
+      "Soap",
+      "A towel"
+    ],
+    "steps": [
+      {
+        "text_bn": "কল খুলে হাত ভেজাও।",
+        "text_en": "Turn on the tap and wet your hands.",
+        "image": "/library/DLY-01/step-1.webp"
+      },
+      {
+        "text_bn": "হাতে সাবান নাও।",
+        "text_en": "Take some soap.",
+        "image": "/library/DLY-01/step-2.webp"
+      },
+      {
+        "text_bn": "দুই হাত ঘষে ফেনা করো।",
+        "text_en": "Rub your hands together to make bubbles.",
+        "image": "/library/DLY-01/step-3.webp"
+      },
+      {
+        "text_bn": "পানিতে হাত ধুয়ে ফেলো।",
+        "text_en": "Rinse your hands in the water.",
+        "image": "/library/DLY-01/step-4.webp"
+      },
+      {
+        "text_bn": "কল বন্ধ করো।",
+        "text_en": "Turn off the tap.",
+        "image": "/library/DLY-01/step-5.webp"
+      },
+      {
+        "text_bn": "তোয়ালে দিয়ে হাত মোছো।",
+        "text_en": "Dry your hands with the towel.",
+        "image": "/library/DLY-01/step-6.webp"
+      }
+    ],
+    "success_bn": "শিশু আগের সপ্তাহের চেয়ে কম সাহায্যে সব ধাপ শেষ করে।",
+    "success_en": "Your child finishes all steps with less help than last week.",
+    "if_upset_bn": "থামুন, শান্তভাবে একটু বিরতি দিন, পরে বা আগামীকাল আবার চেষ্টা করুন।",
+    "if_upset_en": "Stop, give a calm break, and try again later or tomorrow.",
+    "safety_note_bn": "শিশুকে কখনো জোর করবেন না বা চেপে ধরবেন না। শিশু অস্থির হলে থামুন। শাস্তি হিসেবে কখনো খাবার বা আদর বন্ধ করবেন না। নতুন কোনো চিন্তার আচরণ দেখলে ক্লিনিকে যোগাযোগ করুন।",
+    "safety_note_en": "Never force or hold your child down. Stop if your child is distressed. Never withhold food or comfort as punishment. Contact the clinic about any new worrying behaviour.",
+    "conflicts_with_flags": [],
+    "evidence": [
+      "NCAEP: task analysis",
+      "NCAEP: visual supports",
+      "NCAEP: prompting"
+    ],
+    "status": "reviewed",
+    "version": 1,
+    "cover": "/library/DLY-01/cover.webp"
+  },
+  {
+    "id": "DLY-02",
+    "title_en": "Dressing: child does the last step",
+    "title_bn": "জামা পরা: শেষ ধাপটি শিশু করবে",
+    "domain": "daily_living",
+    "routine_slot": "morning",
+    "age_bands": [
+      "3_5",
+      "6_9"
+    ],
+    "comm_levels": [
+      "preverbal",
+      "words_gestures",
+      "phrases",
+      "conversational",
+      "aac"
+    ],
+    "difficulty": 1,
+    "minutes": 5,
+    "why_bn": "শেষ ধাপটি নিজে করে শিশু সফলতার আনন্দ পায় আর ধীরে ধীরে বেশি শেখে।",
+    "why_en": "Doing the last step brings your child the joy of success and builds skills bit by bit.",
+    "needs_bn": [
+      "শিশুর জামা বা প্যান্ট"
+    ],
+    "needs_en": [
+      "Your child's shirt or trousers"
+    ],
+    "steps": [
+      {
+        "text_bn": "জামাটি শিশুর সামনে রাখুন আর বলুন: \"চলো জামা পরি।\"",
+        "text_en": "Lay the shirt in front of your child and say: \"Let's get dressed.\"",
+        "image": "/library/DLY-02/step-1.webp"
+      },
+      {
+        "text_bn": "মাথা আর একটি হাত ঢোকাতে আপনি সাহায্য করুন।",
+        "text_en": "Help your child put their head and one arm through.",
+        "image": "/library/DLY-02/step-2.webp"
+      },
+      {
+        "text_bn": "শেষ হাতটি শিশুকে নিজে ঢোকাতে দিন।",
+        "text_en": "Let your child push the last arm through on their own.",
+        "image": "/library/DLY-02/step-3.webp"
+      },
+      {
+        "text_bn": "শিশু শেষ করলে সঙ্গে সঙ্গে খুশি হয়ে প্রশংসা করুন: \"তুমি নিজে পরেছ!\"",
+        "text_en": "When your child finishes, praise them happily right away: \"You did it yourself!\"",
+        "image": "/library/DLY-02/step-4.webp"
+      },
+      {
+        "text_bn": "শিশু সহজে পারলে পরের সপ্তাহে শেষ দুটি ধাপ শিশুকে দিন।",
+        "text_en": "When this is easy, give your child the last two steps next week.",
+        "image": "/library/DLY-02/step-5.webp"
+      }
+    ],
+    "success_bn": "শিশু সাহায্য ছাড়াই শেষ ধাপটি করে।",
+    "success_en": "Your child does the last step without help.",
+    "if_upset_bn": "থামুন, শান্তভাবে একটু বিরতি দিন, পরে বা আগামীকাল আবার চেষ্টা করুন।",
+    "if_upset_en": "Stop, give a calm break, and try again later or tomorrow.",
+    "safety_note_bn": "শিশুকে কখনো জোর করবেন না বা চেপে ধরবেন না। শিশু অস্থির হলে থামুন। শাস্তি হিসেবে কখনো খাবার বা আদর বন্ধ করবেন না। নতুন কোনো চিন্তার আচরণ দেখলে ক্লিনিকে যোগাযোগ করুন।",
+    "safety_note_en": "Never force or hold your child down. Stop if your child is distressed. Never withhold food or comfort as punishment. Contact the clinic about any new worrying behaviour.",
+    "conflicts_with_flags": [],
+    "evidence": [
+      "NCAEP: task analysis (backward chaining)",
+      "NCAEP: reinforcement"
+    ],
+    "status": "reviewed",
+    "version": 1,
+    "cover": "/library/DLY-02/cover.webp"
+  },
+  {
+    "id": "DLY-03",
+    "title_en": "Bedtime picture routine",
+    "title_bn": "ঘুমের আগে ছবির রুটিন",
+    "domain": "daily_living",
+    "routine_slot": "bedtime",
+    "age_bands": [
+      "under_3",
+      "3_5",
+      "6_9",
+      "10_plus"
+    ],
+    "comm_levels": [
+      "preverbal",
+      "words_gestures",
+      "phrases",
+      "conversational",
+      "aac"
+    ],
+    "difficulty": 1,
+    "minutes": 10,
+    "why_bn": "কী হবে আগে থেকে জানলে শিশু ঘুমাতে যাওয়া সহজ মনে করে।",
+    "why_en": "Knowing what comes next makes bedtime easier for your child.",
+    "needs_bn": [
+      "৪টি ছবি: গোসল, রাতের জামা, বই, ঘুম"
+    ],
+    "needs_en": [
+      "4 pictures: bath, nightclothes, book, sleep"
+    ],
+    "steps": [
+      {
+        "text_bn": "৪টি ছবি পরপর দেয়ালে বা একটি কার্ডে লাগান।",
+        "text_en": "Stick the 4 pictures in order on the wall or a card.",
+        "image": "/library/DLY-03/step-1.webp"
+      },
+      {
+        "text_bn": "প্রতিটি কাজের আগে ছবিতে আঙুল দিয়ে দেখান: \"এখন গোসল।\"",
+        "text_en": "Before each step, point to its picture: \"Now bath.\"",
+        "image": "/library/DLY-03/step-2.webp"
+      },
+      {
+        "text_bn": "কাজ শেষ হলে ছবিটি উল্টে দিন বা টিক দিন।",
+        "text_en": "When a step is done, turn the picture over or tick it.",
+        "image": "/library/DLY-03/step-3.webp"
+      },
+      {
+        "text_bn": "শেষ ছবিতে এসে বলুন: \"এখন ঘুম। শুভ রাত্রি।\"",
+        "text_en": "At the last picture, say: \"Now sleep. Good night.\"",
+        "image": "/library/DLY-03/step-4.webp"
+      }
+    ],
+    "success_bn": "শিশু ছবি দেখে পরের কাজের দিকে যায় এবং ঘুমাতে যাওয়া শান্ত হয়।",
+    "success_en": "Your child follows the pictures to the next step and bedtime is calmer.",
+    "if_upset_bn": "থামুন, শান্তভাবে একটু বিরতি দিন, পরে বা আগামীকাল আবার চেষ্টা করুন।",
+    "if_upset_en": "Stop, give a calm break, and try again later or tomorrow.",
+    "safety_note_bn": "শিশুকে কখনো জোর করবেন না বা চেপে ধরবেন না। শিশু অস্থির হলে থামুন। শাস্তি হিসেবে কখনো খাবার বা আদর বন্ধ করবেন না। নতুন কোনো চিন্তার আচরণ দেখলে ক্লিনিকে যোগাযোগ করুন।",
+    "safety_note_en": "Never force or hold your child down. Stop if your child is distressed. Never withhold food or comfort as punishment. Contact the clinic about any new worrying behaviour.",
+    "conflicts_with_flags": [],
+    "evidence": [
+      "NCAEP: visual supports"
+    ],
+    "status": "reviewed",
+    "version": 1,
+    "cover": "/library/DLY-03/cover.webp"
+  },
+  {
+    "id": "BEH-01",
+    "title_en": "First–then board",
+    "title_bn": "আগে–পরে বোর্ড",
+    "domain": "behaviour",
+    "routine_slot": "any",
+    "age_bands": [
+      "3_5",
+      "6_9",
+      "10_plus"
+    ],
+    "comm_levels": [
+      "preverbal",
+      "words_gestures",
+      "phrases",
+      "conversational",
+      "aac"
+    ],
+    "difficulty": 1,
+    "minutes": 3,
+    "why_bn": "শিশু বোঝে কঠিন কাজের পরেই পছন্দের কিছু আসছে।",
+    "why_en": "Your child sees that something they like comes right after a harder task.",
+    "needs_bn": [
+      "দুই ঘরের একটি কার্ড",
+      "কাজ আর পছন্দের জিনিসের ছবি"
+    ],
+    "needs_en": [
+      "A card with two boxes",
+      "Pictures of the task and the treat"
+    ],
+    "steps": [
+      {
+        "text_bn": "কার্ডের বাম ঘরে \"আগে\" কাজের ছবি রাখুন, যেমন জুতা।",
+        "text_en": "Put the \"first\" task picture in the left box, like shoes.",
+        "image": "/library/BEH-01/step-1.webp"
+      },
+      {
+        "text_bn": "ডান ঘরে \"পরে\" পছন্দের জিনিসের ছবি রাখুন, যেমন পার্ক।",
+        "text_en": "Put the \"then\" treat picture in the right box, like the park.",
+        "image": "/library/BEH-01/step-2.webp"
+      },
+      {
+        "text_bn": "ছবিতে আঙুল দিয়ে বলুন: \"আগে জুতা, পরে পার্ক।\"",
+        "text_en": "Point and say: \"First shoes, then park.\"",
+        "image": "/library/BEH-01/step-3.webp"
+      },
+      {
+        "text_bn": "শিশু প্রথম কাজটি করলে সঙ্গে সঙ্গে কথামতো পছন্দের জিনিসটি দিন।",
+        "text_en": "When your child does the first task, give the treat right away, as promised.",
+        "image": "/library/BEH-01/step-4.webp"
+      }
+    ],
+    "success_bn": "বোর্ড দেখে শিশু কম অস্থির হয়ে প্রথম কাজটি করে।",
+    "success_en": "With the board, your child does the first task with less upset.",
+    "if_upset_bn": "থামুন, শান্তভাবে একটু বিরতি দিন, পরে বা আগামীকাল আবার চেষ্টা করুন।",
+    "if_upset_en": "Stop, give a calm break, and try again later or tomorrow.",
+    "safety_note_bn": "শিশুকে কখনো জোর করবেন না বা চেপে ধরবেন না। শিশু অস্থির হলে থামুন। শাস্তি হিসেবে কখনো খাবার বা আদর বন্ধ করবেন না। নতুন কোনো চিন্তার আচরণ দেখলে ক্লিনিকে যোগাযোগ করুন।",
+    "safety_note_en": "Never force or hold your child down. Stop if your child is distressed. Never withhold food or comfort as punishment. Contact the clinic about any new worrying behaviour.",
+    "conflicts_with_flags": [],
+    "evidence": [
+      "NCAEP: visual supports"
+    ],
+    "status": "reviewed",
+    "version": 1,
+    "cover": "/library/BEH-01/cover.webp"
+  },
+  {
+    "id": "BEH-02",
+    "title_en": "Two-minute warning",
+    "title_bn": "দুই মিনিটের সতর্কতা",
+    "domain": "behaviour",
+    "routine_slot": "play",
+    "age_bands": [
+      "under_3",
+      "3_5",
+      "6_9",
+      "10_plus"
+    ],
+    "comm_levels": [
+      "preverbal",
+      "words_gestures",
+      "phrases",
+      "conversational",
+      "aac"
+    ],
+    "difficulty": 1,
+    "minutes": 2,
+    "why_bn": "আগে থেকে জানলে খেলা বা টিভি শেষ হওয়া শিশুর জন্য সহজ হয়।",
+    "why_en": "A warning makes the end of play or TV easier for your child.",
+    "needs_bn": [
+      "একটি টাইমার বা মোবাইলের টাইমার"
+    ],
+    "needs_en": [
+      "A timer or phone timer"
+    ],
+    "steps": [
+      {
+        "text_bn": "খেলা বা টিভি শেষ হওয়ার ২ মিনিট আগে শিশুর কাছে যান।",
+        "text_en": "Go to your child 2 minutes before play or TV ends.",
+        "image": "/library/BEH-02/step-1.webp"
+      },
+      {
+        "text_bn": "টাইমারটি দেখিয়ে বলুন: \"আর ২ মিনিট।\"",
+        "text_en": "Show the timer and say: \"2 more minutes.\"",
+        "image": "/library/BEH-02/step-2.webp"
+      },
+      {
+        "text_bn": "টাইমার বাজলে শান্তভাবে বলুন: \"শেষ। এখন খাওয়ার সময়।\"",
+        "text_en": "When the timer rings, say calmly: \"All done. Now it's mealtime.\"",
+        "image": "/library/BEH-02/step-3.webp"
+      },
+      {
+        "text_bn": "শিশু থামলে প্রশংসা করুন এবং পরের কাজে একসাথে যান।",
+        "text_en": "When your child stops, praise them and go to the next thing together.",
+        "image": "/library/BEH-02/step-4.webp"
+      }
+    ],
+    "success_bn": "সতর্ক করার পর শিশু আগের চেয়ে কম কান্নায় খেলা থামায়।",
+    "success_en": "After the warning, your child stops playing with fewer tears than before.",
+    "if_upset_bn": "থামুন, শান্তভাবে একটু বিরতি দিন, পরে বা আগামীকাল আবার চেষ্টা করুন।",
+    "if_upset_en": "Stop, give a calm break, and try again later or tomorrow.",
+    "safety_note_bn": "শিশুকে কখনো জোর করবেন না বা চেপে ধরবেন না। শিশু অস্থির হলে থামুন। শাস্তি হিসেবে কখনো খাবার বা আদর বন্ধ করবেন না। নতুন কোনো চিন্তার আচরণ দেখলে ক্লিনিকে যোগাযোগ করুন।",
+    "safety_note_en": "Never force or hold your child down. Stop if your child is distressed. Never withhold food or comfort as punishment. Contact the clinic about any new worrying behaviour.",
+    "conflicts_with_flags": [],
+    "evidence": [
+      "NCAEP: antecedent-based intervention",
+      "NCAEP: visual supports"
+    ],
+    "status": "reviewed",
+    "version": 1,
+    "cover": "/library/BEH-02/cover.webp"
+  },
+  {
+    "id": "CGW-01",
+    "title_en": "Two-minute breathing",
+    "title_bn": "দুই মিনিটের শ্বাসের ব্যায়াম",
+    "domain": "caregiver_wellbeing",
+    "routine_slot": "any",
+    "age_bands": [
+      "parent"
+    ],
+    "comm_levels": [
+      "preverbal",
+      "words_gestures",
+      "phrases",
+      "conversational",
+      "aac"
+    ],
+    "difficulty": 1,
+    "minutes": 2,
+    "why_bn": "আপনি শান্ত থাকলে শিশুর যত্ন নেওয়া সহজ হয়। নিজের যত্নও জরুরি।",
+    "why_en": "When you feel calm, caring for your child is easier. Looking after yourself matters too.",
+    "needs_bn": [
+      "একটি নিরিবিলি জায়গা",
+      "২ মিনিট সময়"
+    ],
+    "needs_en": [
+      "A quiet spot",
+      "2 minutes"
+    ],
+    "steps": [
+      {
+        "text_bn": "আরাম করে বসুন, কাঁধ ঢিলে করুন।",
+        "text_en": "Sit comfortably and relax your shoulders.",
+        "image": "/library/CGW-01/step-1.webp"
+      },
+      {
+        "text_bn": "নাক দিয়ে ধীরে ধীরে ৪ গুনে শ্বাস নিন।",
+        "text_en": "Breathe in slowly through your nose for a count of 4.",
+        "image": "/library/CGW-01/step-2.webp"
+      },
+      {
+        "text_bn": "মুখ দিয়ে ধীরে ধীরে ৬ গুনে শ্বাস ছাড়ুন।",
+        "text_en": "Breathe out slowly through your mouth for a count of 6.",
+        "image": "/library/CGW-01/step-3.webp"
+      },
+      {
+        "text_bn": "২ মিনিট ধরে এভাবে চালিয়ে যান। নিজেকে বলুন: \"আমি ভালো করছি।\"",
+        "text_en": "Keep going for 2 minutes. Tell yourself: \"I am doing well.\"",
+        "image": "/library/CGW-01/step-4.webp"
+      }
+    ],
+    "success_bn": "ব্যায়ামের পর আপনি একটু হালকা ও শান্ত বোধ করেন।",
+    "success_en": "You feel a little lighter and calmer afterwards.",
+    "if_upset_bn": "খারাপ লাগলে থামুন। মন খুব ভারী লাগলে ক্লিনিকে কথা বলুন, আপনি একা নন।",
+    "if_upset_en": "Stop if you feel unwell. If you feel very low, talk to the clinic. You are not alone.",
+    "safety_note_bn": "শিশুকে কখনো জোর করবেন না বা চেপে ধরবেন না। শিশু অস্থির হলে থামুন। শাস্তি হিসেবে কখনো খাবার বা আদর বন্ধ করবেন না। নতুন কোনো চিন্তার আচরণ দেখলে ক্লিনিকে যোগাযোগ করুন।",
+    "safety_note_en": "Never force or hold your child down. Stop if your child is distressed. Never withhold food or comfort as punishment. Contact the clinic about any new worrying behaviour.",
+    "conflicts_with_flags": [],
+    "evidence": [
+      "WHO CST: caregiver wellbeing"
+    ],
+    "status": "reviewed",
+    "version": 1,
+    "cover": "/library/CGW-01/cover.webp"
+  },
+  {
+    "id": "MOT-01",
+    "title_en": "Jump on the cushions",
+    "title_bn": "বালিশের উপর লাফ",
+    "domain": "motor",
+    "routine_slot": "play",
+    "age_bands": [
+      "3_5",
+      "6_9"
+    ],
+    "comm_levels": [
+      "preverbal",
+      "words_gestures",
+      "phrases",
+      "conversational",
+      "aac"
+    ],
+    "difficulty": 1,
+    "minutes": 5,
+    "why_bn": "লাফালাফি করে শিশুর শরীরের ভারসাম্য আর শক্তি বাড়ে।",
+    "why_en": "Jumping builds your child's balance and strength.",
+    "needs_bn": [
+      "মেঝেতে কয়েকটি নরম বালিশ"
+    ],
+    "needs_en": [
+      "A few soft cushions on the floor"
+    ],
+    "steps": [
+      {
+        "text_bn": "মেঝেতে নরম বালিশ সারি করে রাখুন, আশপাশ থেকে শক্ত জিনিস সরান।",
+        "text_en": "Line up soft cushions on the floor and move hard objects away.",
+        "image": "/library/MOT-01/step-1.webp"
+      },
+      {
+        "text_bn": "শিশুর হাত ধরে একটি বালিশে লাফ দিয়ে দেখান, জোরে গুনুন: \"এক, দুই, লাফ!\"",
+        "text_en": "Hold your child's hands and jump onto a cushion, counting loudly: \"One, two, jump!\"",
+        "image": "/library/MOT-01/step-2.webp"
+      },
+      {
+        "text_bn": "শিশুকে পরের বালিশে লাফ দিতে দিন।",
+        "text_en": "Let your child jump to the next cushion.",
+        "image": "/library/MOT-01/step-3.webp"
+      },
+      {
+        "text_bn": "প্রতিটি লাফে হাততালি দিয়ে উৎসাহ দিন।",
+        "text_en": "Clap and cheer for each jump.",
+        "image": "/library/MOT-01/step-4.webp"
+      }
+    ],
+    "success_bn": "শিশু হাত না ধরেই অন্তত ৩টি বালিশে লাফ দেয়।",
+    "success_en": "Your child jumps onto at least 3 cushions without holding hands.",
+    "if_upset_bn": "থামুন, শান্তভাবে একটু বিরতি দিন, পরে বা আগামীকাল আবার চেষ্টা করুন।",
+    "if_upset_en": "Stop, give a calm break, and try again later or tomorrow.",
+    "safety_note_bn": "শিশুকে কখনো জোর করবেন না বা চেপে ধরবেন না। শিশু অস্থির হলে থামুন। শাস্তি হিসেবে কখনো খাবার বা আদর বন্ধ করবেন না। নতুন কোনো চিন্তার আচরণ দেখলে ক্লিনিকে যোগাযোগ করুন।",
+    "safety_note_en": "Never force or hold your child down. Stop if your child is distressed. Never withhold food or comfort as punishment. Contact the clinic about any new worrying behaviour.",
+    "conflicts_with_flags": [
+      "noise"
+    ],
+    "evidence": [
+      "NCAEP: modelling"
+    ],
+    "status": "draft",
+    "version": 1,
+    "cover": "/library/MOT-01/cover.webp"
+  }
+]
