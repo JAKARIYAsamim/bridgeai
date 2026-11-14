@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Hind_Siliguri, Inter } from "next/font/google";
+import { Anek_Bangla, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { MotionInit } from "@/components/legacy/motion-init";
 import { ToastProvider } from "@/components/ui";
@@ -7,8 +7,8 @@ import { LangProvider } from "@/lib/i18n";
 import "./globals.css";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
-const hind = Hind_Siliguri({
-  variable: "--font-hind",
+const anek = Anek_Bangla({
+  variable: "--font-anek",
   subsets: ["bengali", "latin"],
   weight: ["400", "500", "600", "700"],
 });
@@ -29,7 +29,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="bn" className={`${inter.variable} ${hind.variable}`} suppressHydrationWarning>
+    <html lang="bn" className={`${inter.variable} ${anek.variable}`} suppressHydrationWarning>
       <body suppressHydrationWarning>
         <div className="stage">
           <main className="phone" id="phone">
