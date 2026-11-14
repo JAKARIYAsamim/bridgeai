@@ -8,13 +8,13 @@ import { nameIn } from "@/lib/labels";
 import { suggest } from "@/lib/matching";
 import { findSafetyKeyword } from "@/lib/safety";
 import type {
-  Activity, Alert, Caregiver, Checkin, Child, Feedback, Lesson, ParentChildView, PlanItem, Reminder,
+  Activity, Alert, Caregiver, Checkin, Child, Feedback, Lesson, Mood, ParentChildView, PlanItem, Reminder,
   ReminderTemplate, Report, Roadmap, Story, User,
 } from "@/lib/types";
 import type {
   AiService, AlertService, AuthService, ChildService, FeedbackService, LibraryService, PlanService, ReminderService,
 } from "../types";
-import { daysAgo, dkey, EXAMPLE_PLAN_DRAFT, EXAMPLE_REPORT, roadmapFromDraft } from "./seed";
+import { daysAgo, dkey, EXAMPLE_PLAN_DRAFT, roadmapFromDraft } from "./seed";
 import { clone, commit, getDB, uid, wait } from "./store";
 
 const ACTIVITIES = activitiesJson as unknown as Activity[];
@@ -340,6 +340,25 @@ export const alertService: AlertService = {
 // ---------- feedback ----------
 const withinDays = (date: string, days: number) => date >= dkey(daysAgo(days));
 
+/** All YYYY-MM-DD dates from `from` to `to`, inclusive. */
+function dateRange(from: string, to: string): string[] {
+  const out: string[] = [];
+  const d = new Date(`${from}T00:00:00`);
+  const end = new Date(`${to}T00:00:00`);
+  while (d <= end) {
+    out.push(dkey(d));
+    d.setDate(d.getDate() + 1);
+  }
+  return out;
+}
+
+/** Most frequent mood in the list; defaults to neutral when there's nothing to go on. */
+function topMood(moods: Mood[]): Mood {
+  const counts: Record<Mood, number> = { happy: 0, neutral: 0, sad: 0 };
+  moods.forEach((m) => counts[m]++);
+  return (Object.keys(counts) as Mood[]).sort((a, b) => counts[b] - counts[a])[0];
+}
+
 export const feedbackService: FeedbackService = {
   async logActivity(planItemId, mood) {
     const cg = myCaregiverRow();
@@ -469,11 +488,87 @@ export const aiService: AiService = {
   },
   async draftReport(childId, range) {
     await wait(AI_DELAY);
-    const r = clone(EXAMPLE_REPORT);
+    const db = getDB();
+    const child = db.children.find((c) => c.id === childId);
+    const name = child?.nickname ?? "This child";
     const fmt = (s: string) => new Date(s).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-    r.period = `${fmt(range.from)} – ${fmt(range.to)}`;
-    void childId;
-    return r;
+    const inRange = (date: string) => date >= range.from && date <= range.to;
+
+    const days = dateRange(range.from, range.to);
+    const logs = db.logs.filter((l) => l.childId === childId && inRange(l.date));
+    const checkins = [...db.checkins.filter((c) => c.childId === childId && inRange(c.date))].sort((a, b) =>
+      a.date.localeCompare(b.date)
+    );
+    const feedback = db.feedback.filter((f) => f.childId === childId && inRange(f.createdAt.slice(0, 10)));
+
+    // one row per activity the family was actually asked to practise this period
+    const rm = approvedRoadmap(childId);
+    const activeIds = rm
+      ? [...new Set(rm.items.filter((i) => i.active && i.phase === rm.currentPhase).map((i) => i.activityId))]
+      : [...new Set(logs.map((l) => l.activityId))];
+
+    const completion = activeIds.map((activityId) => {
+      const theirLogs = logs.filter((l) => l.activityId === activityId);
+      return { activity_id: activityId, planned: days.length, done: theirLogs.length, top_mood: topMood(theirLogs.map((l) => l.mood)) };
+    });
+
+    const practiceDays = new Set(logs.map((l) => l.date)).size;
+    const ratio = (c: (typeof completion)[number]) => c.done / Math.max(1, c.planned);
+    const best = [...completion].sort((a, b) => ratio(b) - ratio(a))[0];
+    const bestTitle = best && best.done > 0 ? ACTIVITIES.find((a) => a.id === best.activity_id)?.title_en : undefined;
+    const struggling = completion.filter((c) => c.planned > 0 && ratio(c) < 0.5).sort((a, b) => ratio(a) - ratio(b))[0];
+    const strugglingTitle = struggling ? ACTIVITIES.find((a) => a.id === struggling.activity_id)?.title_en ?? struggling.activity_id : undefined;
+
+    const summary =
+      logs.length === 0
+        ? `No practice has been logged for ${name} yet between ${fmt(range.from)} and ${fmt(range.to)}.`
+        : [
+            `${name}'s family practised on ${practiceDays} of ${days.length} days.`,
+            bestTitle ? `${bestTitle} went best.` : "",
+            checkins.some((c) => c.meltdowns !== "none") ? "A few days had harder moments — see below." : "",
+          ]
+            .filter(Boolean)
+            .join(" ");
+
+    // pattern: do hard days tend to follow a poor night's sleep?
+    const patterns: string[] = [];
+    const byDate = new Map(checkins.map((c) => [c.date, c]));
+    const hardDays = checkins.filter((c) => c.meltdowns !== "none");
+    if (hardDays.length >= 2) {
+      const afterPoorSleep = hardDays.filter((c) => byDate.get(dkey(new Date(new Date(`${c.date}T00:00:00`).getTime() - 86400000)))?.sleep === "poor");
+      if (afterPoorSleep.length > 0) {
+        patterns.push(`${afterPoorSleep.length} of ${hardDays.length} harder days followed a poor night's sleep.`);
+      }
+    }
+    if (struggling) {
+      patterns.push(`${strugglingTitle} happened less often than planned (${struggling.done} of ${struggling.planned} days).`);
+    }
+
+    // a couple of the family's own words, not picked from flagged/safety notes
+    const parent_quotes = feedback
+      .filter((f) => (f.text || f.transcript) && !f.flags.includes("safety_concern"))
+      .slice(0, 2)
+      .map((f) => ({ text: f.summary_en || f.text || f.transcript || "", feedback_id: f.id }));
+
+    const concerns: string[] = [];
+    if (struggling) {
+      concerns.push(`${strugglingTitle} is often skipped — only ${struggling.done} of ${struggling.planned} days done.`);
+    }
+    const poorSleepNights = checkins.filter((c) => c.sleep === "poor").length;
+    if (checkins.length > 0 && poorSleepNights >= Math.ceil(checkins.length / 3)) {
+      concerns.push(`Sleep was poor on ${poorSleepNights} of ${checkins.length} nights this period.`);
+    }
+    const flagged = feedback.filter((f) => f.flags.includes("safety_concern"));
+    if (flagged.length > 0) {
+      concerns.push(`${flagged.length} note${flagged.length > 1 ? "s" : ""} this period raised a safety concern — see Alerts.`);
+    }
+
+    const questions_for_visit: string[] = [];
+    if (struggling) questions_for_visit.push(`Is ${strugglingTitle} too hard right now? Could it be broken into smaller steps?`);
+    if (checkins.length > 0 && poorSleepNights >= Math.ceil(checkins.length / 3)) questions_for_visit.push("Ask about the bedtime routine.");
+    if (questions_for_visit.length === 0) questions_for_visit.push("Anything new at home the family wants to flag?");
+
+    return { period: `${fmt(range.from)} – ${fmt(range.to)}`, summary, completion, patterns, parent_quotes, concerns, questions_for_visit };
   },
 };
 

@@ -3,10 +3,13 @@
 // Strictly uses .alertcard and .btn.danger / .btn.line from legacy styles.
 import { Icon } from "@/components/legacy/icons";
 import { useLoad } from "@/lib/hooks";
+import { useLang } from "@/lib/i18n";
 import { authService } from "@/lib/services";
 import { Button } from "./ui";
 
-export function EmergencyBox({ lang = "bn", compact }: { lang?: "bn" | "en"; compact?: boolean }) {
+export function EmergencyBox({ lang: langProp, compact }: { lang?: "bn" | "en"; compact?: boolean }) {
+  const { lang: currentLang } = useLang();
+  const lang = langProp ?? currentLang ?? "bn";
   const { data: centre } = useLoad(() => authService.getCentre(), []);
   const bn = lang === "bn";
 

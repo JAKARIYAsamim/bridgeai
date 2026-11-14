@@ -7,7 +7,8 @@ import { InviteModal } from "@/components/invite-modal";
 import { Icon } from "@/components/legacy/icons";
 import { Button, Card, EmptyState, ErrorState, SkeletonList, useToast } from "@/components/ui";
 import { useLoad } from "@/lib/hooks";
-import { AGE_BANDS, ago, DOMAINS, fmtDate, MOODS } from "@/lib/labels";
+import { useLang } from "@/lib/i18n";
+import { AGE_BANDS, ago, DOMAINS, fmtDate, MOODS, nameIn, num } from "@/lib/labels";
 import { alertService, childService, feedbackService, libraryService, planService } from "@/lib/services";
 import type { Activity, Checkin, Mood } from "@/lib/types";
 
@@ -15,6 +16,7 @@ export default function ChildOverview() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const toast = useToast();
+  const { lang, L } = useLang();
   const [invite, setInvite] = useState(false);
   const [clinicalOpen, setClinicalOpen] = useState(false);
   const [dismissed, setDismissed] = useState<string[]>([]);
@@ -64,8 +66,9 @@ export default function ChildOverview() {
   const { child, roadmap, caregivers, logs, checkins, feedback, ready, alerts, library } = data;
   const lib = new Map<string, Activity>(library.map((a) => [a.id, a]));
   const approved = roadmap?.status === "approved" ? roadmap : null;
-  const userName = (uid: string) => caregivers.find((c) => c.userId === uid)?.user.name ?? "Caregiver";
-  const parentName = caregivers[0]?.user.name ?? child.caregiverPhone ?? "Parent";
+  const cName = nameIn(child.nickname, lang);
+  const userName = (uid: string) => nameIn(caregivers.find((c) => c.userId === uid)?.user.name ?? "Caregiver", lang);
+  const parentName = caregivers[0]?.user.name ? nameIn(caregivers[0].user.name, lang) : child.caregiverPhone ?? L("অভিভাবক", "Parent");
 
   const topMood = (aid: string): Mood | null => {
     const c: Record<string, number> = {};
@@ -82,26 +85,26 @@ export default function ChildOverview() {
     : [];
 
   return (
-    <div className="pad" style={{ paddingBottom: 24 }}>
+    <div className="pad" style={{ paddingBottom: 24 }} lang={lang}>
       {/* Top Bar with Child Details and Avatar */}
       <div className="bar" style={{ padding: "4px 8px 12px", alignItems: "center" }}>
-        <Link href="/t" className="hbtn" aria-label="Back">
+        <Link href="/t" className="hbtn" aria-label={L("ফিরে যান", "Back")}>
           <Icon name="back" />
         </Link>
         <div className="grow" style={{ minWidth: 0, paddingLeft: 6 }}>
           <p className="h2" style={{ margin: 0 }}>
-            {child.nickname}, {AGE_BANDS[child.ageBand].en}
+            {cName}, {lang === "bn" ? AGE_BANDS[child.ageBand].bn : AGE_BANDS[child.ageBand].en}
           </p>
           <p className="small">
-            Parent: {parentName}
-            {child.nextSessionDate ? ` · Next session ${fmtDate(child.nextSessionDate)}` : ""}
+            {L(`অভিভাবক: ${parentName}`, `Parent: ${parentName}`)}
+            {child.nextSessionDate ? ` · ${L("পরবর্তী সেশন: ", "Next session: ")}${fmtDate(child.nextSessionDate, lang)}` : ""}
           </p>
         </div>
         <span
           className="av t-purple"
           style={{ width: 40, height: 40, fontSize: 16 }}
         >
-          {child.nickname[0]}
+          {cName[0]}
         </span>
       </div>
 
@@ -109,16 +112,16 @@ export default function ChildOverview() {
       <div className="in" style={{ paddingBottom: 10 }}>
         <div className="seg">
           <button className="on" type="button">
-            Summary
+            {L("সারসংক্ষেপ", "Summary")}
           </button>
           <button onClick={() => router.push(`/t/children/${id}/roadmap`)} type="button">
-            Plan {roadmap?.status === "draft" ? "•" : ""}
+            {L("পরিকল্পনা", "Plan")} {roadmap?.status === "draft" ? "•" : ""}
           </button>
           <button onClick={() => router.push(`/t/children/${id}/feedback`)} type="button">
-            Notes {feedback.filter((f) => !f.reviewedAt).length ? `(${feedback.filter((f) => !f.reviewedAt).length})` : ""}
+            {L("নোট", "Notes")} {feedback.filter((f) => !f.reviewedAt).length ? `(${num(feedback.filter((f) => !f.reviewedAt).length, lang)})` : ""}
           </button>
           <button onClick={() => router.push(`/t/children/${id}/report`)} type="button">
-            Report
+            {L("রিপোর্ট", "Report")}
           </button>
         </div>
       </div>
@@ -143,7 +146,7 @@ export default function ChildOverview() {
                 </span>
                 <span className="grow">
                   <span className="h3" style={{ color: "var(--pink)", display: "block" }}>
-                    Safety alert · {ago(a.createdAt)}
+                    {L("নিরাপত্তা সতর্কতা", "Safety alert")} · {ago(a.createdAt, lang)}
                   </span>
                   <span className="small">&ldquo;{a.matchedText}&rdquo;</span>
                 </span>
@@ -158,14 +161,14 @@ export default function ChildOverview() {
             <EmptyState
               title={
                 roadmap?.status === "draft"
-                  ? `${child.nickname}’s draft plan is waiting for your review.`
-                  : `${child.nickname} has no plan yet.`
+                  ? L(`${cName}-এর ড্রাফট পরিকল্পনা পর্যালোচনার অপেক্ষায় আছে।`, `${child.nickname}’s draft plan is waiting for your review.`)
+                  : L(`${cName}-এর এখনো কোনো পরিকল্পনা তৈরি করা হয়নি।`, `${child.nickname} has no plan yet.`)
               }
               action={
                 <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 12 }}>
                   {roadmap?.status === "draft" && (
                     <Button href={`/t/children/${id}/intake/review`} variant="primary" icon={<Icon name="edit" />}>
-                      Review draft plan
+                      {L("ড্রাফট পরিকল্পনা দেখুন", "Review draft plan")}
                     </Button>
                   )}
                   <Button
@@ -173,10 +176,10 @@ export default function ChildOverview() {
                     href={`/t/children/${id}/intake`}
                     icon={<Icon name="spark" />}
                   >
-                    Smart intake
+                    {L("স্মার্ট ইনটেক", "Smart intake")}
                   </Button>
                   <Button variant="soft" href={`/t/children/${id}/roadmap`} icon={<Icon name="turn" />}>
-                    Build roadmap
+                    {L("রোডম্যাপ সাজান", "Build roadmap")}
                   </Button>
                 </div>
               }
@@ -187,42 +190,44 @@ export default function ChildOverview() {
             {/* Quick Actions */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
               <Button href={`/t/children/${id}/report`} variant="soft" icon={<Icon name="doc" />}>
-                Report
+                {L("রিপোর্ট তৈরি", "Report")}
               </Button>
               <Button variant="soft" onClick={() => setInvite(true)} icon={<Icon name="users" />}>
-                Invite parent
+                {L("আমন্ত্রণ কোড", "Invite parent")}
               </Button>
             </div>
 
             {/* This week's activities */}
             <div className="sec">
-              <h2 className="h2">This week&apos;s activities</h2>
-              <span className="small">Last 7 days</span>
+              <h2 className="h2">{L("এই সপ্তাহের অনুশীলন", "This week's activities")}</h2>
+              <span className="small">{L("বিগত ৭ দিন", "Last 7 days")}</span>
             </div>
             <Card style={{ padding: 14, marginBottom: 14 }}>
               {current.length === 0 ? (
-                <p className="small">No active activities in this phase.</p>
+                <p className="small">{L("এই ধাপে কোনো সক্রিয় অনুশীলন নেই।", "No active activities in this phase.")}</p>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   {current.map((i) => {
                     const a = lib.get(i.activityId);
                     const done = new Set(logs.filter((l) => l.activityId === i.activityId).map((l) => l.date)).size;
                     const m = topMood(i.activityId);
+                    const titleStr = a ? (lang === "bn" ? a.title_bn : a.title_en) : i.activityId;
+                    const domainStr = a ? (lang === "bn" ? DOMAINS[a.domain].bn : DOMAINS[a.domain].en) : "";
                     return (
                       <div key={i.id} style={{ display: "flex", alignItems: "center", gap: 10 }}>
                         <div className="grow" style={{ minWidth: 0 }}>
                           <p className="h3" style={{ fontSize: 15, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                            {a?.title_en ?? i.activityId}
+                            {titleStr}
                           </p>
                           <p className="small" style={{ margin: "2px 0 0" }}>
-                            {a ? DOMAINS[a.domain].en : ""} · Step {i.difficulty}
+                            {domainStr} · {L(`ধাপ ${num(i.difficulty, lang)}`, `Step ${i.difficulty}`)}
                           </p>
                         </div>
                         <div style={{ width: 70, textAlign: "right" }}>
                           <div className="pbar" style={{ height: 6, margin: "0 0 2px" }}>
                             <i style={{ width: `${(done / 7) * 100}%` }} />
                           </div>
-                          <span className="small">{done}/7 days</span>
+                          <span className="small">{num(done, lang)}/{num(7, lang)} {L("দিন", "days")}</span>
                         </div>
                         <span style={{ fontSize: 20, minWidth: 26, textAlign: "center" }}>
                           {m ? MOODS[m].emoji : "—"}
@@ -236,22 +241,22 @@ export default function ChildOverview() {
 
             {/* 14-day trends */}
             <div className="sec">
-              <h2 className="h2">Check-in trends</h2>
-              <span className="small">Last 14 days</span>
+              <h2 className="h2">{L("চেক-ইন ট্রেন্ড", "Check-in trends")}</h2>
+              <span className="small">{L("বিগত ১৪ দিন", "Last 14 days")}</span>
             </div>
             <Card style={{ padding: 14, marginBottom: 14 }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 <TrendChart
-                  title="Mood"
+                  title={L("মেজাজ", "Mood")}
                   checkins={checkins}
                   value={(c) => ({ happy: 2, neutral: 1, sad: 0 })[c.mood]}
                   labels={["😟", "😐", "😀"]}
                 />
                 <TrendChart
-                  title="Sleep"
+                  title={L("ঘুম", "Sleep")}
                   checkins={checkins}
                   value={(c) => ({ good: 2, ok: 1, poor: 0 })[c.sleep]}
-                  labels={["Poor", "OK", "Good"]}
+                  labels={[L("খারাপ", "Poor"), L("মোটামুটি", "OK"), L("ভালো", "Good")]}
                 />
               </div>
             </Card>
@@ -260,20 +265,25 @@ export default function ChildOverview() {
             {readyItems.length > 0 && (
               <>
                 <div className="sec">
-                  <h2 className="h2">Ready for next step?</h2>
+                  <h2 className="h2">{L("পরের ধাপে যাওয়ার সময়?", "Ready for next step?")}</h2>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
                   {readyItems.map((aid) => {
                     const item = current.find((i) => i.activityId === aid);
                     if (!item) return null;
+                    const a = lib.get(aid);
+                    const titleStr = a ? (lang === "bn" ? a.title_bn : a.title_en) : aid;
                     return (
                       <Card key={aid} style={{ border: "1px solid var(--p)", padding: 12 }}>
                         <p className="h3" style={{ color: "var(--p)", marginBottom: 4 }}>
                           <Icon name="spark" style={{ marginRight: 6 }} />
-                          {lib.get(aid)?.title_en ?? aid}
+                          {titleStr}
                         </p>
                         <p className="small">
-                          Logged 😀 3+ times this week at step {item.difficulty}.
+                          {L(
+                            `এই সপ্তাহে ধাপ ${num(item.difficulty, lang)}-এ 😀 ৩+ বার লগ হয়েছে।`,
+                            `Logged 😀 3+ times this week at step ${item.difficulty}.`
+                          )}
                         </p>
                         <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
                           <Button
@@ -283,18 +293,18 @@ export default function ChildOverview() {
                               await planService.updatePlanItem(id, item.id, {
                                 difficulty: (item.difficulty + 1) as 2 | 3,
                               });
-                              toast(`Moved to step ${item.difficulty + 1}`);
+                              toast(L(`ধাপ ${num(item.difficulty + 1, lang)}-এ উন্নীত হয়েছে`, `Moved to step ${item.difficulty + 1}`));
                               reload();
                             }}
                           >
-                            Move to step {item.difficulty + 1}
+                            {L(`ধাপ ${num(item.difficulty + 1, lang)}-এ নিন`, `Move to step ${item.difficulty + 1}`)}
                           </Button>
                           <Button
                             size="sm"
                             variant="ghost"
                             onClick={() => setDismissed([...dismissed, aid])}
                           >
-                            Not yet
+                            {L("এখন নয়", "Not yet")}
                           </Button>
                         </div>
                       </Card>
@@ -306,51 +316,55 @@ export default function ChildOverview() {
 
             {/* Recent feedback preview */}
             <div className="sec">
-              <h2 className="h2">Recent notes from home</h2>
+              <h2 className="h2">{L("বাড়ি থেকে সাম্প্রতিক নোট", "Recent notes from home")}</h2>
               <Link href={`/t/children/${id}/feedback`} className="link">
-                See all ({feedback.length})
+                {L(`সব দেখুন (${num(feedback.length, lang)})`, `See all (${feedback.length})`)}
               </Link>
             </div>
             {feedback.length === 0 ? (
               <Card style={{ marginBottom: 14 }}>
-                <p className="small">No notes from caregiver yet this week.</p>
+                <p className="small">{L("এই সপ্তাহে অভিভাবকের কাছ থেকে কোনো নোট নেই।", "No notes from caregiver yet this week.")}</p>
               </Card>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
-                {feedback.slice(0, 3).map((f) => (
-                  <Link
-                    key={f.id}
-                    href={`/t/children/${id}/feedback`}
-                    className="row"
-                    style={{ textDecoration: "none" }}
-                  >
-                    <span className="ic t-orange" style={{ width: 36, height: 36, fontSize: 16 }}>
-                      <Icon name="mic" />
-                    </span>
-                    <span className="grow" style={{ minWidth: 0 }}>
-                      <span className="h3" style={{ fontSize: 14, display: "block" }}>
-                        {f.activityId ? lib.get(f.activityId)?.title_en ?? f.activityId : "Quick check-in"}
+                {feedback.slice(0, 3).map((f) => {
+                  const act = f.activityId ? lib.get(f.activityId) : null;
+                  const actTitle = act ? (lang === "bn" ? act.title_bn : act.title_en) : f.activityId ?? L("দ্রুত চেক-ইন", "Quick check-in");
+                  return (
+                    <Link
+                      key={f.id}
+                      href={`/t/children/${id}/feedback`}
+                      className="row"
+                      style={{ textDecoration: "none" }}
+                    >
+                      <span className="ic t-orange" style={{ width: 36, height: 36, fontSize: 16 }}>
+                        <Icon name="mic" />
                       </span>
-                      <span className="small">
-                        {userName(f.caregiverId)} · {ago(f.createdAt)}
+                      <span className="grow" style={{ minWidth: 0 }}>
+                        <span className="h3" style={{ fontSize: 14, display: "block" }}>
+                          {actTitle}
+                        </span>
+                        <span className="small">
+                          {userName(f.caregiverId)} · {ago(f.createdAt, lang)}
+                        </span>
+                        <span
+                          className="sub"
+                          style={{
+                            fontSize: 13,
+                            display: "block",
+                            marginTop: 2,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {f.summary_bn ?? f.summary_en ?? f.text ?? f.transcript ?? L("অডিও নোট", "Audio note")}
+                        </span>
                       </span>
-                      <span
-                        className="sub"
-                        style={{
-                          fontSize: 13,
-                          display: "block",
-                          marginTop: 2,
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {f.summary_en ?? f.text ?? f.transcript ?? "Audio note"}
-                      </span>
-                    </span>
-                    {!f.reviewedAt && <span className="pill dark">New</span>}
-                  </Link>
-                ))}
+                      {!f.reviewedAt && <span className="pill dark">{L("নতুন", "New")}</span>}
+                    </Link>
+                  );
+                })}
               </div>
             )}
           </>
@@ -377,7 +391,7 @@ export default function ChildOverview() {
           >
             <Icon name="shield" style={{ color: "var(--p)", fontSize: 18 }} />
             <span className="grow h3" style={{ fontSize: 15 }}>
-              Clinical record <span className="small">(therapist only)</span>
+              {L("ক্লিনিক্যাল রেকর্ড", "Clinical record")} <span className="small">{L("(শুধু থেরাপিস্ট)", "(therapist only)")}</span>
             </span>
             <span style={{ transform: clinicalOpen ? "rotate(180deg)" : undefined, transition: "transform .2s" }}>
               <Icon name="next" />
@@ -386,30 +400,30 @@ export default function ChildOverview() {
           {clinicalOpen && (
             <div style={{ padding: "0 14px 14px", display: "flex", flexDirection: "column", gap: 10, borderTop: "1px solid var(--line)", paddingTop: 10 }}>
               <div>
-                <p className="small" style={{ fontWeight: 600, textTransform: "uppercase" }}>Diagnosis notes</p>
-                <p className="sub" style={{ fontSize: 14 }}>{child.clinical.diagnosisNotes || "Not recorded"}</p>
+                <p className="small" style={{ fontWeight: 600, textTransform: "uppercase" }}>{L("ডায়াগনোসিস নোট", "Diagnosis notes")}</p>
+                <p className="sub" style={{ fontSize: 14 }}>{child.clinical.diagnosisNotes || L("রেকর্ড নেই", "Not recorded")}</p>
               </div>
               <div>
-                <p className="small" style={{ fontWeight: 600, textTransform: "uppercase" }}>Support level</p>
-                <p className="sub" style={{ fontSize: 14 }}>{child.clinical.supportLevel ? `Level ${child.clinical.supportLevel}` : "Not set"}</p>
+                <p className="small" style={{ fontWeight: 600, textTransform: "uppercase" }}>{L("সহায়তার লেভেল", "Support level")}</p>
+                <p className="sub" style={{ fontSize: 14 }}>{child.clinical.supportLevel ? L(`লেভেল ${num(child.clinical.supportLevel, lang)}`, `Level ${child.clinical.supportLevel}`) : L("নির্ধারিত নয়", "Not set")}</p>
               </div>
               <div>
-                <p className="small" style={{ fontWeight: 600, textTransform: "uppercase" }}>Assessments</p>
+                <p className="small" style={{ fontWeight: 600, textTransform: "uppercase" }}>{L("অ্যাসেসমেন্ট", "Assessments")}</p>
                 {child.clinical.assessments.length ? (
                   <ul className="steps plain" style={{ padding: 0, margin: 0 }}>
                     {child.clinical.assessments.map((a, i) => (
                       <li key={i} style={{ fontSize: 14 }}>
-                        {a.tool} · {a.date ? fmtDate(a.date) : "no date"} · score {a.score || "—"}
+                        {a.tool} · {a.date ? fmtDate(a.date, lang) : L("তারিখ নেই", "no date")} · {L("স্কোর: ", "score ")}{num(a.score || "—", lang)}
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="sub" style={{ fontSize: 14 }}>None recorded</p>
+                  <p className="sub" style={{ fontSize: 14 }}>{L("কোনো অ্যাসেসমেন্ট রেকর্ড নেই", "None recorded")}</p>
                 )}
               </div>
               <div>
-                <p className="small" style={{ fontWeight: 600, textTransform: "uppercase" }}>Flags</p>
-                <p className="sub" style={{ fontSize: 14 }}>{[...child.sensoryFlags, ...child.safetyFlags].join(", ") || "None"}</p>
+                <p className="small" style={{ fontWeight: 600, textTransform: "uppercase" }}>{L("সতর্কতা / ফ্ল্যাগ", "Flags")}</p>
+                <p className="sub" style={{ fontSize: 14 }}>{[...child.sensoryFlags, ...child.safetyFlags].join(", ") || L("কোনো ফ্ল্যাগ নেই", "None")}</p>
               </div>
             </div>
           )}

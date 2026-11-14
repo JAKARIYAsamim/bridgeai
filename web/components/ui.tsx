@@ -14,6 +14,7 @@ import {
 import { Icon } from "@/components/legacy/icons";
 import { Ele } from "@/components/legacy/mascots";
 import { lozenges } from "@/components/legacy/motion";
+import { useLang } from "@/lib/i18n";
 import { DOMAINS } from "@/lib/labels";
 import type { Activity, Domain, Mood } from "@/lib/types";
 
@@ -353,13 +354,14 @@ export function EmptyState({
 }
 
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
+  const { L } = useLang();
   return (
     <div className="err" style={{ textAlign: "center", padding: "16px 14px" }}>
-      <p className="h3" style={{ color: "inherit" }}>Something went wrong</p>
+      <p className="h3" style={{ color: "inherit" }}>{L("কিছু একটা সমস্যা হয়েছে", "Something went wrong")}</p>
       <p className="small" style={{ color: "inherit", marginTop: 4, opacity: 0.9 }}>{message}</p>
       {onRetry && (
         <Button variant="soft" size="sm" style={{ marginTop: 10 }} onClick={onRetry}>
-          Try again
+          {L("আবার চেষ্টা করুন", "Try again")}
         </Button>
       )}
     </div>
@@ -371,7 +373,7 @@ export function AIDraftBanner({
   onApprove,
   onEdit,
   approved,
-  text = "AI draft — check before use",
+  text,
   children,
 }: {
   onApprove?: () => void;
@@ -380,34 +382,37 @@ export function AIDraftBanner({
   text?: string;
   children?: ReactNode;
 }) {
+  const { L } = useLang();
+  const defaultText = text ?? L("AI খসড়া — ব্যবহারের আগে দেখে নিন", "AI draft — check before use");
   if (approved) {
     return (
       <div className="ai-draft-banner approved">
         <Icon name="check" style={{ fontSize: 18 }} />
-        <span className="grow">Approved by therapist</span>
+        <span className="grow">{L("থেরাপিস্ট দ্বারা অনুমোদিত", "Approved by therapist")}</span>
       </div>
     );
   }
   return (
     <div className="ai-draft-banner">
       <Icon name="spark" style={{ fontSize: 18, color: "var(--blue)" }} />
-      <span className="grow">{text}</span>
+      <span className="grow">{defaultText}</span>
       {children}
       {onEdit && (
         <button className="link" onClick={onEdit} type="button" style={{ fontSize: 13 }}>
-          Edit
+          {L("সম্পাদনা", "Edit")}
         </button>
       )}
       {onApprove && (
         <Button size="sm" onClick={onApprove} style={{ height: 30, padding: "0 12px", fontSize: 13 }}>
-          Approve
+          {L("অনুমোদন", "Approve")}
         </Button>
       )}
     </div>
   );
 }
 
-export function AIBlock({ children, label = "AI summary" }: { children: ReactNode; label?: string }) {
+export function AIBlock({ children, label }: { children: ReactNode; label?: string }) {
+  const { L } = useLang();
   return (
     <div
       className="card"
@@ -430,7 +435,7 @@ export function AIBlock({ children, label = "AI summary" }: { children: ReactNod
         }}
       >
         <Icon name="spark" style={{ fontSize: 14 }} />
-        {label}
+        {label ?? L("AI সারাংশ", "AI summary")}
       </div>
       <div className="sub" style={{ color: "var(--ink)" }}>{children}</div>
     </div>
@@ -439,6 +444,7 @@ export function AIBlock({ children, label = "AI summary" }: { children: ReactNod
 
 /** Steps that tick off one by one while AI works. */
 export function StepLoader({ steps, stepMs = 500 }: { steps: string[]; stepMs?: number }) {
+  const { L } = useLang();
   const [done, setDone] = useState(0);
   useEffect(() => {
     const t = window.setInterval(() => setDone((d) => Math.min(d + 1, steps.length)), stepMs);
@@ -449,7 +455,7 @@ export function StepLoader({ steps, stepMs = 500 }: { steps: string[]; stepMs?: 
       <div className="m">
         <Ele mood="calm" />
       </div>
-      <p className="h3">AI is working…</p>
+      <p className="h3">{L("AI কাজ করছে…", "AI is working…")}</p>
       <div className="steps4" style={{ width: "100%", maxWidth: 220, margin: "6px 0 10px" }}>
         {steps.map((_, i) => (
           <i key={i} className={i <= done ? "on" : ""} />
@@ -464,13 +470,15 @@ export function StepLoader({ steps, stepMs = 500 }: { steps: string[]; stepMs?: 
 export function MoodPicker({
   value,
   onChange,
-  lang = "bn",
+  lang: langProp,
 }: {
   value?: Mood | null;
   onChange: (m: Mood) => void;
   lang?: "bn" | "en";
   size?: "lg" | "md";
 }) {
+  const { lang: currentLang } = useLang();
+  const lang = langProp ?? currentLang ?? "bn";
   return (
     <div className="faces" role="radiogroup">
       <button
@@ -509,11 +517,11 @@ export function MoodPicker({
 
 // ---------- Demo Banner ----------
 export function DemoBanner() {
+  const { L } = useLang();
   return (
     <div className="demo-pill" role="status">
       <Icon name="spark" style={{ fontSize: 13, color: "var(--orange)" }} />
-      <span>Demo data — no real children</span>
-      <span className="bn" style={{ opacity: 0.9 }}>· ডেমো তথ্য</span>
+      <span>{L("ডেমো তথ্য — কোনো বাস্তব শিশুর নয়", "Demo data — no real children")}</span>
     </div>
   );
 }
@@ -532,6 +540,7 @@ export function Field({
   children: ReactNode;
   optional?: boolean;
 }) {
+  const { L } = useLang();
   return (
     <label style={{ display: "block", marginBottom: 12 }}>
       <span
@@ -545,7 +554,7 @@ export function Field({
         }}
       >
         <span>{label}</span>
-        {optional && <span className="small">optional</span>}
+        {optional && <span className="small">{L("ঐচ্ছিক", "optional")}</span>}
       </span>
       {children}
       {error ? (

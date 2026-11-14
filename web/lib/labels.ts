@@ -33,16 +33,26 @@ export const AGE_BANDS: Record<AgeBand, Pair> = {
 };
 
 export const COMM_LEVELS: Record<CommLevel, Pair> = {
-  preverbal: { en: "Pre-verbal", bn: "কথা বলার আগের ধাপ" },
+  preverbal: { en: "Pre-verbal", bn: "কথা শুরুর আগে" },
   words_gestures: { en: "Words or gestures", bn: "শব্দ বা ইশারা" },
   phrases: { en: "Phrases", bn: "ছোট বাক্য" },
   conversational: { en: "Conversational", bn: "কথোপকথন" },
-  aac: { en: "Pictures or AAC", bn: "ছবি বা AAC" },
+  aac: { en: "Pictures or AAC", bn: "ছবি বা পিকচার কার্ড" },
 };
 
-export const SENSORY_FLAGS: Record<string, string> = { noise: "Noise", touch: "Touch", light: "Light", food_textures: "Food textures" };
-export const SAFETY_FLAGS: Record<string, string> = {
-  wanders_off: "Wanders off", mouthing: "Puts objects in mouth", self_injury: "Self-injury", seizures: "Seizures", food_allergy: "Food allergy",
+export const SENSORY_FLAGS: Record<string, Pair> = {
+  noise: { en: "Noise", bn: "শব্দ সংবেদনশীল" },
+  touch: { en: "Touch", bn: "স্পর্শ সংবেদনশীল" },
+  light: { en: "Light", bn: "আলো সংবেদনশীল" },
+  food_textures: { en: "Food textures", bn: "খাবারের টেক্সচার" },
+};
+
+export const SAFETY_FLAGS: Record<string, Pair> = {
+  wanders_off: { en: "Wanders off", bn: "একা চলে যায়" },
+  mouthing: { en: "Puts objects in mouth", bn: "মুখে জিনিস দেয়" },
+  self_injury: { en: "Self-injury", bn: "নিজের ক্ষতি করে" },
+  seizures: { en: "Seizures", bn: "খিঁচুনি" },
+  food_allergy: { en: "Food allergy", bn: "খাবারে অ্যালার্জি" },
 };
 
 export const MOODS: Record<Mood, { emoji: string; en: string; bn: string }> = {
@@ -51,17 +61,31 @@ export const MOODS: Record<Mood, { emoji: string; en: string; bn: string }> = {
   sad: { emoji: "😟", en: "Hard", bn: "কঠিন ছিল" },
 };
 
-export const FEEDBACK_FLAGS: Record<string, { en: string; tone: "success" | "info" | "celebrate" | "alert" | "muted" }> = {
-  success: { en: "Success", tone: "success" },
-  refused: { en: "Refused", tone: "muted" },
-  upset: { en: "Upset", tone: "celebrate" },
-  new_concern: { en: "New concern", tone: "info" },
-  safety_concern: { en: "Safety concern", tone: "alert" },
-  caregiver_stress: { en: "Caregiver stress", tone: "info" },
+export const FEEDBACK_FLAGS: Record<string, { en: string; bn: string; tone: "success" | "info" | "celebrate" | "alert" | "muted" }> = {
+  success: { en: "Success", bn: "সফল", tone: "success" },
+  refused: { en: "Refused", bn: "করতে চায়নি", tone: "muted" },
+  upset: { en: "Upset", bn: "অস্থির ছিল", tone: "celebrate" },
+  new_concern: { en: "New concern", bn: "নতুন উদ্বেগ", tone: "info" },
+  safety_concern: { en: "Safety concern", bn: "নিরাপত্তা ঝুঁকি", tone: "alert" },
+  caregiver_stress: { en: "Caregiver stress", bn: "অভিভাবকের চাপ", tone: "info" },
+};
+
+export const PROFESSIONS_DATA: Record<string, Pair> = {
+  "Developmental paediatrician": { en: "Developmental paediatrician", bn: "শিশু বিকাশ বিশেষজ্ঞ" },
+  "Psychologist": { en: "Psychologist", bn: "মনোবিজ্ঞানী" },
+  "Occupational therapist": { en: "Occupational therapist", bn: "অকুপেশনাল থেরাপিস্ট" },
+  "Speech therapist": { en: "Speech therapist", bn: "স্পিচ থেরাপিস্ট" },
+  "Special educator": { en: "Special educator", bn: "স্পেশাল এডুকেটর" },
+  "Other": { en: "Other", bn: "অন্যান্য" },
 };
 
 export const PROFESSIONS = [
-  "Developmental paediatrician", "Psychologist", "Occupational therapist", "Speech therapist", "Special educator", "Other",
+  "Developmental paediatrician",
+  "Psychologist",
+  "Occupational therapist",
+  "Speech therapist",
+  "Special educator",
+  "Other",
 ];
 
 export const DIFFICULTY: Record<number, Pair> = {
@@ -74,14 +98,69 @@ const BN_DIGITS = "০১২৩৪৫৬৭৮৯";
 export const bnNum = (s: string | number) => String(s).replace(/\d/g, (d) => BN_DIGITS[Number(d)]);
 export const num = (n: string | number, lang: Lang) => (lang === "bn" ? bnNum(n) : String(n));
 
-const BN_NAMES: Record<string, string> = { Rafi: "রাফি", Mitu: "মিতু", Ayesha: "আয়েশা", Karim: "করিম", "Dr. Nasrin": "ডাক্তার নাসরিন", Nabil: "নাবিল", Tasnim: "তাসনিম" };
-export const nameIn = (name: string, lang: Lang) => (lang === "bn" ? BN_NAMES[name] ?? name : name);
+const BN_NAMES: Record<string, string> = {
+  Rafi: "রাফি",
+  Mitu: "মিতু",
+  Ayesha: "আয়েশা",
+  Karim: "করিম",
+  "Dr. Nasrin": "ডা. নাসরিন",
+  Nasrin: "নাসরিন",
+  Farhana: "ফারহানা",
+  "Tanvir Hasan": "তানভীর হাসান",
+  Tanvir: "তানভীর",
+  "Sadia Rahman": "সাদিয়া রহমান",
+  Sadia: "সাদিয়া",
+  Shirin: "শিরীন",
+  Habib: "হাবিব",
+  Rokeya: "রোকেয়া",
+  Nabil: "নাবিল",
+  Tasnim: "তাসনিম",
+  Nusrat: "নুসরাত",
+  "Hope Therapy Centre": "হোপ থেরাপি সেন্টার",
+  "Chattogram Child Development Centre": "চট্টগ্রাম শিশু বিকাশ কেন্দ্র",
+  Dhaka: "ঢাকা",
+  Chattogram: "চট্টগ্রাম",
+};
 
-export const fmtDate = (iso: string, lang: Lang = "en", opts: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" }) =>
-  new Date(iso.length === 10 ? iso + "T12:00:00" : iso).toLocaleDateString(lang === "bn" ? "bn-BD" : "en-GB", opts);
-export const fmtTime = (iso: string) => new Date(iso).toLocaleTimeString("en-GB", { hour: "numeric", minute: "2-digit" });
-export const ago = (iso: string) => {
-  const m = Math.max(1, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+export const nameIn = (name: string, lang: Lang) => {
+  if (!name) return "";
+  if (lang !== "bn") return name;
+  if (BN_NAMES[name]) return BN_NAMES[name];
+  if (name.startsWith("Dr. ") || name.startsWith("Dr ")) {
+    const rest = name.replace(/^Dr\.?\s+/, "");
+    return `ডা. ${BN_NAMES[rest] ?? rest}`;
+  }
+  return BN_NAMES[name] ?? name;
+};
+
+export const fmtDate = (iso: string, lang: Lang = "bn", opts: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" }) => {
+  if (!iso) return "";
+  const d = new Date(iso.length === 10 ? iso + "T12:00:00" : iso);
+  if (isNaN(d.getTime())) return iso;
+  const str = d.toLocaleDateString(lang === "bn" ? "bn-BD" : "en-GB", opts);
+  return lang === "bn" ? bnNum(str) : str;
+};
+
+export const fmtTime = (iso: string, lang: Lang = "bn") => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
+  const str = d.toLocaleTimeString(lang === "bn" ? "bn-BD" : "en-GB", { hour: "numeric", minute: "2-digit" });
+  return lang === "bn" ? bnNum(str) : str;
+};
+
+export const ago = (iso: string, lang: Lang = "bn") => {
+  if (!iso) return "";
+  const t = new Date(iso).getTime();
+  if (isNaN(t)) return "";
+  const m = Math.max(1, Math.round((Date.now() - t) / 60000));
+  if (lang === "bn") {
+    if (m < 60) return `${bnNum(m)} মিনিট আগে`;
+    const h = Math.round(m / 60);
+    if (h < 24) return `${bnNum(h)} ঘণ্টা আগে`;
+    const d = Math.round(h / 24);
+    return `${bnNum(d)} দিন আগে`;
+  }
   if (m < 60) return `${m} min ago`;
   const h = Math.round(m / 60);
   if (h < 24) return `${h} h ago`;

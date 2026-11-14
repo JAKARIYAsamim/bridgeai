@@ -126,7 +126,7 @@ export default function Steps() {
           </div>
 
           <p className="small" style={{ textAlign: "center", color: "var(--p)", fontWeight: 600 }}>
-            {L(`ধাপ ${num(i + 1, "bn")} / ${num(steps.length, "bn")}`, `Step ${i + 1} of ${steps.length}`)}
+            {L(`ধাপ ${num(i + 1, lang)} / ${num(steps.length, lang)}`, `Step ${i + 1} of ${steps.length}`)}
           </p>
 
           <p

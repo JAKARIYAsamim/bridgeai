@@ -81,7 +81,7 @@ export default function Progress() {
           </span>
           <div className="grow">
             <p className="h2" style={{ fontSize: 18 }}>
-              {L(`${num(logs.length, "bn")}টি মুহূর্ত একসাথে`, `${logs.length} moments together`)}
+              {L(`${num(logs.length, lang)}টি মুহূর্ত একসাথে`, `${logs.length} moments together`)}
             </p>
             <p className="small" style={{ marginTop: 2 }}>
               {logs.length

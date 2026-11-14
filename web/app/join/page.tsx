@@ -1,6 +1,5 @@
 "use client";
-// A-04 Join with code (parents). Bangla first, English underneath.
-// Styled using prototype glass cards, fields and Tiger mascot.
+// A-04 Join with code (parents). Bangla first approach.
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -9,29 +8,22 @@ import { Tiger } from "@/components/legacy/mascots";
 import { HOME } from "@/components/shells";
 import { Button, Card, cx, Field } from "@/components/ui";
 import { useSession } from "@/lib/hooks";
-import { nameIn } from "@/lib/labels";
+import { useLang } from "@/lib/i18n";
+import { nameIn, num } from "@/lib/labels";
 import { authService } from "@/lib/services";
 import type { Caregiver, Centre, ParentChildView, User } from "@/lib/types";
 
 const RELATIONS: { v: Caregiver["relation"]; bn: string; en: string }[] = [
   { v: "mother", bn: "মা", en: "Mother" },
   { v: "father", bn: "বাবা", en: "Father" },
-  { v: "grandparent", bn: "দাদা-দাদি বা নানা-নানি", en: "Grandparent" },
-  { v: "other", bn: "অন্য", en: "Other" },
+  { v: "grandparent", bn: "দাদা-দাদি / নানা-নানি", en: "Grandparent" },
+  { v: "other", bn: "অন্য অভিভাবক", en: "Other" },
 ];
-
-function Bi({ bn, en, className }: { bn: string; en: string; className?: string }) {
-  return (
-    <span className={cx("block", className)}>
-      <span className="bn" style={{ display: "block", fontWeight: 600 }}>{bn}</span>
-      <span className="small" style={{ display: "block", color: "var(--mute)" }}>{en}</span>
-    </span>
-  );
-}
 
 export default function Join() {
   const router = useRouter();
   const { user } = useSession();
+  const { lang, toggleLang, L } = useLang();
   const [digits, setDigits] = useState<string[]>(Array(6).fill(""));
   const refs = useRef<(HTMLInputElement | null)[]>([]);
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -90,30 +82,39 @@ export default function Join() {
       await authService.joinWithCode({ code, name: name.trim(), relation, contact: contact.trim(), password });
       router.replace("/p/onboarding");
     } catch (e) {
-      setJoinError(e instanceof Error ? e.message : "Something went wrong");
+      setJoinError(e instanceof Error ? e.message : L("কিছু একটা সমস্যা হয়েছে", "Something went wrong"));
       setBusy(false);
     }
   };
 
-  const childBn = info ? nameIn(info.child.nickname, "bn") : "";
-  const therapistBn = info ? nameIn(info.therapist.name, "bn") : "";
+  const childName = info ? nameIn(info.child.nickname, lang) : "";
+  const therapistName = info ? nameIn(info.therapist.name, lang) : "";
 
   return (
-    <div className="scroll softbg pad" style={{ paddingBottom: 32 }}>
+    <div className="scroll softbg pad" style={{ paddingBottom: 32 }} lang={lang}>
       <div className="bar" style={{ padding: "4px 16px 12px" }}>
         {step > 1 ? (
-          <button onClick={() => setStep((s) => (s - 1) as 1 | 2)} className="hbtn" aria-label="Back" type="button">
+          <button onClick={() => setStep((s) => (s - 1) as 1 | 2)} className="hbtn" aria-label={L("ফিরে যান", "Back")} type="button">
             <Icon name="back" />
           </button>
         ) : (
-          <Link href="/" className="hbtn" aria-label="Back">
+          <Link href="/" className="hbtn" aria-label={L("ফিরে যান", "Back")}>
             <Icon name="back" />
           </Link>
         )}
         <h1 className="h2 grow" style={{ paddingLeft: 4 }}>
-          {step === 1 ? "কোড দিয়ে যোগ দিন" : step === 2 ? "সন্তান যাচাই" : "আপনার বিবরণ"}
+          {step === 1 ? L("কোড দিয়ে যোগ দিন", "Join with code") : step === 2 ? L("সন্তান যাচাই", "Verify child") : L("আপনার বিবরণ", "Your details")}
         </h1>
-        <span className="pill line">{step}/3</span>
+        <button
+          onClick={toggleLang}
+          type="button"
+          className="hbtn"
+          style={{ fontSize: 12.5, fontWeight: 700, minWidth: 38, marginRight: 6 }}
+          aria-label="Toggle language"
+        >
+          {lang === "bn" ? "EN" : "বাং"}
+        </button>
+        <span className="pill line">{num(step, lang)}/৩</span>
       </div>
 
       <div className="in">
@@ -123,8 +124,10 @@ export default function Join() {
               <div style={{ width: 76, margin: "0 auto 10px" }}>
                 <Tiger mood="hi" />
               </div>
-              <h2 className="h2 bn">৬ সংখ্যার কোড দিন</h2>
-              <p className="small" style={{ marginTop: 2 }}>Enter the 6-digit code from your therapist</p>
+              <h2 className="h2">{L("৬ সংখ্যার কোড দিন", "Enter 6-digit code")}</h2>
+              <p className="small" style={{ marginTop: 2 }}>
+                {L("আপনার থেরাপিস্টের দেওয়া কোডটি লিখুন", "Enter the code given by your therapist")}
+              </p>
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 6, margin: "16px 0" }}>
@@ -156,7 +159,7 @@ export default function Join() {
 
             {error && (
               <p className="err" style={{ textAlign: "center" }}>
-                কোডটি সঠিক নয় বা মেয়াদ শেষ হয়ে গেছে। থেরাপিস্টের সাথে কথা বলুন।
+                {L("কোডটি সঠিক নয় বা মেয়াদ শেষ হয়ে গেছে। থেরাপিস্টের সাথে কথা বলুন।", "Invalid or expired code. Please check with your therapist.")}
               </p>
             )}
 
@@ -168,7 +171,7 @@ export default function Join() {
               onClick={check}
               style={{ marginTop: 10 }}
             >
-              এগিয়ে যান · Continue
+              {L("এগিয়ে যান", "Continue")}
             </Button>
           </Card>
         )}
@@ -179,36 +182,36 @@ export default function Join() {
               <span className="ic t-green" style={{ width: 52, height: 52, fontSize: 26, margin: "0 auto 10px" }}>
                 <Icon name="check" />
               </span>
-              <h2 className="h2 bn">{childBn}-এর পরিকল্পনা</h2>
-              <p className="small">{info.child.nickname}&apos;s therapy plan</p>
+              <h2 className="h2">{L(`${childName}-এর পরিকল্পনা`, `${info.child.nickname}’s therapy plan`)}</h2>
+              <p className="small">{L("ক্লিনিকের তথ্য মিলেছে", "Clinic match confirmed")}</p>
             </div>
 
             <div className="card" style={{ background: "rgba(255, 255, 255, 0.5)", marginBottom: 14 }}>
               <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0" }}>
-                <Bi bn="থেরাপিস্ট" en="Therapist" />
-                <span className="h3 bn" style={{ textAlign: "right" }}>{therapistBn}</span>
+                <span className="small">{L("থেরাপিস্ট", "Therapist")}</span>
+                <span className="h3" style={{ textAlign: "right" }}>{therapistName}</span>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderTop: "0.5px solid var(--line)" }}>
-                <Bi bn="সেন্টার" en="Centre" />
+                <span className="small">{L("সেন্টার", "Centre")}</span>
                 <span className="h3" style={{ textAlign: "right" }}>{info.centre.name}</span>
               </div>
             </div>
 
             <Button block size="md" onClick={() => setStep(3)}>
-              হ্যাঁ, এটি সঠিক · Confirm
+              {L("হ্যাঁ, এটি সঠিক", "Confirm & Continue")}
             </Button>
           </Card>
         )}
 
         {step === 3 && (
           <Card>
-            <h2 className="h2 bn" style={{ marginBottom: 12 }}>আপনার তথ্য দিন</h2>
+            <h2 className="h2" style={{ marginBottom: 12 }}>{L("আপনার তথ্য দিন", "Your details")}</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <Field label={<Bi bn="আপনার পুরো নাম" en="Your full name" />} error={touched && !name.trim() ? "নাম লিখুন" : null}>
-                <input className="field" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Ayesha Rahman" />
+              <Field label={L("আপনার পুরো নাম", "Your full name")} error={touched && !name.trim() ? L("নাম লিখুন", "Please enter your name") : null}>
+                <input className="field" value={name} onChange={(e) => setName(e.target.value)} placeholder={L("যেমন: আয়েশা রহমান", "e.g. Ayesha Rahman")} />
               </Field>
 
-              <Field label={<Bi bn="শিশুর সাথে সম্পর্ক" en="Relationship to child" />} error={touched && !relation ? "সম্পর্ক বেছে নিন" : null}>
+              <Field label={L("শিশুর সাথে সম্পর্ক", "Relationship to child")} error={touched && !relation ? L("সম্পর্ক বেছে নিন", "Please select relation") : null}>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
                   {RELATIONS.map((r) => (
                     <button
@@ -223,18 +226,17 @@ export default function Join() {
                         textAlign: "center",
                       }}
                     >
-                      <span className="bn" style={{ display: "block", fontSize: 14 }}>{r.bn}</span>
-                      <span className="small">{r.en}</span>
+                      <span style={{ display: "block", fontSize: 14, fontWeight: 600 }}>{L(r.bn, r.en)}</span>
                     </button>
                   ))}
                 </div>
               </Field>
 
-              <Field label={<Bi bn="ফোন বা ইমেইল" en="Phone or email" />} error={touched && !contact.trim() ? "যোগাযোগের নম্বর বা ইমেইল দিন" : null}>
+              <Field label={L("মোবাইল নম্বর বা ইমেইল", "Phone or email")} error={touched && !contact.trim() ? L("যোগাযোগের নম্বর বা ইমেইল দিন", "Please enter phone or email") : null}>
                 <input className="field" value={contact} onChange={(e) => setContact(e.target.value)} placeholder="017... or name@mail.com" />
               </Field>
 
-              <Field label={<Bi bn="পাসওয়ার্ড (কমপক্ষে ৮ অক্ষর)" en="Password (min 8 characters)" />} error={touched && password.length < 8 ? "কমপক্ষে ৮ অক্ষর দিন" : null}>
+              <Field label={L("পাসওয়ার্ড (কমপক্ষে ৮ অক্ষর)", "Password (min 8 characters)")} error={touched && password.length < 8 ? L("কমপক্ষে ৮ অক্ষর দিন", "Must be at least 8 characters") : null}>
                 <div style={{ position: "relative" }}>
                   <input className="field" type={show ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} />
                   <button type="button" onClick={() => setShow(!show)} className="xb" style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)" }}>
@@ -246,7 +248,7 @@ export default function Join() {
               {joinError && <p className="err">{joinError}</p>}
 
               <Button block size="md" loading={busy} onClick={join} style={{ marginTop: 8 }}>
-                যুক্ত হোন · Join now
+                {L("যুক্ত হোন", "Join now")}
               </Button>
             </div>
           </Card>

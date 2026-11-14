@@ -269,7 +269,7 @@ export default function Today() {
           </span>
           <span className="grow">
             <span className="h3" style={{ display: "block" }}>
-              {L("রাফি ও খেলনার রাজ্য", "Rafi and the Toy Kingdom")}
+              {L(`${childName} ডাক্তারের কাছে যায়`, `${child.nickname} visits the doctor`)}
             </span>
             <span className="small">{L("৬ পাতা · একসাথে পড়ুন", "6 pages · read together")}</span>
           </span>

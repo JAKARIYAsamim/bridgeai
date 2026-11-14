@@ -17,7 +17,8 @@ import {
   useToast,
 } from "@/components/ui";
 import { useLoad } from "@/lib/hooks";
-import { bnNum, fmtDate, MOODS, nameIn } from "@/lib/labels";
+import { bnNum, fmtDate, MOODS, nameIn, num } from "@/lib/labels";
+import { useLang } from "@/lib/i18n";
 import { aiService, childService, feedbackService, libraryService } from "@/lib/services";
 import type { Activity, Child, Feedback, Mood, Report, ReportDraft } from "@/lib/types";
 
@@ -77,6 +78,7 @@ function ReportWorkspace({
   feedback: Feedback[];
   defaultFrom: string;
 }) {
+  const { lang, L } = useLang();
   const toast = useToast();
   const [from, setFrom] = useState(defaultFrom);
   const [to, setTo] = useState(today());
@@ -102,7 +104,7 @@ function ReportWorkspace({
         createdAt: new Date().toISOString(),
       });
     } catch (e) {
-      setError(e instanceof Error ? e.message : "The AI could not write the report. Try again.");
+      setError(e instanceof Error ? e.message : (lang === "bn" ? "এআই রিপোর্ট তৈরি করতে পারেনি। আবার চেষ্টা করুন।" : "The AI could not write the report. Try again."));
     } finally {
       setBusy(false);
     }
@@ -116,7 +118,7 @@ function ReportWorkspace({
       approvedAt: new Date().toISOString(),
     });
     setCurrent(saved);
-    toast("Report approved and saved");
+    toast(lang === "bn" ? "রিপোর্ট অনুমোদিত ও সংরক্ষিত হয়েছে" : "Report approved and saved");
   };
 
   const view = (r: Report) => {
@@ -124,30 +126,31 @@ function ReportWorkspace({
     setDraft(r.final ?? r.draft);
   };
 
-  const title = (aid: string) => activities.find((a) => a.id === aid)?.title_en ?? aid;
+  const title = (aid: string) =>
+    (lang === "bn" ? activities.find((a) => a.id === aid)?.title_bn : activities.find((a) => a.id === aid)?.title_en) ?? aid;
   const past = reports.filter((r) => r.approvedAt && r.id !== current?.id);
 
   return (
     <div className="scroll softbg pad" style={{ paddingBottom: 88 }}>
       <div className="bar" style={{ padding: "4px 8px 10px" }}>
-        <Link href={`/t/children/${child.id}`} className="hbtn" aria-label="Back">
+        <Link href={`/t/children/${child.id}`} className="hbtn" aria-label={L("ফিরে যান", "Back")}>
           <Icon name="back" />
         </Link>
         <div className="grow" style={{ minWidth: 0, paddingLeft: 6 }}>
           <h1 className="h2" style={{ margin: 0 }}>
-            {child.nickname}’s report
+            {lang === "bn" ? `${child.nickname}-এর রিপোর্ট` : `${child.nickname}’s report`}
           </h1>
-          <p className="small">Pre-visit progress report</p>
+          <p className="small">{L("সেশন পূর্ববর্তী অগ্রগতি রিপোর্ট", "Pre-visit progress report")}</p>
         </div>
       </div>
 
       <div className="in">
         <Card style={{ marginBottom: 14 }}>
           <p className="small" style={{ fontWeight: 600, marginBottom: 8 }}>
-            Report period
+            {L("রিপোর্টের সময়সীমা", "Report period")}
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
-            <Field label="From">
+            <Field label={L("শুরু", "From")}>
               <input
                 type="date"
                 className="field"
@@ -156,7 +159,7 @@ function ReportWorkspace({
                 onChange={(e) => setFrom(e.target.value)}
               />
             </Field>
-            <Field label="To">
+            <Field label={L("শেষ", "To")}>
               <input
                 type="date"
                 className="field"
@@ -174,13 +177,19 @@ function ReportWorkspace({
             loading={busy}
             icon={<Icon name="spark" />}
           >
-            {draft && !approved ? "Generate again" : "Generate report"}
+            {draft && !approved ? L("পুনরায় তৈরি করুন", "Generate again") : L("রিপোর্ট তৈরি করুন", "Generate report")}
           </Button>
         </Card>
 
         {busy && (
           <div style={{ padding: "20px 0" }}>
-            <StepLoader steps={["Reading logs", "Listening to voice notes", "Writing the summary"]} />
+            <StepLoader
+              steps={
+                lang === "bn"
+                  ? ["লগগুলো পড়া হচ্ছে", "ভয়েস নোট শোনা হচ্ছে", "সারসংক্ষেপ লেখা হচ্ছে"]
+                  : ["Reading logs", "Listening to voice notes", "Writing the summary"]
+              }
+            />
           </div>
         )}
 
@@ -193,18 +202,19 @@ function ReportWorkspace({
                 <AIDraftBanner approved />
               ) : (
                 <AIDraftBanner onApprove={approve}>
-                  <span className="small">Only you can see this draft.</span>
+                  <span className="small">{L("শুধুমাত্র আপনি এই খসড়াটি দেখতে পাচ্ছেন।", "Only you can see this draft.")}</span>
                 </AIDraftBanner>
               )}
             </div>
 
             <p className="small" style={{ color: "var(--mute)" }}>
-              Period: {fmtDate(current.periodStart)} – {fmtDate(current.periodEnd)}
-              {approved && current.approvedAt ? ` · approved ${fmtDate(current.approvedAt)}` : ""}
+              {lang === "bn"
+                ? `সময়সীমা: ${fmtDate(current.periodStart, "bn")} – ${fmtDate(current.periodEnd, "bn")}${approved && current.approvedAt ? ` · অনুমোদিত: ${fmtDate(current.approvedAt, "bn")}` : ""}`
+                : `Period: ${fmtDate(current.periodStart)} – ${fmtDate(current.periodEnd)}${approved && current.approvedAt ? ` · approved ${fmtDate(current.approvedAt)}` : ""}`}
             </p>
 
             <Part
-              title="Summary"
+              title={L("সারসংক্ষেপ", "Summary")}
               readOnly={approved}
               renderEdit={(done) => (
                 <TextEdit
@@ -221,7 +231,7 @@ function ReportWorkspace({
             </Part>
 
             <Part
-              title="Completion by activity"
+              title={L("কার্যক্রম অনুযায়ী সম্পন্ন", "Completion by activity")}
               readOnly={approved}
               renderEdit={(done) => (
                 <CompletionEdit
@@ -246,24 +256,24 @@ function ReportWorkspace({
                         <i style={{ width: `${Math.min(100, (c.done / Math.max(1, c.planned)) * 100)}%` }} />
                       </div>
                       <span className="small">
-                        {c.done}/{c.planned}
+                        {num(c.done, lang)}/{num(c.planned, lang)}
                       </span>
                     </div>
-                    <span style={{ fontSize: 20 }}>{MOODS[c.top_mood].emoji}</span>
+                    <span style={{ fontSize: 20 }}>{MOODS[c.top_mood]?.emoji}</span>
                   </div>
                 ))}
               </div>
             </Part>
 
             <ListPart
-              title="Patterns spotted"
+              title={L("পর্যবেক্ষিত আচরণ ও ধরন", "Patterns spotted")}
               items={draft.patterns}
               readOnly={approved}
               onChange={(v) => setDraft({ ...draft, patterns: v })}
             />
 
             <Part
-              title="Parent quotes"
+              title={L("অভিভাবকদের বক্তব্য", "Parent quotes")}
               readOnly={approved}
               renderEdit={(done) => (
                 <ListEdit
@@ -292,11 +302,13 @@ function ReportWorkspace({
                       </p>
                       {f?.type === "voice" ? (
                         <div style={{ marginTop: 6 }}>
-                          <AudioPlayer src={f.mediaUrl} label="Original audio" />
+                          <AudioPlayer src={f.mediaUrl} label={L("মূল অডিও", "Original audio")} />
                         </div>
                       ) : f ? (
                         <p className="small" style={{ marginTop: 2 }}>
-                          From a {f.type} note · {fmtDate(f.createdAt)}
+                          {lang === "bn"
+                            ? `${f.type === "photo" ? "ছবি" : f.type === "video" ? "ভিডিও" : "টেক্সট"} নোট থেকে · ${fmtDate(f.createdAt, "bn")}`
+                            : `From a ${f.type} note · ${fmtDate(f.createdAt)}`}
                         </p>
                       ) : null}
                     </div>
@@ -306,14 +318,14 @@ function ReportWorkspace({
             </Part>
 
             <ListPart
-              title="Concerns"
+              title={L("উদ্বেগের বিষয়", "Concerns")}
               items={draft.concerns}
               readOnly={approved}
               onChange={(v) => setDraft({ ...draft, concerns: v })}
             />
 
             <ListPart
-              title="Questions for the visit"
+              title={L("সেশনের জন্য প্রশ্ন", "Questions for the visit")}
               items={draft.questions_for_visit}
               readOnly={approved}
               onChange={(v) => setDraft({ ...draft, questions_for_visit: v })}
@@ -322,12 +334,12 @@ function ReportWorkspace({
             <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
               {!approved && (
                 <Button block size="lg" variant="primary" onClick={approve} icon={<Icon name="check" />}>
-                  Approve report
+                  {L("রিপোর্ট অনুমোদন করুন", "Approve report")}
                 </Button>
               )}
               {approved && (
                 <Button block variant="soft" onClick={() => window.print()} icon={<Icon name="doc" />}>
-                  Export PDF
+                  {L("পিডিএফ ডাউনলোড", "Export PDF")}
                 </Button>
               )}
             </div>
@@ -347,15 +359,19 @@ function ReportWorkspace({
 
         {!busy && !current && !error && (
           <EmptyState
-            title={`Choose dates and generate ${child.nickname}’s report before the next session.`}
+            title={
+              lang === "bn"
+                ? `পরবর্তী সেশনের আগে তারিখ বেছে নিয়ে ${child.nickname}-এর রিপোর্ট তৈরি করুন।`
+                : `Choose dates and generate ${child.nickname}’s report before the next session.`
+            }
           />
         )}
 
         {past.length > 0 && (
           <div style={{ marginTop: 20 }}>
             <div className="sec">
-              <h2 className="h2">Approved reports</h2>
-              <span className="small">{past.length}</span>
+              <h2 className="h2">{L("অনুমোদিত রিপোর্টসমূহ", "Approved reports")}</h2>
+              <span className="small">{num(past.length, lang)}</span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {past.map((r) => (
@@ -372,7 +388,7 @@ function ReportWorkspace({
                   </span>
                   <div className="grow" style={{ minWidth: 0 }}>
                     <span className="h3" style={{ fontSize: 14, display: "block" }}>
-                      {fmtDate(r.periodStart)} – {fmtDate(r.periodEnd)}
+                      {fmtDate(r.periodStart, lang)} – {fmtDate(r.periodEnd, lang)}
                     </span>
                     <span
                       className="small"
@@ -386,7 +402,7 @@ function ReportWorkspace({
                       {(r.final ?? r.draft).summary}
                     </span>
                   </div>
-                  {r.parentSummaryShared && <span className="pill good">Shared</span>}
+                  {r.parentSummaryShared && <span className="pill good">{L("শেয়ার করা হয়েছে", "Shared")}</span>}
                   <Icon name="next" />
                 </div>
               ))}
@@ -410,6 +426,7 @@ function Part({
   readOnly?: boolean;
   renderEdit: (done: () => void) => ReactNode;
 }) {
+  const { L } = useLang();
   const [editing, setEditing] = useState(false);
   return (
     <Card>
@@ -419,7 +436,7 @@ function Part({
         </p>
         {!readOnly && !editing && (
           <Button size="sm" variant="ghost" onClick={() => setEditing(true)}>
-            Edit
+            {L("সম্পাদনা", "Edit")}
           </Button>
         )}
       </div>
@@ -439,6 +456,7 @@ function ListPart({
   readOnly?: boolean;
   onChange: (v: string[]) => void;
 }) {
+  const { L } = useLang();
   return (
     <Part
       title={title}
@@ -463,7 +481,7 @@ function ListPart({
           ))}
         </ul>
       ) : (
-        <p className="small" style={{ color: "var(--mute)" }}>None.</p>
+        <p className="small" style={{ color: "var(--mute)" }}>{L("নেই।", "None.")}</p>
       )}
     </Part>
   );
@@ -478,13 +496,14 @@ function SaveBar({
   onCancel: () => void;
   disabled?: boolean;
 }) {
+  const { L } = useLang();
   return (
     <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
       <Button size="sm" variant="primary" onClick={onSave} disabled={disabled}>
-        Save
+        {L("সংরক্ষণ", "Save")}
       </Button>
       <Button size="sm" variant="ghost" onClick={onCancel}>
-        Cancel
+        {L("বাতিল", "Cancel")}
       </Button>
     </div>
   );
@@ -523,6 +542,7 @@ function ListEdit({
   onSave: (v: string[]) => void;
   onCancel: () => void;
 }) {
+  const { L } = useLang();
   const [list, setList] = useState(items.length ? items : [""]);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -536,7 +556,7 @@ function ListEdit({
           />
           <button
             type="button"
-            aria-label="Remove line"
+            aria-label={L("লাইন বাদ দিন", "Remove line")}
             onClick={() => setList(list.filter((_, j) => j !== i))}
             className="hbtn"
             style={{ width: 34, height: 34 }}
@@ -546,7 +566,7 @@ function ListEdit({
         </div>
       ))}
       <Button size="sm" variant="ghost" onClick={() => setList([...list, ""])}>
-        + Add line
+        {L("+ লাইন যোগ করুন", "+ Add line")}
       </Button>
       <SaveBar
         onSave={() => onSave(list.map((x) => x.trim()).filter(Boolean))}
@@ -567,6 +587,7 @@ function CompletionEdit({
   onSave: (r: ReportDraft["completion"]) => void;
   onCancel: () => void;
 }) {
+  const { lang, L } = useLang();
   const [list, setList] = useState(rows);
   const set = (i: number, patch: Partial<ReportDraft["completion"][number]>) =>
     setList(list.map((r, j) => (j === i ? { ...r, ...patch } : r)));
@@ -579,7 +600,7 @@ function CompletionEdit({
             {title(r.activity_id)}
           </span>
           <input
-            aria-label="Done"
+            aria-label={L("সম্পন্ন", "Done")}
             type="number"
             min={0}
             className="field"
@@ -587,9 +608,9 @@ function CompletionEdit({
             value={r.done}
             onChange={(e) => set(i, { done: Number(e.target.value) })}
           />
-          <span className="small">of</span>
+          <span className="small">{L("/", "of")}</span>
           <input
-            aria-label="Planned"
+            aria-label={L("পরিকল্পিত", "Planned")}
             type="number"
             min={0}
             className="field"
@@ -598,7 +619,7 @@ function CompletionEdit({
             onChange={(e) => set(i, { planned: Number(e.target.value) })}
           />
           <select
-            aria-label="Most common face"
+            aria-label={L("সাধারণ অনুভূতি", "Most common face")}
             className="field"
             style={{ width: "auto", padding: 4 }}
             value={r.top_mood}
@@ -606,7 +627,7 @@ function CompletionEdit({
           >
             {(Object.keys(MOODS) as Mood[]).map((m) => (
               <option key={m} value={m}>
-                {MOODS[m].emoji} {MOODS[m].en}
+                {MOODS[m].emoji} {MOODS[m]?.[lang] ?? MOODS[m]?.en}
               </option>
             ))}
           </select>
@@ -631,6 +652,7 @@ function ShareSummary({
   activities: Activity[];
   onSaved: (r: Report) => void;
 }) {
+  const { lang, L } = useLang();
   const toast = useToast();
   const logs = useLoad(() => feedbackService.listLogs(child.id, 60), [child.id]);
   const [text, setText] = useState<string | null>(report.parentSummary ?? null);
@@ -665,23 +687,26 @@ function ShareSummary({
     });
     onSaved(saved);
     setBusy(false);
-    toast("Summary sent to the family");
+    toast(lang === "bn" ? "পরিবারে সারসংক্ষেপ পাঠানো হয়েছে" : "Summary sent to the family");
   };
 
   return (
     <Card>
       <p className="h3" style={{ marginBottom: 4 }}>
-        Share a summary with the family
+        {L("অভিভাবকদের সাথে সারসংক্ষেপ শেয়ার করুন", "Share a summary with the family")}
       </p>
       <p className="small" style={{ marginBottom: 10 }}>
-        A short, positive Bangla message. The family sees only this — never the report above.
+        {L(
+          "একটি সংক্ষিপ্ত ও ইতিবাচক বার্তা। পরিবার কেবল এটিই দেখতে পাবে — ওপরের ক্লিনিক্যাল রিপোর্ট দেখতে পাবে না।",
+          "A short, positive Bangla message. The family sees only this — never the report above."
+        )}
       </p>
       {report.parentSummaryShared ? (
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           <p className="sub bn" style={{ background: "rgba(52, 199, 89, 0.08)", padding: 10, borderRadius: 12, fontSize: 15 }}>
             {report.parentSummary}
           </p>
-          <span className="pill good">Shared with the family</span>
+          <span className="pill good">{L("পরিবারের সাথে শেয়ার করা হয়েছে", "Shared with the family")}</span>
         </div>
       ) : text === null ? (
         <Button
@@ -690,7 +715,7 @@ function ShareSummary({
           onClick={() => setText(build())}
           icon={<Icon name="spark" />}
         >
-          Write parent summary
+          {L("অভিভাবক সারসংক্ষেপ লিখুন", "Write parent summary")}
         </Button>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -709,10 +734,10 @@ function ShareSummary({
               disabled={!text.trim()}
               icon={<Icon name="send" />}
             >
-              Send to family
+              {L("পরিবারে পাঠান", "Send to family")}
             </Button>
             <Button variant="ghost" onClick={() => setText(null)}>
-              Cancel
+              {L("বাতিল", "Cancel")}
             </Button>
           </div>
         </div>

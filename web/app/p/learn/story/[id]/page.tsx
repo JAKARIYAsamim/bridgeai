@@ -121,7 +121,7 @@ export default function StoryReader() {
         )}
 
         <p className="small" style={{ textAlign: "center", marginTop: 8 }}>
-          {L(`পাতা ${num(p + 1, "bn")} / ${num(story.pages.length, "bn")}`, `Page ${p + 1} of ${story.pages.length}`)}
+          {L(`পাতা ${num(p + 1, lang)} / ${num(story.pages.length, lang)}`, `Page ${p + 1} of ${story.pages.length}`)}
         </p>
 
         <div style={{ flex: 1 }} />

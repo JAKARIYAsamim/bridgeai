@@ -7,14 +7,14 @@ import { Ele } from "@/components/legacy/mascots";
 import { Button, Card, ErrorState, Field, Modal, Segmented, SkeletonList, useToast } from "@/components/ui";
 import { useLoad } from "@/lib/hooks";
 import { useLang } from "@/lib/i18n";
-import { PROFESSIONS } from "@/lib/labels";
+import { nameIn, PROFESSIONS, PROFESSIONS_DATA } from "@/lib/labels";
 import { authService, resetDemoData } from "@/lib/services";
 import type { Lang } from "@/lib/types";
 
 export default function TherapistSettings() {
   const router = useRouter();
   const toast = useToast();
-  const { lang, setLang } = useLang();
+  const { lang, setLang, L } = useLang();
   const { data: user, loading, error, reload } = useLoad(() => authService.currentUser(), []);
   const [name, setName] = useState("");
   const [profession, setProfession] = useState("");
@@ -44,9 +44,9 @@ export default function TherapistSettings() {
   }
 
   return (
-    <div className="pad" style={{ paddingBottom: 88 }}>
+    <div className="pad" style={{ paddingBottom: 88 }} lang={lang}>
       <div className="bar" style={{ padding: "4px 8px 12px" }}>
-        <h1 className="h2 grow">Settings</h1>
+        <h1 className="h2 grow">{L("সেটিংস", "Settings")}</h1>
       </div>
 
       <div className="in">
@@ -57,34 +57,36 @@ export default function TherapistSettings() {
             </span>
           </span>
           <div>
-            <p className="h2">{user.name}</p>
-            <p className="small">Dr. Nasrin, Therapist at the clinic</p>
+            <p className="h2">{nameIn(user.name, lang)}</p>
+            <p className="small">{L("ডা. নাসরিন, ক্লিনিকের থেরাপিস্ট", "Dr. Nasrin, Therapist at the clinic")}</p>
           </div>
         </div>
 
         <div className="sec">
-          <h2 className="h2">Profile</h2>
+          <h2 className="h2">{L("প্রোফাইল", "Profile")}</h2>
         </div>
         <Card style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 14 }}>
-          <Field label="Name">
+          <Field label={L("নাম", "Name")}>
             <input
               className="field"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
           </Field>
-          <Field label="Profession">
+          <Field label={L("পেশা", "Profession")}>
             <select
               className="field"
               value={profession}
               onChange={(e) => setProfession(e.target.value)}
             >
               {PROFESSIONS.map((p) => (
-                <option key={p}>{p}</option>
+                <option key={p} value={p}>
+                  {lang === "bn" ? PROFESSIONS_DATA[p]?.bn ?? p : p}
+                </option>
               ))}
             </select>
           </Field>
-          <Field label="Email">
+          <Field label={L("ইমেইল", "Email")}>
             <input className="field" value={user.email} disabled />
           </Field>
           <Button
@@ -95,33 +97,33 @@ export default function TherapistSettings() {
               setSaving(true);
               await authService.updateUser({ name: name.trim(), profession });
               setSaving(false);
-              toast("Profile saved");
+              toast(L("প্রোফাইল সংরক্ষণ হয়েছে", "Profile saved"));
             }}
           >
-            Save profile
+            {L("প্রোফাইল সংরক্ষণ করুন", "Save profile")}
           </Button>
         </Card>
 
         <div className="sec">
-          <h2 className="h2">Language</h2>
+          <h2 className="h2">{L("ভাষা", "Language")}</h2>
         </div>
         <div style={{ marginBottom: 14 }}>
           <Segmented<Lang>
             value={lang}
             onChange={setLang}
             options={[
-              { value: "en", label: "English" },
               { value: "bn", label: <span className="bn">বাংলা</span> },
+              { value: "en", label: "English" },
             ]}
           />
         </div>
 
         <div className="sec">
-          <h2 className="h2">Demo data</h2>
+          <h2 className="h2">{L("ডেমো তথ্য", "Demo data")}</h2>
         </div>
         <Card style={{ marginBottom: 16 }}>
           <p className="sub" style={{ fontSize: 14, marginBottom: 10 }}>
-            Bring back the sample children and demo data before each rehearsal.
+            {L("ডেমো পুনরায় শুরু করতে প্রাথমিক নমুনা তথ্য ফিরিয়ে আনুন।", "Bring back the sample children and demo data before each rehearsal.")}
           </p>
           <Button
             block
@@ -129,7 +131,7 @@ export default function TherapistSettings() {
             icon={<Icon name="refresh" />}
             onClick={() => setConfirm(true)}
           >
-            Reset demo data
+            {L("ডেমো তথ্য রিসেট করুন", "Reset demo data")}
           </Button>
         </Card>
 
@@ -143,28 +145,31 @@ export default function TherapistSettings() {
             router.replace("/");
           }}
         >
-          Log out
+          {L("লগআউট", "Log out")}
         </Button>
 
-        <Modal open={confirm} onClose={() => setConfirm(false)} title="Reset demo data?">
+        <Modal open={confirm} onClose={() => setConfirm(false)} title={L("ডেমো তথ্য রিসেট করবেন?", "Reset demo data?")}>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <p className="small">
-              This removes every change made in this browser and brings back the initial sample children, logs, and reports.
+              {L(
+                "এটি এই ব্রাউজারের সমস্ত পরিবর্তন মুছে প্রাথমিক নমুনা তথ্য, লগ ও রিপোর্ট ফিরিয়ে আনবে।",
+                "This removes every change made in this browser and brings back the initial sample children, logs, and reports."
+              )}
             </p>
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 8 }}>
               <Button variant="ghost" onClick={() => setConfirm(false)}>
-                Cancel
+                {L("বাতিল", "Cancel")}
               </Button>
               <Button
                 variant="primary"
                 onClick={() => {
                   resetDemoData();
                   setConfirm(false);
-                  toast("Demo data reset");
+                  toast(L("ডেমো তথ্য রিসেট হয়েছে", "Demo data reset"));
                   reload();
                 }}
               >
-                Reset
+                {L("রিসেট করুন", "Reset")}
               </Button>
             </div>
           </div>

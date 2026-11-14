@@ -8,12 +8,14 @@ import { Ele, Tiger } from "@/components/legacy/mascots";
 import { HOME } from "@/components/shells";
 import { Button, Card, Field } from "@/components/ui";
 import { useSession } from "@/lib/hooks";
+import { useLang } from "@/lib/i18n";
 import { authService } from "@/lib/services";
 import type { Role } from "@/lib/types";
 
 export default function Login() {
   const router = useRouter();
   const { user } = useSession();
+  const { lang, toggleLang, L } = useLang();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
@@ -32,7 +34,7 @@ export default function Login() {
       const u = await authService.logIn(email, password);
       router.replace(HOME[u.role]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Email or password is incorrect.");
+      setError(err instanceof Error ? err.message : L("ইমেইল বা পাসওয়ার্ড ভুল হয়েছে।", "Email or password is incorrect."));
       setBusy(null);
     }
   };
@@ -44,18 +46,29 @@ export default function Login() {
   };
 
   return (
-    <div className="scroll softbg pad" style={{ paddingBottom: 32 }}>
+    <div className="scroll softbg pad" style={{ paddingBottom: 32 }} lang={lang}>
       <div className="bar" style={{ padding: "4px 16px 12px" }}>
-        <Link href="/" className="hbtn" aria-label="Back">
+        <Link href="/" className="hbtn" aria-label={L("ফিরে যান", "Back")}>
           <Icon name="back" />
         </Link>
-        <h1 className="h2 grow" style={{ paddingLeft: 4 }}>Log in</h1>
+        <h1 className="h2 grow" style={{ paddingLeft: 4 }}>
+          {L("লগইন", "Log in")}
+        </h1>
+        <button
+          onClick={toggleLang}
+          type="button"
+          className="hbtn"
+          style={{ fontSize: 12.5, fontWeight: 700, minWidth: 38 }}
+          aria-label="Toggle language"
+        >
+          {lang === "bn" ? "EN" : "বাং"}
+        </button>
       </div>
 
       <div className="in">
         <Card>
           <form onSubmit={submit} noValidate style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <Field label="Email">
+            <Field label={L("ইমেইল", "Email")}>
               <input
                 className="field"
                 type="email"
@@ -66,7 +79,7 @@ export default function Login() {
               />
             </Field>
 
-            <Field label="Password">
+            <Field label={L("পাসওয়ার্ড", "Password")}>
               <div style={{ position: "relative" }}>
                 <input
                   className="field"
@@ -79,7 +92,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShow(!show)}
-                  aria-label={show ? "Hide password" : "Show password"}
+                  aria-label={show ? L("পাসওয়ার্ড লুকান", "Hide password") : L("পাসওয়ার্ড দেখুন", "Show password")}
                   className="xb"
                   style={{
                     position: "absolute",
@@ -103,19 +116,21 @@ export default function Login() {
               disabled={!email || !password}
               style={{ marginTop: 4 }}
             >
-              Log in
+              {L("লগইন", "Log in")}
             </Button>
 
             <div style={{ textAlign: "center", marginTop: 2 }}>
               <Link href="/forgot" className="link" style={{ fontSize: 14 }}>
-                Forgot password?
+                {L("পাসওয়ার্ড ভুলে গেছেন?", "Forgot password?")}
               </Link>
             </div>
           </form>
         </Card>
 
         <div className="sec">
-          <h2 className="h2" style={{ fontSize: 16 }}>Demo — instant login</h2>
+          <h2 className="h2" style={{ fontSize: 16 }}>
+            {L("ডেমো — এক ক্লিকে প্রবেশ", "Demo — instant login")}
+          </h2>
         </div>
 
         <button
@@ -128,8 +143,8 @@ export default function Login() {
             <Ele mood="calm" extra="doctor" />
           </span>
           <span className="grow">
-            <span className="h3" style={{ display: "block" }}>Log in as therapist</span>
-            <span className="small">Dr. Nasrin, at the clinic</span>
+            <span className="h3" style={{ display: "block" }}>{L("থেরাপিস্ট হিসেবে প্রবেশ", "Log in as therapist")}</span>
+            <span className="small">{L("ডা. নাসরিন, ক্লিনিকে", "Dr. Nasrin, at the clinic")}</span>
           </span>
           <span className="go"><Icon name="next" /></span>
         </button>
@@ -144,8 +159,8 @@ export default function Login() {
             <Tiger mood="hi" />
           </span>
           <span className="grow">
-            <span className="h3" style={{ display: "block" }}>Log in as parent</span>
-            <span className="small">Ayesha, at home with Rafi</span>
+            <span className="h3" style={{ display: "block" }}>{L("অভিভাবক হিসেবে প্রবেশ", "Log in as parent")}</span>
+            <span className="small">{L("আয়েশা, রাফির সাথে ঘরে", "Ayesha, at home with Rafi")}</span>
           </span>
           <span className="go"><Icon name="next" /></span>
         </button>
@@ -160,14 +175,14 @@ export default function Login() {
             <Icon name="building" />
           </span>
           <span className="grow">
-            <span className="h3" style={{ display: "block" }}>Log in as centre admin</span>
-            <span className="small">Farhana, running the centre</span>
+            <span className="h3" style={{ display: "block" }}>{L("সেন্টার অ্যাডমিন হিসেবে প্রবেশ", "Log in as centre admin")}</span>
+            <span className="small">{L("ফারহানা, সেন্টার পরিচালনা", "Farhana, running the centre")}</span>
           </span>
           <span className="go"><Icon name="next" /></span>
         </button>
 
         <p className="small" style={{ textAlign: "center", marginTop: 14 }}>
-          Demo accounts use password <code>demo1234</code>.
+          {L("সব ডেমো অ্যাকাউন্টের পাসওয়ার্ড demo1234।", "Demo accounts use password demo1234.")}
         </p>
       </div>
     </div>

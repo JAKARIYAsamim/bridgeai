@@ -14,7 +14,8 @@ import {
   SkeletonList,
 } from "@/components/ui";
 import { useLoad } from "@/lib/hooks";
-import { AGE_BANDS, COMM_LEVELS, DOMAINS, SLOTS } from "@/lib/labels";
+import { useLang } from "@/lib/i18n";
+import { AGE_BANDS, COMM_LEVELS, DIFFICULTY, DOMAINS, nameIn, num, SLOTS } from "@/lib/labels";
 import { libraryService } from "@/lib/services";
 import type {
   Activity,
@@ -68,6 +69,7 @@ export function LibraryFilters({
   onChange: (f: ActivityFilters) => void;
   compact?: boolean;
 }) {
+  const { lang, L } = useLang();
   const [more, setMore] = useState(!compact);
   const set = (patch: Partial<ActivityFilters>) => onChange({ ...filters, ...patch });
   const active = [
@@ -84,8 +86,8 @@ export function LibraryFilters({
         <input
           value={filters.search ?? ""}
           onChange={(e) => set({ search: e.target.value })}
-          placeholder="Search by title, ID or evidence"
-          aria-label="Search activities"
+          placeholder={L("নাম বা আইডি দিয়ে খুঁজুন…", "Search by title, ID or evidence")}
+          aria-label={L("অনুশীলন খুঁজুন", "Search activities")}
           className="field"
           style={{ paddingLeft: 38 }}
         />
@@ -94,7 +96,7 @@ export function LibraryFilters({
             position: "absolute",
             left: 12,
             top: "50%",
-            transform: "translateY(-50%)",
+            transform: "translateY(-50)",
             color: "var(--mute)",
             fontSize: 18,
           }}
@@ -110,62 +112,90 @@ export function LibraryFilters({
           type="button"
           style={{ marginBottom: 6 }}
         >
-          {more ? "Hide filters" : `Filters${active ? ` (${active})` : ""}`}
+          {more ? L("ফিল্টার লুকান", "Hide filters") : `${L("ফিল্টার", "Filters")}${active ? ` (${num(active, lang)})` : ""}`}
         </button>
       )}
 
       {more && (
         <div className="card" style={{ padding: 12, marginBottom: 12 }}>
           <ChipRow<Domain>
-            label="Domain"
+            label={L("বিষয়", "Domain")}
             value={filters.domain}
             onChange={(v) => set({ domain: v })}
             options={(Object.keys(DOMAINS) as Domain[])
               .filter((d) => d !== "early_learning")
-              .map((d) => ({ value: d, label: `${DOMAINS[d].emoji} ${DOMAINS[d].en}` }))}
+              .map((d) => ({
+                value: d,
+                label: `${DOMAINS[d].emoji} ${lang === "bn" ? DOMAINS[d].bn : DOMAINS[d].en}`,
+              }))}
           />
           <ChipRow<RoutineSlot>
-            label="Slot"
+            label={L("সময়সূচি", "Routine slot")}
             value={filters.routine_slot}
             onChange={(v) => set({ routine_slot: v })}
             options={(Object.keys(SLOTS) as RoutineSlot[]).map((s) => ({
               value: s,
-              label: SLOTS[s].en,
+              label: `${SLOTS[s].emoji} ${lang === "bn" ? SLOTS[s].bn : SLOTS[s].en}`,
             }))}
           />
           <ChipRow<AgeBand>
-            label="Age"
+            label={L("বয়স", "Age band")}
             value={filters.age_band}
             onChange={(v) => set({ age_band: v })}
             options={(Object.keys(AGE_BANDS) as AgeBand[]).map((a) => ({
               value: a,
-              label: AGE_BANDS[a].en,
+              label: lang === "bn" ? AGE_BANDS[a].bn : AGE_BANDS[a].en,
             }))}
           />
           <ChipRow<CommLevel>
-            label="Talking"
+            label={L("যোগাযোগের ধাপ", "Communication level")}
             value={filters.comm_level}
             onChange={(v) => set({ comm_level: v })}
             options={(Object.keys(COMM_LEVELS) as CommLevel[]).map((c) => ({
               value: c,
-              label: COMM_LEVELS[c].en,
+              label: lang === "bn" ? COMM_LEVELS[c].bn : COMM_LEVELS[c].en,
             }))}
           />
           <ChipRow<Difficulty>
-            label="Step"
+            label={L("সহায়তার ধাপ", "Prompt level")}
             value={filters.difficulty}
             onChange={(v) => set({ difficulty: v })}
-            options={[1, 2, 3].map((d) => ({ value: d as Difficulty, label: `Step ${d}` }))}
+            options={[1, 2, 3].map((d) => ({
+              value: d as Difficulty,
+              label: lang === "bn" ? DIFFICULTY[d].bn : DIFFICULTY[d].en,
+            }))}
           />
+
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              marginTop: 4,
+              fontSize: 13,
+              cursor: "pointer",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={filters.includeDrafts === false}
+              onChange={(e) =>
+                set({ includeDrafts: e.target.checked ? false : undefined })
+              }
+            />
+            <span>{L("শুধু অনুমোদিত (খসড়া ছাড়া)", "Reviewed only (hide drafts)")}</span>
+          </label>
+
           {active > 0 && (
             <button
               className="link"
               type="button"
+              style={{ marginTop: 8 }}
               onClick={() =>
                 onChange({ search: filters.search, includeDrafts: filters.includeDrafts })
               }
             >
-              Clear filters
+              {L("ফিল্টার মুছুন", "Clear filters")}
             </button>
           )}
         </div>
@@ -175,6 +205,12 @@ export function LibraryFilters({
 }
 
 // ---------- Cards & Grid ----------
+function ageBandsSummary(a: Activity, lang: Lang): string {
+  const bands = a.age_bands.filter((b) => b !== "parent") as AgeBand[];
+  if (!bands.length) return "";
+  return bands.map((b) => (lang === "bn" ? AGE_BANDS[b].bn : AGE_BANDS[b].en)).join(", ");
+}
+
 export function LibraryCard({
   activity,
   onOpen,
@@ -182,6 +218,10 @@ export function LibraryCard({
   activity: Activity;
   onOpen: () => void;
 }) {
+  const { lang, L } = useLang();
+  const flagged = activity.conflicts_with_flags.length > 0;
+  const ages = ageBandsSummary(activity, lang);
+
   return (
     <button
       onClick={onOpen}
@@ -196,19 +236,52 @@ export function LibraryCard({
         marginBottom: 8,
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
         <span className="small" style={{ fontWeight: 700 }}>{activity.id}</span>
-        {activity.status === "draft" && <Chip tone="celebrate">Draft</Chip>}
+        {activity.status === "draft" ? (
+          <Chip tone="celebrate">{L("খসড়া", "Draft")}</Chip>
+        ) : (
+          <Chip tone="success">{L("অনুমোদিত", "Reviewed")}</Chip>
+        )}
+        {flagged && <Chip tone="alert">{L("⚠ সতর্কতা", "⚠ Flags")}</Chip>}
         <div className="grow" />
-        <span className="small">{activity.minutes} min</span>
+        <span className="small">{L(`${num(activity.minutes, lang)} মিনিট`, `${activity.minutes} min`)}</span>
       </div>
 
-      <p className="h3">{activity.title_en}</p>
-      <p className="bn small" style={{ marginTop: 2 }}>{activity.title_bn}</p>
+      <p className="h3">{lang === "bn" ? activity.title_bn : activity.title_en}</p>
+      <p className={lang === "bn" ? "small" : "bn small"} style={{ marginTop: 2, color: "var(--mute)" }}>
+        {lang === "bn" ? activity.title_en : activity.title_bn}
+      </p>
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
-        <Chip tone="primary">{DOMAINS[activity.domain].en}</Chip>
-        <Chip>{SLOTS[activity.routine_slot].en}</Chip>
+        <Chip tone="primary">
+          {DOMAINS[activity.domain].emoji} {lang === "bn" ? DOMAINS[activity.domain].bn : DOMAINS[activity.domain].en}
+        </Chip>
+        <Chip>
+          {SLOTS[activity.routine_slot].emoji} {lang === "bn" ? SLOTS[activity.routine_slot].bn : SLOTS[activity.routine_slot].en}
+        </Chip>
+        <Chip tone="info">{L(`ধাপ ${num(activity.difficulty, lang)}`, `Step ${activity.difficulty}`)}</Chip>
+      </div>
+
+      <div
+        className="small"
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "4px 10px",
+          marginTop: 8,
+          color: "var(--mute)",
+        }}
+      >
+        {ages && <span>{L(`বয়স: ${ages}`, `Age: ${ages}`)}</span>}
+        {activity.comm_levels.length > 0 && (
+          <span>
+            {L("যোগাযোগ: ", "Comm: ")}
+            {activity.comm_levels
+              .map((c) => (lang === "bn" ? COMM_LEVELS[c].bn : COMM_LEVELS[c].en))
+              .join(", ")}
+          </span>
+        )}
       </div>
     </button>
   );
@@ -218,15 +291,19 @@ export function LibraryGrid({
   filters,
   excludeIds = [],
   onOpen,
+  groupByDomain = false,
 }: {
   filters: ActivityFilters;
   excludeIds?: string[];
   onOpen: (a: Activity) => void;
   cols?: string;
+  groupByDomain?: boolean;
 }) {
+  const { lang, L } = useLang();
   const key = JSON.stringify(filters);
+  const includeDrafts = filters.includeDrafts !== false;
   const { data, loading, error, reload } = useLoad(
-    () => libraryService.listActivities({ includeDrafts: true, ...filters }),
+    () => libraryService.listActivities({ ...filters, includeDrafts }),
     [key],
   );
   const list = useMemo(
@@ -236,13 +313,67 @@ export function LibraryGrid({
 
   if (loading && !data) return <SkeletonList rows={4} h="h-28" />;
   if (error) return <ErrorState message={error} onRetry={reload} />;
-  if (!list.length) return <EmptyState emoji="🔍" title="No activities match these filters." />;
+  if (!list.length) return <EmptyState emoji="🔍" title={L("কোনো অনুশীলন মেলেনি।", "No activities match these filters.")} />;
+
+  const header = (
+    <p
+      className="small"
+      style={{ margin: "0 2px 8px", color: "var(--mute)", fontWeight: 600 }}
+    >
+      {L(`${num(list.length, lang)}টি অনুশীলন`, `${list.length} activit${list.length === 1 ? "y" : "ies"}`)}
+    </p>
+  );
+
+  if (!groupByDomain) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        {header}
+        {list.map((a) => (
+          <LibraryCard key={a.id} activity={a} onOpen={() => onOpen(a)} />
+        ))}
+      </div>
+    );
+  }
+
+  const groups = new Map<Domain, Activity[]>();
+  for (const a of list) {
+    const bucket = groups.get(a.domain) ?? [];
+    bucket.push(a);
+    groups.set(a.domain, bucket);
+  }
+  const domainOrder = Object.keys(DOMAINS) as Domain[];
+  const sortedDomains = domainOrder.filter((d) => groups.has(d));
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      {list.map((a) => (
-        <LibraryCard key={a.id} activity={a} onOpen={() => onOpen(a)} />
-      ))}
+      {header}
+      {sortedDomains.map((d) => {
+        const items = groups.get(d)!;
+        return (
+          <div key={d} style={{ marginBottom: 12 }}>
+            <p
+              className="small"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                margin: "4px 2px 6px",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: 0.3,
+                color: "var(--mute)",
+              }}
+            >
+              <span>{DOMAINS[d].emoji}</span>
+              <span>{lang === "bn" ? DOMAINS[d].bn : DOMAINS[d].en}</span>
+              <span style={{ color: "var(--mute)", fontWeight: 500 }}>· {num(items.length, lang)}</span>
+            </p>
+            {items.map((a) => (
+              <LibraryCard key={a.id} activity={a} onOpen={() => onOpen(a)} />
+            ))}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -306,6 +437,7 @@ function DrawerInner({
   assignLabel?: string;
   childName?: string;
 }) {
+  const { lang, L } = useLang();
   const [filters, setFilters] = useState<ActivityFilters>(initialFilters ?? {});
   const [selectedId, setSelectedId] = useState<string | undefined>(activityId);
   const { data: selected, loading } = useLoad(
@@ -314,11 +446,16 @@ function DrawerInner({
   );
   const showList = !selectedId && mode !== "read";
 
+  const cName = nameIn(childName ?? "", lang);
   const title = showList
     ? mode === "assign"
-      ? `Add an activity${childName ? ` for ${childName}` : ""}`
-      : "Activity library"
-    : selected?.title_en ?? "Activity";
+      ? L(`${cName ? `${cName}-এর জন্য ` : ""}অনুশীলন যোগ করুন`, `Add an activity${childName ? ` for ${childName}` : ""}`)
+      : L("অ্যাক্টিভিটি লাইব্রেরি", "Activity library")
+    : selected
+    ? lang === "bn"
+      ? selected.title_bn
+      : selected.title_en
+    : L("অনুশীলন", "Activity");
 
   return (
     <BottomSheet open onClose={onClose} title={title}>
@@ -341,19 +478,19 @@ function DrawerInner({
               style={{ display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 4 }}
             >
               <Icon name="back" />
-              <span>Back to library</span>
+              <span>{L("লাইব্রেরিতে ফিরুন", "Back to library")}</span>
             </button>
           )}
           {loading || !selected ? (
             <SkeletonList rows={3} h="h-32" />
           ) : (
             <>
-              <ActivityDetailView activity={selected} lang="en" childName={childName} />
+              <ActivityDetailView activity={selected} lang={lang} childName={cName} />
               {mode === "assign" && onAssign && (
                 <div style={{ marginTop: 14 }}>
                   {selected.status === "draft" ? (
                     <p className="small" style={{ textAlign: "center", color: "var(--mute)" }}>
-                      Draft — not yet reviewed. It can&apos;t be assigned.
+                      {L("খসড়া — এখনো অনুমোদন করা হয়নি। যুক্ত করা যাবে না।", "Draft — not yet reviewed. It can’t be assigned.")}
                     </p>
                   ) : (
                     <Button
@@ -363,7 +500,7 @@ function DrawerInner({
                         onClose();
                       }}
                     >
-                      {assignLabel ?? `Assign to ${childName ?? "child"}`}
+                      {assignLabel ?? L(`${cName || "শিশু"}-কে দিন`, `Assign to ${childName ?? "child"}`)}
                     </Button>
                   )}
                 </div>
@@ -378,12 +515,14 @@ function DrawerInner({
 
 export function ActivityDetailPanel({
   activity,
-  lang = "en",
+  lang: langProp,
   childName,
 }: {
   activity: Activity;
   lang?: Lang;
   childName?: string;
 }) {
+  const { lang: currentLang } = useLang();
+  const lang = langProp ?? currentLang ?? "bn";
   return <ActivityDetailView activity={activity} lang={lang} childName={childName} />;
 }

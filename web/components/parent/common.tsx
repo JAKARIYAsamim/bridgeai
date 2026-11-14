@@ -7,15 +7,15 @@ import { cx } from "@/components/ui";
 import { useLang } from "@/lib/i18n";
 import type { Caregiver } from "@/lib/types";
 
-export function LangToggle() {
-  const { lang, setLang } = useLang();
+export function LangToggle({ className }: { className?: string }) {
+  const { lang, toggleLang } = useLang();
   return (
     <button
-      onClick={() => setLang(lang === "bn" ? "en" : "bn")}
+      onClick={toggleLang}
       aria-label={lang === "bn" ? "Switch to English" : "বাংলায় দেখুন"}
-      className={cx("hbtn", lang === "en" ? "bn" : "")}
+      className={cx("hbtn", lang === "en" ? "bn" : "", className)}
       type="button"
-      style={{ fontSize: 13, fontWeight: 600 }}
+      style={{ fontSize: 12.5, fontWeight: 600, minWidth: 38 }}
     >
       {lang === "bn" ? "EN" : "বাং"}
     </button>
@@ -27,11 +27,13 @@ export function ParentTopBar({
   back,
   close,
   right,
+  showLang = false,
 }: {
   title?: ReactNode;
   back?: string | true;
   close?: string;
   right?: ReactNode;
+  showLang?: boolean;
 }) {
   const router = useRouter();
   const { L } = useLang();
@@ -57,6 +59,7 @@ export function ParentTopBar({
       )}
       {!title && <div className="grow" />}
       {right}
+      {showLang && <LangToggle />}
       {close && (
         <button
           onClick={() => go(close)}

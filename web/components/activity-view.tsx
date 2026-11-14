@@ -107,7 +107,7 @@ export function ActivityDetailView({
           </Chip>
           <Chip>{L(DOMAINS[activity.domain].bn, DOMAINS[activity.domain].en)}</Chip>
           <Chip icon={<Icon name="clock" style={{ fontSize: 13 }} />}>
-            {L(`প্রায় ${num(activity.minutes, "bn")} মিনিট`, `About ${activity.minutes} min`)}
+            {L(`প্রায় ${num(activity.minutes, lang)} মিনিট`, `About ${activity.minutes} min`)}
           </Chip>
         </div>
       </div>

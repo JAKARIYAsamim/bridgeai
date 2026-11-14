@@ -3,6 +3,8 @@
 // Uses prototype bottom sheet and button classes.
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/legacy/icons";
+import { useLang } from "@/lib/i18n";
+import { nameIn, num } from "@/lib/labels";
 import { childService } from "@/lib/services";
 import type { InviteCode } from "@/lib/types";
 import { BottomSheet, Button, Skeleton, useToast } from "./ui";
@@ -15,6 +17,7 @@ export function InviteModal(props: Props) {
 
 function InviteBody({ open, onClose, childId, childName }: Props) {
   const toast = useToast();
+  const { lang, L } = useLang();
   const [invite, setInvite] = useState<InviteCode | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,15 +36,19 @@ function InviteBody({ open, onClose, childId, childName }: Props) {
     };
   }, [childId]);
 
+  const displayName = nameIn(childName, lang);
   const link = typeof window !== "undefined" ? `${window.location.origin}/join` : "/join";
   const msg = invite
-    ? `BridgeAI-তে ${childName}-এর পরিকল্পনায় যোগ দিন। কোড: ${invite.code}\nJoin ${childName}'s plan on BridgeAI. Code: ${invite.code}\n${link}`
+    ? `BridgeAI-তে ${nameIn(childName, "bn")}-এর পরিকল্পনায় যোগ দিন। কোড: ${invite.code}\nJoin ${childName}'s plan on BridgeAI. Code: ${invite.code}\n${link}`
     : "";
 
   return (
-    <BottomSheet open={open} onClose={onClose} title="Invite caregiver">
+    <BottomSheet open={open} onClose={onClose} title={L("আমন্ত্রণ কোড", "Invite caregiver")}>
       <p className="sub" style={{ marginTop: 2, marginBottom: 12 }}>
-        Share this code with {childName}&apos;s family. They enter it under <b>Join with code</b>.
+        {L(
+          `${displayName}-এর পরিবারকে এই কোডটি দিন। তারা ‘কোড দিয়ে যোগ দিন’-এ এটি লিখবেন।`,
+          `Share this code with ${childName}’s family. They enter it under Join with code.`
+        )}
       </p>
 
       <div className="card" style={{ textAlign: "center", padding: "20px 14px", margin: "14px 0" }}>
@@ -61,7 +68,9 @@ function InviteBody({ open, onClose, childId, childName }: Props) {
         ) : (
           <Skeleton className="h-10 w-48" style={{ margin: "0 auto" }} />
         )}
-        <p className="small" style={{ marginTop: 6 }}>Valid for 7 days</p>
+        <p className="small" style={{ marginTop: 6 }}>
+          {L(`${num(7, lang)} দিন পর্যন্ত কার্যকর`, "Valid for 7 days")}
+        </p>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -72,13 +81,13 @@ function InviteBody({ open, onClose, childId, childName }: Props) {
           onClick={async () => {
             try {
               await navigator.clipboard.writeText(invite!.code);
-              toast("Code copied");
+              toast(L("কোড কপি হয়েছে", "Code copied"));
             } catch {
               toast(`Code: ${invite!.code}`);
             }
           }}
         >
-          Copy code
+          {L("কোড কপি করুন", "Copy code")}
         </Button>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
           <Button
@@ -98,9 +107,6 @@ function InviteBody({ open, onClose, childId, childName }: Props) {
             SMS
           </Button>
         </div>
-        <Button className="wide" style={{ marginTop: 6 }} onClick={onClose}>
-          Done
-        </Button>
       </div>
     </BottomSheet>
   );

@@ -18,7 +18,8 @@ import {
   useToast,
 } from "@/components/ui";
 import { useLoad } from "@/lib/hooks";
-import { COMM_LEVELS, DOMAINS, SAFETY_FLAGS, SENSORY_FLAGS, SLOTS } from "@/lib/labels";
+import { COMM_LEVELS, DOMAINS, SAFETY_FLAGS, SENSORY_FLAGS, SLOTS, num } from "@/lib/labels";
+import { useLang } from "@/lib/i18n";
 import { MAX_ACTIVE } from "@/lib/matching";
 import { aiService, childService, libraryService, planService } from "@/lib/services";
 import type { Activity, Child, Goal, PlanDraft, PlanItem, Roadmap } from "@/lib/types";
@@ -27,35 +28,36 @@ type Status = "pending" | "accepted" | "edited" | "removed";
 type Profile = PlanDraft["profile"];
 type ProfileKey = "age_band" | "comm_level" | "support_level" | "sensory_flags" | "safety_flags" | "strengths";
 
-const PROFILE_ROWS: { key: ProfileKey; label: string }[] = [
-  { key: "age_band", label: "Age band" },
-  { key: "comm_level", label: "Communication level" },
-  { key: "support_level", label: "Support level (therapist only)" },
-  { key: "sensory_flags", label: "Sensory flags" },
-  { key: "safety_flags", label: "Safety flags" },
-  { key: "strengths", label: "Strengths" },
+const PROFILE_ROWS: { key: ProfileKey; label_bn: string; label_en: string }[] = [
+  { key: "age_band", label_bn: "বয়স সীমা", label_en: "Age band" },
+  { key: "comm_level", label_bn: "যোগাযোগের স্তর", label_en: "Communication level" },
+  { key: "support_level", label_bn: "সহায়তার স্তর (থেরাপিস্টদের জন্য)", label_en: "Support level (therapist only)" },
+  { key: "sensory_flags", label_bn: "সংবেদনশীল বৈশিষ্ট্য", label_en: "Sensory flags" },
+  { key: "safety_flags", label_bn: "নিরাপত্তা সতর্কতা", label_en: "Safety flags" },
+  { key: "strengths", label_bn: "দক্ষতা ও পছন্দ", label_en: "Strengths" },
 ];
 
-const flagLabel = (f: string) => SENSORY_FLAGS[f] ?? SAFETY_FLAGS[f] ?? f;
+const flagLabel = (f: string, lang: "bn" | "en") => SENSORY_FLAGS[f]?.[lang] ?? SAFETY_FLAGS[f]?.[lang] ?? f;
 
-function profileText(p: Profile, k: ProfileKey): string {
+function profileText(p: Profile, k: ProfileKey, lang: "bn" | "en"): string {
   switch (k) {
     case "age_band":
       return p.age_band;
     case "comm_level":
-      return COMM_LEVELS[p.comm_level]?.en ?? p.comm_level;
+      return COMM_LEVELS[p.comm_level]?.[lang] ?? COMM_LEVELS[p.comm_level]?.en ?? p.comm_level;
     case "support_level":
-      return p.support_level ? `Level ${p.support_level}` : "Not set";
+      return p.support_level ? (lang === "bn" ? `স্তর ${num(p.support_level, "bn")}` : `Level ${p.support_level}`) : (lang === "bn" ? "নির্ধারিত নয়" : "Not set");
     case "sensory_flags":
-      return p.sensory_flags.map(flagLabel).join(", ") || "None";
+      return p.sensory_flags.map((f) => flagLabel(f, lang)).join(", ") || (lang === "bn" ? "নেই" : "None");
     case "safety_flags":
-      return p.safety_flags.map(flagLabel).join(", ") || "None";
+      return p.safety_flags.map((f) => flagLabel(f, lang)).join(", ") || (lang === "bn" ? "নেই" : "None");
     case "strengths":
-      return p.strengths.join(" · ") || "None";
+      return p.strengths.join(" · ") || (lang === "bn" ? "নেই" : "None");
   }
 }
 
 export default function ReviewDraft() {
+  const { lang, L } = useLang();
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const toast = useToast();
@@ -125,8 +127,12 @@ export default function ReviewDraft() {
         <StepLoader
           steps={
             working === "regen"
-              ? ["Reading your comment", "Keeping your accepted items", "Redrafting the rest"]
-              : ["Saving the plan", "Updating the profile"]
+              ? (lang === "bn"
+                  ? ["আপনার মন্তব্য পর্যালোচনা করা হচ্ছে", "পছন্দের আইটেমগুলো রাখা হচ্ছে", "বাকি অংশ নতুন করে তৈরি হচ্ছে"]
+                  : ["Reading your comment", "Keeping your accepted items", "Redrafting the rest"])
+              : (lang === "bn"
+                  ? ["পরিকল্পনা সংরক্ষণ করা হচ্ছে", "প্রোফাইল আপডেট করা হচ্ছে"]
+                  : ["Saving the plan", "Updating the profile"])
           }
         />
       </div>
@@ -145,12 +151,12 @@ export default function ReviewDraft() {
   const swapTo = (itemId: string, a: Activity) => {
     setRm({ ...rm, items: rm.items.map((i) => (i.id === itemId ? { ...i, activityId: a.id, difficulty: 1 } : i)) });
     setIStatus({ ...iStatus, [itemId]: "edited" });
-    toast(`Swapped for ${a.title_en}`);
+    toast(lang === "bn" ? `বদলানো হয়েছে: ${a.title_bn}` : `Swapped for ${a.title_en}`);
   };
 
   const addTo = (p: 1 | 2 | 3, a: Activity) => {
     if (liveItems(p).length >= MAX_ACTIVE) {
-      setLimitMsg("Remove one first.");
+      setLimitMsg(L("আগে একটি বাদ দিন।", "Remove one first."));
       return;
     }
     const goal =
@@ -168,7 +174,7 @@ export default function ReviewDraft() {
     };
     setRm({ ...rm, items: [...rm.items, item] });
     setIStatus({ ...iStatus, [item.id]: "accepted" });
-    toast(`${a.title_en} added`);
+    toast(lang === "bn" ? `${a.title_bn} যোগ করা হয়েছে` : `${a.title_en} added`);
   };
 
   const regenerate = async () => {
@@ -200,9 +206,9 @@ export default function ReviewDraft() {
       setGStatus(Object.fromEntries(keptGoals.map((g) => [g.id, gStatus[g.id]])));
       setIStatus(Object.fromEntries(keptItems.map((i) => [i.id, iStatus[i.id]])));
       setComment("");
-      toast("New draft ready. Your accepted items were kept.");
+      toast(lang === "bn" ? "নতুন খসড়া প্রস্তুত। সংরক্ষিত আইটেম অপরিবর্তিত রাখা হয়েছে।" : "New draft ready. Your accepted items were kept.");
     } catch (e) {
-      toast(e instanceof Error ? e.message : "Could not regenerate");
+      toast(e instanceof Error ? e.message : (lang === "bn" ? "পুনরায় তৈরি করা যায়নি" : "Could not regenerate"));
     } finally {
       setWorking(null);
     }
@@ -242,10 +248,10 @@ export default function ReviewDraft() {
       }
       await planService.approvePlan(id, final);
       setApproved(true);
-      toast(`${child.nickname}’s plan is live`);
+      toast(lang === "bn" ? `${child.nickname}-এর পরিকল্পনা চালু হয়েছে` : `${child.nickname}’s plan is live`);
       setInviteOpen(true);
     } catch (e) {
-      toast(e instanceof Error ? e.message : "Could not approve");
+      toast(e instanceof Error ? e.message : (lang === "bn" ? "অনুমোদন করা যায়নি" : "Could not approve"));
     } finally {
       setWorking(null);
     }
@@ -261,30 +267,33 @@ export default function ReviewDraft() {
         </Link>
         <div className="grow" style={{ minWidth: 0, paddingLeft: 6 }}>
           <h1 className="h2" style={{ margin: 0 }}>
-            Review: {child.nickname}
+            {L("পর্যালোচনা", "Review")}: {child.nickname}
           </h1>
-          <p className="small">AI draft plan</p>
+          <p className="small">{L("এআই তৈরি খসড়া পরিকল্পনা", "AI draft plan")}</p>
         </div>
       </div>
 
       <div className="in">
         <AIDraftBanner approved={approved}>
-          <span className="small">Based on: {rm.aiMeta?.based_on ?? "your notes"}</span>
+          <span className="small">
+            {L("উৎস: ", "Based on: ")}
+            {rm.aiMeta?.based_on ?? L("আপনার নোট", "your notes")}
+          </span>
         </AIDraftBanner>
 
         {/* Profile */}
         {profile && (
           <div style={{ marginTop: 14 }}>
             <div className="sec">
-              <h2 className="h2">Profile</h2>
+              <h2 className="h2">{L("প্রোফাইল", "Profile")}</h2>
             </div>
             <Card style={{ padding: 0 }}>
-              {PROFILE_ROWS.map(({ key, label }) => (
+              {PROFILE_ROWS.map(({ key, label_bn, label_en }) => (
                 <ProfileRow
                   key={key}
-                  label={label}
+                  label={lang === "bn" ? label_bn : label_en}
                   status={pStatus[key] ?? "pending"}
-                  text={profileText(profile, key)}
+                  text={profileText(profile, key, lang)}
                   onAccept={() => setPStatus({ ...pStatus, [key]: "accepted" })}
                   onRemove={() =>
                     setPStatus({ ...pStatus, [key]: pStatus[key] === "removed" ? "pending" : "removed" })
@@ -309,7 +318,7 @@ export default function ReviewDraft() {
         {/* Goals */}
         <div style={{ marginTop: 16 }}>
           <div className="sec">
-            <h2 className="h2">Goals</h2>
+            <h2 className="h2">{L("লক্ষ্যসমূহ", "Goals")}</h2>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {rm.goals.map((g) => (
@@ -330,8 +339,10 @@ export default function ReviewDraft() {
         {/* 12-week roadmap */}
         <div style={{ marginTop: 16 }}>
           <div className="sec">
-            <h2 className="h2">12-week roadmap</h2>
-            <span className="small">Max {MAX_ACTIVE} per phase</span>
+            <h2 className="h2">{L("১২ সপ্তাহের রোডম্যাপ", "12-week roadmap")}</h2>
+            <span className="small">
+              {lang === "bn" ? `ধাপে সর্বোচ্চ ${num(MAX_ACTIVE, "bn")}টি` : `Max ${MAX_ACTIVE} per phase`}
+            </span>
           </div>
 
           <div className="seg" style={{ marginBottom: 10 }}>
@@ -345,7 +356,7 @@ export default function ReviewDraft() {
                 }}
                 type="button"
               >
-                Weeks {p === "1" ? "1–4" : p === "2" ? "5–8" : "9–12"} ({liveItems(Number(p)).length})
+                {L("সপ্তাহ", "Weeks")} {p === "1" ? (lang === "bn" ? "১–৪" : "1–4") : p === "2" ? (lang === "bn" ? "৫–৮" : "5–8") : (lang === "bn" ? "৯–১২" : "9–12")} ({num(liveItems(Number(p)).length, lang)})
               </button>
             ))}
           </div>
@@ -361,6 +372,7 @@ export default function ReviewDraft() {
                   const a = lib.get(i.activityId);
                   const st = iStatus[i.id] ?? "pending";
                   const goal = goalById(i.goalId);
+                  const title = a ? (lang === "bn" ? a.title_bn : a.title_en) : i.activityId;
                   return (
                     <div
                       key={i.id}
@@ -378,15 +390,15 @@ export default function ReviewDraft() {
                         type="button"
                       >
                         <p className="h3" style={{ fontSize: 14, textDecoration: st === "removed" ? "line-through" : undefined, margin: 0 }}>
-                          {a ? a.title_en : i.activityId}
+                          {title}
                         </p>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 4 }}>
-                          {a && <Chip tone="primary">{SLOTS[a.routine_slot].en}</Chip>}
-                          {a && <Chip>{DOMAINS[a.domain].en}</Chip>}
-                          <Chip>Step {i.difficulty}</Chip>
-                          {st === "edited" && <span className="pill good">Swapped</span>}
+                          {a && <Chip tone="primary">{SLOTS[a.routine_slot]?.[lang] ?? SLOTS[a.routine_slot]?.en}</Chip>}
+                          {a && <Chip>{DOMAINS[a.domain]?.[lang] ?? DOMAINS[a.domain]?.en}</Chip>}
+                          <Chip>{lang === "bn" ? `ধাপ ${num(i.difficulty, "bn")}` : `Step ${i.difficulty}`}</Chip>
+                          {st === "edited" && <span className="pill good">{L("বদলানো", "Swapped")}</span>}
                         </div>
-                        {goal && <p className="small" style={{ marginTop: 4 }}>for: {goal.text}</p>}
+                        {goal && <p className="small" style={{ marginTop: 4 }}>{L("উদ্দেশ্য: ", "for: ")}{goal.text}</p>}
                       </button>
 
                       <div style={{ display: "flex", gap: 6, marginTop: 8, borderTop: "1px solid var(--line)", paddingTop: 6 }}>
@@ -397,7 +409,7 @@ export default function ReviewDraft() {
                             onClick={() => setIStatus({ ...iStatus, [i.id]: "accepted" })}
                             icon={<Icon name="check" />}
                           >
-                            Accept
+                            {L("গ্রহণ করুন", "Accept")}
                           </Button>
                         )}
                         {st !== "removed" && (
@@ -407,7 +419,7 @@ export default function ReviewDraft() {
                             onClick={() => setDrawer({ mode: "assign", swapItemId: i.id })}
                             icon={<Icon name="turn" />}
                           >
-                            Swap
+                            {L("বদলান", "Swap")}
                           </Button>
                         )}
                         <Button
@@ -415,7 +427,7 @@ export default function ReviewDraft() {
                           variant="ghost"
                           onClick={() => setIStatus({ ...iStatus, [i.id]: st === "removed" ? "pending" : "removed" })}
                         >
-                          {st === "removed" ? "Undo" : "Remove"}
+                          {st === "removed" ? L("বাতিল ফিরিয়ে আনুন", "Undo") : L("বাদ দিন", "Remove")}
                         </Button>
                       </div>
                     </div>
@@ -430,13 +442,13 @@ export default function ReviewDraft() {
                 icon={<Icon name="spark" />}
                 onClick={() => {
                   if (liveItems(phaseNum).length >= MAX_ACTIVE) {
-                    setLimitMsg("Remove one first.");
+                    setLimitMsg(L("আগে একটি বাদ দিন।", "Remove one first."));
                   } else {
                     setDrawer({ mode: "assign", addPhase: phaseNum });
                   }
                 }}
               >
-                Add from library
+                {L("লাইব্রেরি থেকে যোগ করুন", "Add from library")}
               </Button>
               {limitMsg && <p className="err" style={{ marginTop: 4 }}>{limitMsg}</p>}
             </div>
@@ -447,11 +459,14 @@ export default function ReviewDraft() {
         {missing.length > 0 && (
           <div style={{ marginTop: 16 }}>
             <div className="sec">
-              <h2 className="h2">Missing information</h2>
+              <h2 className="h2">{L("অনুপস্থিত তথ্য", "Missing information")}</h2>
             </div>
             <Card style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               <p className="small">
-                The AI couldn&apos;t tell these from your notes. Answer now or leave for later.
+                {L(
+                  "আপনার নোট থেকে এই তথ্যগুলো নিশ্চিত হওয়া যায়নি। এখনই উত্তর দিতে পারেন বা পরেও দিতে পারেন।",
+                  "The AI couldn’t tell these from your notes. Answer now or leave for later."
+                )}
               </p>
               {missing.map((q) => (
                 <div key={q}>
@@ -460,7 +475,7 @@ export default function ReviewDraft() {
                   </label>
                   <input
                     className="field"
-                    placeholder="Optional answer"
+                    placeholder={L("ঐচ্ছিক উত্তর", "Optional answer")}
                     value={answers[q] ?? ""}
                     onChange={(e) => setAnswers({ ...answers, [q]: e.target.value })}
                   />
@@ -480,7 +495,7 @@ export default function ReviewDraft() {
               onClick={approve}
               icon={<Icon name="check" />}
             >
-              Approve plan
+              {L("পরিকল্পনা অনুমোদন করুন", "Approve plan")}
             </Button>
             <Button
               block
@@ -488,22 +503,27 @@ export default function ReviewDraft() {
               onClick={() => setRegenOpen(true)}
               icon={<Icon name="spark" />}
             >
-              Regenerate with comment
+              {L("মন্তব্য দিয়ে পুনরায় তৈরি করুন", "Regenerate with comment")}
             </Button>
           </div>
         )}
       </div>
 
-      <Modal open={regenOpen} onClose={() => setRegenOpen(false)} title="Regenerate with a comment">
+      <Modal open={regenOpen} onClose={() => setRegenOpen(false)} title={L("মন্তব্য দিয়ে পুনরায় তৈরি", "Regenerate with a comment")}>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <p className="small">Accepted and edited items stay. Everything else is redrafted.</p>
+          <p className="small">
+            {L(
+              "গৃহীত ও সম্পাদিত বিষয়গুলো একই থাকবে। বাকিগুলো নতুন করে তৈরি হবে।",
+              "Accepted and edited items stay. Everything else is redrafted."
+            )}
+          </p>
           <textarea
             autoFocus
             className="field"
             style={{ minHeight: 90, width: "100%", padding: 10, fontSize: 15 }}
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            placeholder="e.g. Focus more on toileting"
+            placeholder={L("যেমন: টয়লেট ব্যবহারের ওপর বেশি জোর দিন", "e.g. Focus more on toileting")}
           />
           <Button
             block
@@ -511,7 +531,7 @@ export default function ReviewDraft() {
             onClick={regenerate}
             icon={<Icon name="spark" />}
           >
-            Regenerate
+            {L("পুনরায় তৈরি করুন", "Regenerate")}
           </Button>
         </div>
       </Modal>
@@ -532,7 +552,7 @@ export default function ReviewDraft() {
           excludeIds={rm.items
             .filter((i) => i.phase === (drawer.addPhase ?? phaseNum) && iStatus[i.id] !== "removed")
             .map((i) => i.activityId)}
-          assignLabel={drawer.swapItemId ? "Swap in" : "Add to phase"}
+          assignLabel={drawer.swapItemId ? L("বদলান", "Swap in") : L("ধাপে যোগ করুন", "Add to phase")}
           onAssign={(a) => {
             if (drawer.swapItemId) swapTo(drawer.swapItemId, a);
             else if (drawer.addPhase) addTo(drawer.addPhase, a);
@@ -570,6 +590,7 @@ function ProfileRow({
   onRemove: () => void;
   editor: (done: () => void) => ReactNode;
 }) {
+  const { L } = useLang();
   const [editing, setEditing] = useState(false);
   return (
     <div style={{ padding: 12, borderBottom: "1px solid var(--line)" }}>
@@ -588,7 +609,7 @@ function ProfileRow({
             />
           )}
           <Button size="sm" variant="ghost" onClick={() => setEditing(!editing)}>
-            Edit
+            {L("বদলান", "Edit")}
           </Button>
           <Button
             size="sm"
@@ -612,6 +633,7 @@ function ProfileEditor({
   profile: Profile;
   onSave: (p: Profile) => void;
 }) {
+  const { L } = useLang();
   const [val, setVal] = useState(profile[k] ? String(profile[k]) : "");
   return (
     <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
@@ -628,7 +650,7 @@ function ProfileEditor({
           onSave({ ...profile, [k]: k === "support_level" ? Number(val) || null : val });
         }}
       >
-        Save
+        {L("সংরক্ষণ", "Save")}
       </Button>
     </div>
   );
@@ -648,12 +670,13 @@ function GoalRow({
   onRemove: () => void;
   onEdit: (t: string) => void;
 }) {
+  const { lang, L } = useLang();
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(goal.text);
   return (
     <Card style={{ padding: 12 }}>
       <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-        <Chip tone="primary">{DOMAINS[goal.domain].en}</Chip>
+        <Chip tone="primary">{DOMAINS[goal.domain]?.[lang] ?? DOMAINS[goal.domain]?.en}</Chip>
         <div className="grow">
           {editing ? (
             <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
@@ -671,7 +694,7 @@ function GoalRow({
                   setEditing(false);
                 }}
               >
-                Save
+                {L("সংরক্ষণ", "Save")}
               </Button>
             </div>
           ) : (
@@ -687,14 +710,14 @@ function GoalRow({
             onClick={onAccept}
             icon={<Icon name="check" />}
           >
-            Accept
+            {L("গ্রহণ করুন", "Accept")}
           </Button>
         )}
         <Button size="sm" variant="ghost" onClick={() => setEditing(!editing)}>
-          Edit
+          {L("বদলান", "Edit")}
         </Button>
         <Button size="sm" variant="ghost" onClick={onRemove}>
-          {status === "removed" ? "Undo" : "Remove"}
+          {status === "removed" ? L("বাতিল ফিরিয়ে আনুন", "Undo") : L("বাদ দিন", "Remove")}
         </Button>
       </div>
     </Card>

@@ -7,7 +7,8 @@ import { Icon } from "@/components/legacy/icons";
 import { Ele, Tiger } from "@/components/legacy/mascots";
 import { BottomSheet, cx, Skeleton } from "@/components/ui";
 import { useLoad, useMounted } from "@/lib/hooks";
-import { LangProvider, useLang } from "@/lib/i18n";
+import { useLang } from "@/lib/i18n";
+import { nameIn } from "@/lib/labels";
 import { alertService, authService, childService } from "@/lib/services";
 import type { Role, User } from "@/lib/types";
 
@@ -55,6 +56,19 @@ export function ShellTopBar({
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
+  const { lang, toggleLang, L } = useLang();
+
+  const langBtn = (
+    <button
+      className={cx("hbtn", lang === "bn" ? "" : "bn")}
+      style={{ fontSize: 12.5, fontWeight: 600, minWidth: 38 }}
+      onClick={toggleLang}
+      aria-label="Change language"
+      type="button"
+    >
+      {lang === "bn" ? "EN" : "বাং"}
+    </button>
+  );
 
   return (
     <>
@@ -62,7 +76,7 @@ export function ShellTopBar({
         <button
           className="hbtn"
           onClick={() => setMenuOpen(true)}
-          aria-label="Menu"
+          aria-label={L("মেনু", "Menu")}
           type="button"
         >
           <Icon name="menu" />
@@ -74,23 +88,25 @@ export function ShellTopBar({
             else if (user?.role === "parent") router.push("/p/help");
             else router.push("/c");
           }}
-          aria-label="Notifications"
+          aria-label={L("নোটিফিকেশন", "Notifications")}
           type="button"
         >
           <Icon name="bell" />
           {dot && <i className="dot" />}
         </button>
         <div className="grow" />
-        {extra}
+        {extra ?? langBtn}
       </div>
 
       <BottomSheet open={menuOpen} onClose={() => setMenuOpen(false)} title="BridgeAI">
         <p className="sub" style={{ marginTop: 2, marginBottom: 14 }}>
-          {user ? `Logged in as ${user.name}` : "Therapy that continues at home."}
+          {user
+            ? L(`${nameIn(user.name, lang)} হিসেবে লগইন আছেন`, `Logged in as ${user.name}`)
+            : L("থেরাপি চলবে ঘরেও।", "Therapy that continues at home.")}
         </p>
 
         <div className="sec" style={{ margin: "16px 0 8px" }}>
-          <h2 className="h2" style={{ fontSize: 16 }}>Switch persona</h2>
+          <h2 className="h2" style={{ fontSize: 16 }}>{L("রোল পরিবর্তন", "Switch persona")}</h2>
         </div>
 
         <button
@@ -106,8 +122,8 @@ export function ShellTopBar({
             <Tiger mood="hi" />
           </span>
           <span className="grow">
-            <span className="h3" style={{ display: "block" }}>View as a parent</span>
-            <span className="small">At home with your child</span>
+            <span className="h3" style={{ display: "block" }}>{L("অভিভাবক হিসেবে দেখুন", "View as a parent")}</span>
+            <span className="small">{L("শিশুর সাথে ঘরে", "At home with your child")}</span>
           </span>
           <span className="go"><Icon name={user?.role === "parent" ? "check" : "next"} /></span>
         </button>
@@ -125,8 +141,8 @@ export function ShellTopBar({
             <Ele mood="calm" extra="doctor" />
           </span>
           <span className="grow">
-            <span className="h3" style={{ display: "block" }}>View as a therapist</span>
-            <span className="small">Dr. Nasrin, at the clinic</span>
+            <span className="h3" style={{ display: "block" }}>{L("থেরাপিস্ট হিসেবে দেখুন", "View as a therapist")}</span>
+            <span className="small">{L("ডা. নাসরিন, ক্লিনিকে", "Dr. Nasrin, at the clinic")}</span>
           </span>
           <span className="go"><Icon name={user?.role === "therapist" ? "check" : "next"} /></span>
         </button>
@@ -144,8 +160,8 @@ export function ShellTopBar({
             <Icon name="building" />
           </span>
           <span className="grow">
-            <span className="h3" style={{ display: "block" }}>View as the centre</span>
-            <span className="small">Managing the centre</span>
+            <span className="h3" style={{ display: "block" }}>{L("সেন্টার হিসেবে দেখুন", "View as the centre")}</span>
+            <span className="small">{L("সেন্টার পরিচালনা", "Managing the centre")}</span>
           </span>
           <span className="go"><Icon name={user?.role === "admin" ? "check" : "next"} /></span>
         </button>
@@ -160,7 +176,7 @@ export function ShellTopBar({
             <span className="ic t-green" style={{ width: 38, height: 38, fontSize: 18 }}>
               <Icon name="shield" />
             </span>
-            <span className="grow h3" style={{ fontWeight: 500 }}>How AI is used</span>
+            <span className="grow h3" style={{ fontWeight: 500 }}>{L("AI কীভাবে কাজ করে", "How AI is used")}</span>
             <Icon name="next" />
           </Link>
 
@@ -174,7 +190,7 @@ export function ShellTopBar({
             type="button"
             style={{ marginTop: 8 }}
           >
-            Log out
+            {L("লগআউট", "Log out")}
           </button>
         </div>
       </BottomSheet>
@@ -186,9 +202,7 @@ export function ShellTopBar({
 export function TherapistShell({ children }: { children: ReactNode }) {
   return (
     <Suspense fallback={null}>
-      <LangProvider storageKey="bridgeai-lang-t" fallback="en">
-        <RoleGuard role="therapist">{(user) => <TherapistFrame user={user}>{children}</TherapistFrame>}</RoleGuard>
-      </LangProvider>
+      <RoleGuard role="therapist">{(user) => <TherapistFrame user={user}>{children}</TherapistFrame>}</RoleGuard>
     </Suspense>
   );
 }
@@ -197,27 +211,19 @@ function TherapistFrame({ user, children }: { user?: User | null; children: Reac
   const path = usePathname();
   const { data: alerts } = useLoad(() => alertService.listAlerts(), []);
   const openAlerts = alerts?.filter((a) => !a.resolvedAt).length ?? 0;
-  const { lang, setLang } = useLang();
+  const { lang, L } = useLang();
 
   // Child sub-views or detail pages can hide nav if needed
   const hideNav = path.includes("/roadmap") || path.includes("/intake");
 
-  const langBtn = (
-    <button
-      className={cx("hbtn", lang === "en" ? "bn" : "")}
-      style={{ fontSize: 12.5, fontWeight: 600 }}
-      onClick={() => setLang(lang === "en" ? "bn" : "en")}
-      aria-label="Change language"
-      type="button"
-    >
-      {lang === "en" ? "বাং" : "EN"}
-    </button>
-  );
-
   return (
-    <div style={{ position: "relative", height: "100%", display: "flex", flexDirection: "column" }}>
+    <div
+      lang={lang}
+      className={cx(lang === "bn" && "bn")}
+      style={{ position: "relative", height: "100%", display: "flex", flexDirection: "column" }}
+    >
       <div className="pad" style={{ paddingBottom: 0 }}>
-        <ShellTopBar user={user} dot={openAlerts > 0} extra={langBtn} />
+        <ShellTopBar user={user} dot={openAlerts > 0} />
       </div>
 
       <div className={cx("scroll softbg", !hideNav && "with-nav")} style={{ flex: 1, paddingBottom: hideNav ? 28 : 116 }}>
@@ -233,14 +239,14 @@ function TherapistFrame({ user, children }: { user?: User | null; children: Reac
               className={cx("navb", (path === "/t" || path.startsWith("/t/children")) && "on")}
             >
               <Icon name="users" />
-              <span>Children</span>
+              <span>{L("শিশুরা", "Children")}</span>
             </Link>
             <Link
               href="/t/alerts"
               className={cx("navb", path === "/t/alerts" && "on")}
             >
               <Icon name="bell" />
-              <span>Alerts</span>
+              <span>{L("সতর্কতা", "Alerts")}</span>
               {openAlerts > 0 && <span className="n">{openAlerts}</span>}
             </Link>
             <Link
@@ -248,14 +254,14 @@ function TherapistFrame({ user, children }: { user?: User | null; children: Reac
               className={cx("navb", path.startsWith("/t/library") && "on")}
             >
               <Icon name="book" />
-              <span>Library</span>
+              <span>{L("লাইব্রেরি", "Library")}</span>
             </Link>
             <Link
               href="/t/settings"
               className={cx("navb", path.startsWith("/t/settings") && "on")}
             >
               <Icon name="gear" />
-              <span>Settings</span>
+              <span>{L("সেটিংস", "Settings")}</span>
             </Link>
           </nav>
         </>
@@ -268,18 +274,21 @@ function TherapistFrame({ user, children }: { user?: User | null; children: Reac
 export function AdminShell({ children }: { children: ReactNode }) {
   return (
     <Suspense fallback={null}>
-      <LangProvider storageKey="bridgeai-lang-c" fallback="en">
-        <RoleGuard role="admin">{(user) => <AdminFrame user={user}>{children}</AdminFrame>}</RoleGuard>
-      </LangProvider>
+      <RoleGuard role="admin">{(user) => <AdminFrame user={user}>{children}</AdminFrame>}</RoleGuard>
     </Suspense>
   );
 }
 
 function AdminFrame({ user, children }: { user?: User | null; children: ReactNode }) {
   const path = usePathname();
+  const { lang, L } = useLang();
 
   return (
-    <div style={{ position: "relative", height: "100%", display: "flex", flexDirection: "column" }}>
+    <div
+      lang={lang}
+      className={cx(lang === "bn" && "bn")}
+      style={{ position: "relative", height: "100%", display: "flex", flexDirection: "column" }}
+    >
       <div className="pad" style={{ paddingBottom: 0 }}>
         <ShellTopBar user={user} />
       </div>
@@ -295,21 +304,21 @@ function AdminFrame({ user, children }: { user?: User | null; children: ReactNod
           className={cx("navb", path === "/c" && "on")}
         >
           <Icon name="building" />
-          <span>Overview</span>
+          <span>{L("ওভারভিউ", "Overview")}</span>
         </Link>
         <Link
           href="/c/therapists"
           className={cx("navb", path.startsWith("/c/therapists") && "on")}
         >
           <Icon name="users" />
-          <span>Therapists</span>
+          <span>{L("থেরাপিস্ট", "Therapists")}</span>
         </Link>
         <Link
           href="/c/families"
           className={cx("navb", path.startsWith("/c/families") && "on")}
         >
           <Icon name="heart" />
-          <span>Families</span>
+          <span>{L("পরিবার", "Families")}</span>
         </Link>
       </nav>
     </div>
@@ -320,9 +329,7 @@ function AdminFrame({ user, children }: { user?: User | null; children: ReactNod
 export function ParentShell({ children }: { children: ReactNode }) {
   return (
     <Suspense fallback={null}>
-      <LangProvider storageKey="bridgeai-lang-p" fallback="bn">
-        <RoleGuard role="parent">{(user) => <ParentFrame user={user}>{children}</ParentFrame>}</RoleGuard>
-      </LangProvider>
+      <RoleGuard role="parent">{(user) => <ParentFrame user={user}>{children}</ParentFrame>}</RoleGuard>
     </Suspense>
   );
 }
@@ -330,7 +337,7 @@ export function ParentShell({ children }: { children: ReactNode }) {
 function ParentFrame({ user, children }: { user?: User | null; children: ReactNode }) {
   const path = usePathname();
   const router = useRouter();
-  const { L, lang, setLang } = useLang();
+  const { L, lang } = useLang();
   const { data: cg } = useLoad(() => childService.getMyCaregiver(), []);
 
   useEffect(() => {
@@ -344,18 +351,6 @@ function ParentFrame({ user, children }: { user?: User | null; children: ReactNo
     /\/p\/activity\/[^/]+\/steps/.test(path) ||
     path.startsWith("/p/learn/story/");
 
-  const langBtn = (
-    <button
-      className={cx("hbtn", lang === "en" ? "bn" : "")}
-      style={{ fontSize: 12.5, fontWeight: 600 }}
-      onClick={() => setLang(lang === "en" ? "bn" : "en")}
-      aria-label="Change language"
-      type="button"
-    >
-      {lang === "en" ? "বাং" : "EN"}
-    </button>
-  );
-
   return (
     <div
       lang={lang}
@@ -363,7 +358,7 @@ function ParentFrame({ user, children }: { user?: User | null; children: ReactNo
       style={{ position: "relative", height: "100%", display: "flex", flexDirection: "column" }}
     >
       <div className="pad" style={{ paddingBottom: 0 }}>
-        <ShellTopBar user={user} extra={langBtn} />
+        <ShellTopBar user={user} />
       </div>
 
       <div className="scroll homebg" style={{ flex: 1, paddingBottom: hideNav ? 28 : 116 }}>

@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Icon } from "@/components/legacy/icons";
 import { Button, Card, Field, useToast } from "@/components/ui";
-import { AGE_BANDS, SAFETY_FLAGS, SENSORY_FLAGS } from "@/lib/labels";
+import { useLang } from "@/lib/i18n";
+import { AGE_BANDS, nameIn, SAFETY_FLAGS, SENSORY_FLAGS } from "@/lib/labels";
 import { ageBandFromDob } from "@/lib/matching";
 import { childService } from "@/lib/services";
 import type { AgeBand, Child } from "@/lib/types";
@@ -13,6 +14,7 @@ import type { AgeBand, Child } from "@/lib/types";
 export default function AddChild() {
   const router = useRouter();
   const toast = useToast();
+  const { lang, L } = useLang();
   const [nickname, setNickname] = useState("");
   const [dob, setDob] = useState("");
   const [ageBand, setAgeBand] = useState<AgeBand | "">("");
@@ -40,10 +42,10 @@ export default function AddChild() {
 
   const save = async () => {
     const e: Record<string, string> = {};
-    if (!nickname.trim()) e.nickname = "Please add the nickname";
-    if (!dob) e.dob = "Please add the date of birth";
-    else if (new Date(dob) > new Date()) e.dob = "Date of birth can't be in the future";
-    if (!firstSession) e.firstSession = "Please add the first session date";
+    if (!nickname.trim()) e.nickname = L("ডাকনাম দিন", "Please add the nickname");
+    if (!dob) e.dob = L("জন্মতারিখ দিন", "Please add the date of birth");
+    else if (new Date(dob) > new Date()) e.dob = L("জন্মতারিখ ভবিষ্যতের হতে পারে না", "Date of birth can't be in the future");
+    if (!firstSession) e.firstSession = L("প্রথম সেশনের তারিখ দিন", "Please add the first session date");
     setErrors(e);
     if (Object.keys(e).length) return;
     setSaving(true);
@@ -64,20 +66,23 @@ export default function AddChild() {
           coOccurring,
         },
       });
-      toast(`${child.nickname} added`);
+      toast(L(`${child.nickname}-কে যোগ করা হয়েছে`, `${child.nickname} added`));
       setSaved(child);
     } catch (err) {
-      setErrors({ form: err instanceof Error ? err.message : "Could not save" });
+      setErrors({ form: err instanceof Error ? err.message : L("সংরক্ষণ করা যায়নি", "Could not save") });
     } finally {
       setSaving(false);
     }
   };
 
   if (saved) {
+    const cName = nameIn(saved.nickname, lang);
     return (
-      <div className="pad" style={{ paddingBottom: 88 }}>
+      <div className="pad" style={{ paddingBottom: 88 }} lang={lang}>
         <div className="bar" style={{ padding: "4px 8px 12px" }}>
-          <h1 className="h2 grow">How do you want to build {saved.nickname}’s plan?</h1>
+          <h1 className="h2 grow">
+            {L(`${cName}-এর পরিকল্পনা কীভাবে তৈরি করবেন?`, `How do you want to build ${saved.nickname}’s plan?`)}
+          </h1>
         </div>
         <div className="in" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <Card
@@ -88,13 +93,16 @@ export default function AddChild() {
               <span className="ic t-purple" style={{ width: 44, height: 44, fontSize: 20 }}>
                 <Icon name="spark" />
               </span>
-              <span className="pill good">Recommended</span>
+              <span className="pill good">{L("প্রস্তাবিত", "Recommended")}</span>
             </div>
             <p className="h2" style={{ fontSize: 18, marginBottom: 4 }}>
-              Smart intake
+              {L("স্মার্ট ইনটেক", "Smart intake")}
             </p>
             <p className="sub" style={{ fontSize: 14 }}>
-              Add notes by voice, photo of paper notes, text or video, and let AI draft the plan.
+              {L(
+                "ভয়েস, প্রেসক্রিপশন বা কাগজের ছবি, অথবা লিখে তথ্য দিন — AI খসড়া পরিকল্পনা সাজিয়ে দেবে।",
+                "Add notes by voice, photo of paper notes, text or video, and let AI draft the plan."
+              )}
             </p>
           </Card>
 
@@ -108,10 +116,13 @@ export default function AddChild() {
               </span>
             </div>
             <p className="h2" style={{ fontSize: 18, marginBottom: 4 }}>
-              Build it myself
+              {L("নিজে তৈরি করুন", "Build it myself")}
             </p>
             <p className="sub" style={{ fontSize: 14 }}>
-              Start with an empty roadmap and pick activities directly from the library.
+              {L(
+                "লাইব্রেরি থেকে সরাসরি পছন্দের অ্যাক্টিভিটি বেছে নিয়ে পরিকল্পনা সাজান।",
+                "Start with an empty roadmap and pick activities directly from the library."
+              )}
             </p>
           </Card>
         </div>
@@ -120,35 +131,35 @@ export default function AddChild() {
   }
 
   return (
-    <div className="pad" style={{ paddingBottom: 88 }}>
+    <div className="pad" style={{ paddingBottom: 88 }} lang={lang}>
       <div className="bar" style={{ padding: "4px 8px 10px" }}>
-        <Link href="/t" className="hbtn" aria-label="Back">
+        <Link href="/t" className="hbtn" aria-label={L("ফিরে যান", "Back")}>
           <Icon name="back" />
         </Link>
         <div className="grow" style={{ minWidth: 0, paddingLeft: 6 }}>
           <h1 className="h2" style={{ margin: 0 }}>
-            Add child
+            {L("শিশু যোগ করুন", "Add child")}
           </h1>
-          <p className="small">Takes under a minute</p>
+          <p className="small">{L("এক মিনিটেরও কম সময় লাগে", "Takes under a minute")}</p>
         </div>
       </div>
 
       <div className="in">
         <Card style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 14 }}>
           <Field
-            label="Child's nickname"
+            label={L("শিশুর ডাকনাম", "Child's nickname")}
             error={errors.nickname}
-            hint="Caregiver and AI only see the nickname. No full name needed."
+            hint={L("অভিভাবক ও AI কেবল এই ডাকনামটি দেখবে। পুরো নাম দরকার নেই।", "Caregiver and AI only see the nickname. No full name needed.")}
           >
             <input
               className="field"
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
-              placeholder="e.g. Mitu"
+              placeholder={L("যেমন: মিতু", "e.g. Mitu")}
             />
           </Field>
 
-          <Field label="First session date" error={errors.firstSession}>
+          <Field label={L("প্রথম সেশনের তারিখ", "First session date")} error={errors.firstSession}>
             <input
               type="date"
               className="field"
@@ -157,7 +168,7 @@ export default function AddChild() {
             />
           </Field>
 
-          <Field label="Date of birth" error={errors.dob}>
+          <Field label={L("জন্মতারিখ", "Date of birth")} error={errors.dob}>
             <input
               type="date"
               className="field"
@@ -168,8 +179,8 @@ export default function AddChild() {
           </Field>
 
           <Field
-            label="Age band"
-            hint={dob ? "Worked out from date of birth. You can adjust." : "Add date of birth to fill."}
+            label={L("বয়সের গ্রুপ", "Age band")}
+            hint={dob ? L("জন্মতারিখ থেকে স্বয়ংক্রিয় গণনা। বদলাতে পারেন।", "Worked out from date of birth. You can adjust.") : L("পূরণ করতে জন্মতারিখ দিন।", "Add date of birth to fill.")}
           >
             <select
               className="field"
@@ -182,26 +193,26 @@ export default function AddChild() {
               <option value="">—</option>
               {(Object.keys(AGE_BANDS) as AgeBand[]).map((a) => (
                 <option key={a} value={a}>
-                  {AGE_BANDS[a].en}
+                  {lang === "bn" ? AGE_BANDS[a].bn : AGE_BANDS[a].en}
                 </option>
               ))}
             </select>
           </Field>
 
-          <Field label="Gender" optional>
+          <Field label={L("লিঙ্গ", "Gender")} optional>
             <select className="field" value={gender} onChange={(e) => setGender(e.target.value)}>
-              <option value="">Prefer not to say</option>
-              <option>Girl</option>
-              <option>Boy</option>
-              <option>Other</option>
+              <option value="">{L("বলতে অনিচ্ছুক", "Prefer not to say")}</option>
+              <option value="Girl">{L("মেয়ে", "Girl")}</option>
+              <option value="Boy">{L("ছেলে", "Boy")}</option>
+              <option value="Other">{L("অন্যান্য", "Other")}</option>
             </select>
           </Field>
 
-          <Field label="Primary caregiver's name" optional>
-            <input className="field" value={cgName} onChange={(e) => setCgName(e.target.value)} />
+          <Field label={L("প্রধান অভিভাবকের নাম", "Primary caregiver's name")} optional>
+            <input className="field" value={cgName} onChange={(e) => setCgName(e.target.value)} placeholder={L("যেমন: রোকেয়া", "e.g. Rokeya")} />
           </Field>
 
-          <Field label="Caregiver's phone" optional>
+          <Field label={L("অভিভাবকের মোবাইল নম্বর", "Caregiver's phone")} optional>
             <input
               type="tel"
               className="field"
@@ -233,7 +244,7 @@ export default function AddChild() {
           >
             <Icon name="shield" style={{ color: "var(--p)", fontSize: 18 }} />
             <span className="grow h3" style={{ fontSize: 14 }}>
-              Clinical record <span className="small">(optional)</span>
+              {L("ক্লিনিক্যাল রেকর্ড", "Clinical record")} <span className="small">{L("(ঐচ্ছিক)", "(optional)")}</span>
             </span>
             <span style={{ transform: clinicalOpen ? "rotate(180deg)" : undefined, transition: "transform .2s" }}>
               <Icon name="next" />
@@ -241,8 +252,8 @@ export default function AddChild() {
           </button>
           {clinicalOpen && (
             <div style={{ padding: "0 14px 14px", display: "flex", flexDirection: "column", gap: 10, borderTop: "1px solid var(--line)", paddingTop: 10 }}>
-              <p className="small">Never shown to parents or sent to AI.</p>
-              <Field label="Diagnosis notes">
+              <p className="small">{L("কখনোই অভিভাবককে দেখানো হবে না বা AI-তে পাঠানো হবে না।", "Never shown to parents or sent to AI.")}</p>
+              <Field label={L("ডায়াগনোসিস নোট", "Diagnosis notes")}>
                 <textarea
                   className="field"
                   style={{ minHeight: 70 }}
@@ -251,12 +262,12 @@ export default function AddChild() {
                 />
               </Field>
 
-              <Field label="Co-occurring conditions">
+              <Field label={L("অন্যান্য শারীরিক বা আচরণগত অবস্থা", "Co-occurring conditions")}>
                 <input className="field" value={coOccurring} onChange={(e) => setCoOccurring(e.target.value)} />
               </Field>
 
-              <FlagGroup title="Safety flags" options={SAFETY_FLAGS} value={safety} onToggle={(k) => toggle(safety, setSafety, k)} />
-              <FlagGroup title="Sensory flags" options={SENSORY_FLAGS} value={sensory} onToggle={(k) => toggle(sensory, setSensory, k)} />
+              <FlagGroup title={L("নিরাপত্তা সতর্কতা", "Safety flags")} options={SAFETY_FLAGS} value={safety} onToggle={(k) => toggle(safety, setSafety, k)} lang={lang} />
+              <FlagGroup title={L("সংবেদনশীলতা / সেন্সরি ফ্যাক্টর", "Sensory flags")} options={SENSORY_FLAGS} value={sensory} onToggle={(k) => toggle(sensory, setSensory, k)} lang={lang} />
             </div>
           )}
         </Card>
@@ -265,10 +276,10 @@ export default function AddChild() {
 
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <Button block size="lg" variant="primary" loading={saving} onClick={save}>
-            Save and continue
+            {L("সংরক্ষণ করুন ও এগিয়ে যান", "Save and continue")}
           </Button>
           <Button block variant="ghost" href="/t">
-            Cancel
+            {L("বাতিল", "Cancel")}
           </Button>
         </div>
       </div>
@@ -281,17 +292,19 @@ function FlagGroup({
   options,
   value,
   onToggle,
+  lang,
 }: {
   title: string;
-  options: Record<string, string>;
+  options: Record<string, { en: string; bn: string }>;
   value: string[];
   onToggle: (k: string) => void;
+  lang: string;
 }) {
   return (
     <div>
       <p className="small" style={{ fontWeight: 600, marginBottom: 6 }}>{title}</p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-        {Object.entries(options).map(([k, label]) => {
+        {Object.entries(options).map(([k, pair]) => {
           const on = value.includes(k);
           return (
             <button
@@ -301,7 +314,7 @@ function FlagGroup({
               className={`chipb ${on ? "on" : ""}`}
               style={{ fontSize: 13 }}
             >
-              {label}
+              {lang === "bn" ? pair.bn : pair.en}
             </button>
           );
         })}

@@ -1,6 +1,5 @@
 "use client";
 // A-02 Sign up: therapist or centre admin.
-// Rebuilt using prototype cards, personas, fields and buttons.
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -9,7 +8,8 @@ import { Ele } from "@/components/legacy/mascots";
 import { HOME } from "@/components/shells";
 import { Button, Card, Field, useToast } from "@/components/ui";
 import { useSession } from "@/lib/hooks";
-import { PROFESSIONS } from "@/lib/labels";
+import { useLang } from "@/lib/i18n";
+import { num, PROFESSIONS, PROFESSIONS_DATA } from "@/lib/labels";
 import { authService } from "@/lib/services";
 
 type Kind = "therapist" | "admin";
@@ -23,6 +23,7 @@ export default function SignUp() {
   const router = useRouter();
   const toast = useToast();
   const { user } = useSession();
+  const { lang, toggleLang, L } = useLang();
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [kind, setKind] = useState<Kind>("therapist");
   const [name, setName] = useState("");
@@ -30,7 +31,7 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const [profession, setProfession] = useState(PROFESSIONS[0]);
-  const [language, setLanguage] = useState<"en" | "bn">("en");
+  const [language, setLanguage] = useState<"en" | "bn">("bn");
   const [centreName, setCentreName] = useState("");
   const [city, setCity] = useState("");
   const [centreCode, setCentreCode] = useState("");
@@ -46,20 +47,20 @@ export default function SignUp() {
   }, [user, router, step]);
 
   const errs = {
-    name: !name.trim() ? "Please add your full name" : null,
-    email: !/^\S+@\S+\.\S+$/.test(email) ? "Please add a valid email" : null,
-    password: password.length < 8 ? "Use at least 8 characters" : null,
+    name: !name.trim() ? L("পুরো নাম লিখুন", "Please add your full name") : null,
+    email: !/^\S+@\S+\.\S+$/.test(email) ? L("সঠিক ইমেইল লিখুন", "Please add a valid email") : null,
+    password: password.length < 8 ? L("কমপক্ষে ৮ অক্ষর দিন", "Use at least 8 characters") : null,
   };
   const step2Ok = !errs.name && !errs.email && !errs.password;
   const centreErr =
     kind === "admin"
       ? !centreName.trim()
-        ? "Please add the centre name"
+        ? L("সেন্টারের নাম লিখুন", "Please add the centre name")
         : !city.trim()
-        ? "Please add the city"
+        ? L("শহরের নাম লিখুন", "Please add the city")
         : null
       : !independent && centreCode.trim().length !== 6
-      ? "Enter the 6-character centre code, or choose to work independently"
+      ? L("৬ অক্ষরের সেন্টার কোড দিন, বা স্বাধীনভাবে কাজ করা বেছে নিন", "Enter the 6-character centre code, or choose to work independently")
       : null;
 
   const submit = async () => {
@@ -88,7 +89,7 @@ export default function SignUp() {
         router.replace("/t");
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong");
+      setError(e instanceof Error ? e.message : L("কিছু একটা সমস্যা হয়েছে", "Something went wrong"));
       setBusy(false);
     }
   };
@@ -100,27 +101,38 @@ export default function SignUp() {
   };
 
   return (
-    <div className="scroll softbg pad" style={{ paddingBottom: 32 }}>
+    <div className="scroll softbg pad" style={{ paddingBottom: 32 }} lang={lang}>
       <div className="bar" style={{ padding: "4px 16px 12px" }}>
         {step > 1 && step < 4 ? (
-          <button onClick={back} className="hbtn" aria-label="Back" type="button">
+          <button onClick={back} className="hbtn" aria-label={L("ফিরে যান", "Back")} type="button">
             <Icon name="back" />
           </button>
         ) : (
-          <Link href="/" className="hbtn" aria-label="Back">
+          <Link href="/" className="hbtn" aria-label={L("ফিরে যান", "Back")}>
             <Icon name="back" />
           </Link>
         )}
         <h1 className="h2 grow" style={{ paddingLeft: 4 }}>
-          {step === 4 ? "Centre created" : "Sign up"}
+          {step === 4 ? L("সেন্টার তৈরি হয়েছে", "Centre created") : L("সাইন আপ", "Sign up")}
         </h1>
-        {step < 4 && <span className="pill line">{step}/3</span>}
+        <button
+          onClick={toggleLang}
+          type="button"
+          className="hbtn"
+          style={{ fontSize: 12.5, fontWeight: 700, minWidth: 38, marginRight: 6 }}
+          aria-label="Toggle language"
+        >
+          {lang === "bn" ? "EN" : "বাং"}
+        </button>
+        {step < 4 && <span className="pill line">{num(step, lang)}/৩</span>}
       </div>
 
       <div className="in">
         {step === 1 && (
           <div>
-            <p className="sub" style={{ marginBottom: 14 }}>Choose how you will use BridgeAI:</p>
+            <p className="sub" style={{ marginBottom: 14 }}>
+              {L("আপনার ভূমিকা বেছে নিন:", "Choose how you will use BridgeAI:")}
+            </p>
 
             <button
               className="persona on"
@@ -134,8 +146,8 @@ export default function SignUp() {
                 <Ele mood="calm" extra="doctor" />
               </span>
               <span className="grow">
-                <span className="h3" style={{ display: "block" }}>Therapist</span>
-                <span className="small">Set goals, approve AI drafts, and guide home practice.</span>
+                <span className="h3" style={{ display: "block" }}>{L("থেরাপিস্ট", "Therapist")}</span>
+                <span className="small">{L("লক্ষ্য নির্ধারণ, AI ড্রাফট যাচাই ও হোম প্র্যাকটিস পরিচালনা।", "Set goals, approve AI drafts, and guide home practice.")}</span>
               </span>
               <span className="go"><Icon name="next" /></span>
             </button>
@@ -153,8 +165,8 @@ export default function SignUp() {
                 <Icon name="building" />
               </span>
               <span className="grow">
-                <span className="h3" style={{ display: "block" }}>Centre manager</span>
-                <span className="small">Oversee therapists, families, and centre-wide progress.</span>
+                <span className="h3" style={{ display: "block" }}>{L("সেন্টার পরিচালক", "Centre manager")}</span>
+                <span className="small">{L("থেরাপিস্ট ও পরিবারগুলোর সামগ্রিক অগ্রগতি পর্যবেক্ষণ।", "Oversee therapists, families, and centre-wide progress.")}</span>
               </span>
               <span className="go"><Icon name="next" /></span>
             </button>
@@ -163,7 +175,7 @@ export default function SignUp() {
 
         {step === 2 && (
           <Card>
-            <p className="h3" style={{ marginBottom: 12 }}>Your account details</p>
+            <p className="h3" style={{ marginBottom: 12 }}>{L("আপনার অ্যাকাউন্টের বিবরণ", "Your account details")}</p>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -172,30 +184,32 @@ export default function SignUp() {
               }}
               style={{ display: "flex", flexDirection: "column", gap: 10 }}
             >
-              <Field label="Full name" error={touched ? errs.name : null}>
+              <Field label={L("পুরো নাম", "Full name")} error={touched ? errs.name : null}>
                 <input
                   className="field"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Dr. Nasrin Akter"
+                  placeholder={L("যেমন: ডা. নাসরিন আক্তার", "e.g. Dr. Nasrin Akter")}
                 />
               </Field>
 
               {kind === "therapist" && (
-                <Field label="Profession">
+                <Field label={L("পেশা", "Profession")}>
                   <select
                     className="field"
                     value={profession}
                     onChange={(e) => setProfession(e.target.value)}
                   >
                     {PROFESSIONS.map((p) => (
-                      <option key={p} value={p}>{p}</option>
+                      <option key={p} value={p}>
+                        {lang === "bn" ? PROFESSIONS_DATA[p]?.bn ?? p : p}
+                      </option>
                     ))}
                   </select>
                 </Field>
               )}
 
-              <Field label="Work email" error={touched ? errs.email : null}>
+              <Field label={L("কাজের ইমেইল", "Work email")} error={touched ? errs.email : null}>
                 <input
                   className="field"
                   type="email"
@@ -205,7 +219,7 @@ export default function SignUp() {
                 />
               </Field>
 
-              <Field label="Password (min 8 chars)" error={touched ? errs.password : null}>
+              <Field label={L("পাসওয়ার্ড (কমপক্ষে ৮ অক্ষর)", "Password (min 8 chars)")} error={touched ? errs.password : null}>
                 <div style={{ position: "relative" }}>
                   <input
                     className="field"
@@ -225,15 +239,8 @@ export default function SignUp() {
                 </div>
               </Field>
 
-              <Field label="Preferred language">
+              <Field label={L("পছন্দের ভাষা", "Preferred language")}>
                 <div className="seg mini" style={{ display: "flex" }}>
-                  <button
-                    type="button"
-                    className={language === "en" ? "on" : ""}
-                    onClick={() => setLanguage("en")}
-                  >
-                    English
-                  </button>
                   <button
                     type="button"
                     className={language === "bn" ? "on" : ""}
@@ -241,11 +248,18 @@ export default function SignUp() {
                   >
                     বাংলা
                   </button>
+                  <button
+                    type="button"
+                    className={language === "en" ? "on" : ""}
+                    onClick={() => setLanguage("en")}
+                  >
+                    English
+                  </button>
                 </div>
               </Field>
 
               <Button type="submit" block size="md" style={{ marginTop: 8 }}>
-                Continue
+                {L("এগিয়ে যান", "Continue")}
               </Button>
             </form>
           </Card>
@@ -254,32 +268,34 @@ export default function SignUp() {
         {step === 3 && (
           <Card>
             <p className="h3" style={{ marginBottom: 12 }}>
-              {kind === "admin" ? "Your centre details" : "Connect to your centre"}
+              {kind === "admin"
+                ? L("আপনার সেন্টারের বিবরণ", "Your centre details")
+                : L("সেন্টারের সাথে যুক্ত হোন", "Connect to your centre")}
             </p>
 
             {kind === "admin" ? (
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <Field label="Centre name">
+                <Field label={L("সেন্টারের নাম", "Centre name")}>
                   <input
                     className="field"
                     value={centreName}
                     onChange={(e) => setCentreName(e.target.value)}
-                    placeholder="e.g. Hope Autism Centre"
+                    placeholder={L("যেমন: হোপ অটিজম সেন্টার", "e.g. Hope Autism Centre")}
                   />
                 </Field>
-                <Field label="City">
+                <Field label={L("শহর", "City")}>
                   <input
                     className="field"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    placeholder="e.g. Dhaka"
+                    placeholder={L("যেমন: ঢাকা", "e.g. Dhaka")}
                   />
                 </Field>
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {!independent ? (
-                  <Field label="6-character centre code" hint="Ask your centre manager for this code.">
+                  <Field label={L("৬ অক্ষরের সেন্টার কোড", "6-character centre code")} hint={L("আপনার সেন্টার পরিচালকের কাছ থেকে এই কোডটি নিন।", "Ask your centre manager for this code.")}>
                     <input
                       className="field"
                       value={centreCode}
@@ -290,7 +306,7 @@ export default function SignUp() {
                     />
                   </Field>
                 ) : (
-                  <p className="sub">You are signing up as an independent therapist.</p>
+                  <p className="sub">{L("আপনি স্বাধীন থেরাপিস্ট হিসেবে সাইন আপ করছেন।", "You are signing up as an independent therapist.")}</p>
                 )}
                 <button
                   type="button"
@@ -298,7 +314,7 @@ export default function SignUp() {
                   onClick={() => setIndependent(!independent)}
                   style={{ alignSelf: "flex-start" }}
                 >
-                  {independent ? "Connect to a centre instead" : "I work independently"}
+                  {independent ? L("সেন্টারের সাথে যুক্ত হতে চান?", "Connect to a centre instead") : L("আমি স্বাধীনভাবে প্র্যাকটিস করি", "I work independently")}
                 </button>
               </div>
             )}
@@ -311,7 +327,10 @@ export default function SignUp() {
                 style={{ width: 20, height: 20, marginTop: 2, accentColor: "var(--p)" }}
               />
               <span className="small">
-                I agree to the terms of service and confirm that therapy strategies and social stories are reviewed before reaching families.
+                {L(
+                  "আমি ব্যবহারের শর্তাবলীতে সম্মত এবং নিশ্চিত করছি যে থেরাপির কৌশল ও গল্প পরিবারের কাছে পাঠানোর আগে যাচাই করা হবে।",
+                  "I agree to the terms of service and confirm that therapy strategies and social stories are reviewed before reaching families."
+                )}
               </span>
             </label>
 
@@ -327,7 +346,7 @@ export default function SignUp() {
               onClick={submit}
               style={{ marginTop: 12 }}
             >
-              Complete registration
+              {L("নিবন্ধন সম্পন্ন করুন", "Complete registration")}
             </Button>
           </Card>
         )}
@@ -337,9 +356,12 @@ export default function SignUp() {
             <span className="ic t-green" style={{ width: 56, height: 56, fontSize: 28, margin: "0 auto 12px" }}>
               <Icon name="check" />
             </span>
-            <h1 className="h1" style={{ fontSize: 24 }}>Welcome, {name}!</h1>
+            <h1 className="h1" style={{ fontSize: 24 }}>{L(`স্বাগতম, ${name}!`, `Welcome, ${name}!`)}</h1>
             <p className="sub" style={{ marginTop: 6 }}>
-              {centreName} has been registered. Share this code with therapists at your centre:
+              {L(
+                `${centreName} নিবন্ধিত হয়েছে। আপনার সেন্টারের থেরাপিস্টদের এই কোডটি দিন:`,
+                `${centreName} has been registered. Share this code with therapists at your centre:`
+              )}
             </p>
 
             <div
@@ -361,10 +383,10 @@ export default function SignUp() {
               icon={<Icon name="doc" />}
               onClick={async () => {
                 await navigator.clipboard.writeText(newCode);
-                toast("Code copied to clipboard");
+                toast(L("কোড ক্লিপবোর্ডে কপি হয়েছে", "Code copied to clipboard"));
               }}
             >
-              Copy code
+              {L("কোড কপি করুন", "Copy code")}
             </Button>
 
             <Button
@@ -372,7 +394,7 @@ export default function SignUp() {
               style={{ marginTop: 10 }}
               onClick={() => router.replace("/c")}
             >
-              Open dashboard
+              {L("ড্যাশবোর্ড খুলুন", "Open dashboard")}
             </Button>
           </div>
         )}

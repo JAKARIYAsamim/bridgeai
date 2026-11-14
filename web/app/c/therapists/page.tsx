@@ -5,9 +5,12 @@ import { useState } from "react";
 import { Icon } from "@/components/legacy/icons";
 import { Button, Card, EmptyState, ErrorState, Modal, SkeletonList, useToast } from "@/components/ui";
 import { useLoad } from "@/lib/hooks";
+import { nameIn, num, PROFESSIONS_DATA } from "@/lib/labels";
+import { useLang } from "@/lib/i18n";
 import { authService, childService } from "@/lib/services";
 
 export default function Therapists() {
+  const { lang, L } = useLang();
   const toast = useToast();
   const [open, setOpen] = useState(false);
   const { data, loading, error, reload } = useLoad(async () => {
@@ -20,25 +23,31 @@ export default function Therapists() {
   }, []);
 
   const shareText = data
-    ? `Join ${data.centre.name} on BridgeAI. Sign up as a therapist and enter the centre code ${data.centre.code}.`
+    ? (lang === "bn"
+        ? `BridgeAI-এ ${data.centre.name}-এ যোগ দিন। থেরাপিস্ট হিসেবে সাইন আপ করুন এবং সেন্টার কোড ${data.centre.code} লিখুন।`
+        : `Join ${data.centre.name} on BridgeAI. Sign up as a therapist and enter the centre code ${data.centre.code}.`)
     : "";
 
   return (
     <div className="pad" style={{ paddingBottom: 88 }}>
       <div className="bar" style={{ padding: "4px 8px 10px" }}>
-        <Link href="/c" className="hbtn" aria-label="Back">
+        <Link href="/c" className="hbtn" aria-label={L("ফিরে যান", "Back")}>
           <Icon name="back" />
         </Link>
         <div className="grow" style={{ minWidth: 0, paddingLeft: 6 }}>
           <h1 className="h2" style={{ margin: 0 }}>
-            Team
+            {L("থেরাপিস্ট দল", "Team")}
           </h1>
           <p className="small">
-            {data ? `${data.therapists.length} therapists at ${data.centre.name}` : "Therapists"}
+            {data
+              ? (lang === "bn"
+                  ? `${data.centre.name}-এ ${num(data.therapists.length, "bn")} জন থেরাপিস্ট`
+                  : `${data.therapists.length} therapists at ${data.centre.name}`)
+              : L("থেরাপিস্টবৃন্দ", "Therapists")}
           </p>
         </div>
         <Button size="sm" variant="soft" icon={<Icon name="users" />} onClick={() => setOpen(true)} disabled={!data}>
-          Invite
+          {L("আমন্ত্রণ", "Invite")}
         </Button>
       </div>
 
@@ -49,13 +58,14 @@ export default function Therapists() {
           <SkeletonList rows={4} h="h-20" />
         ) : data.therapists.length === 0 ? (
           <EmptyState
-            title="No therapists yet. Invite your first one."
-            action={<Button onClick={() => setOpen(true)}>Invite therapist</Button>}
+            title={L("এখনও কোনো থেরাপিস্ট নেই। প্রথমজনকে আমন্ত্রণ জানান।", "No therapists yet. Invite your first one.")}
+            action={<Button onClick={() => setOpen(true)}>{L("থেরাপিস্টকে আমন্ত্রণ জানান", "Invite therapist")}</Button>}
           />
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {data.therapists.map((t) => {
               const myKids = data.children.filter((c) => c.therapistId === t.id);
+              const profession = (t.profession ? PROFESSIONS_DATA[t.profession]?.[lang] : undefined) ?? t.profession ?? L("থেরাপিস্ট", "Therapist");
               return (
                 <Card key={t.id} style={{ padding: 14 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -67,13 +77,13 @@ export default function Therapists() {
                     </span>
                     <div className="grow" style={{ minWidth: 0 }}>
                       <p className="h3" style={{ fontSize: 15, margin: 0 }}>
-                        {t.name}
+                        {nameIn(t.name, lang)}
                       </p>
                       <p className="small" style={{ margin: "2px 0 0" }}>
-                        {t.profession ?? "Therapist"} · {myKids.length} children
+                        {profession} · {lang === "bn" ? `${num(myKids.length, "bn")}টি শিশু` : `${myKids.length} children`}
                       </p>
                     </div>
-                    <span className="pill line">Active</span>
+                    <span className="pill line">{L("সক্রিয়", "Active")}</span>
                   </div>
 
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 12 }}>
@@ -93,11 +103,14 @@ export default function Therapists() {
         )}
       </div>
 
-      <Modal open={open} onClose={() => setOpen(false)} title="Invite a therapist">
+      <Modal open={open} onClose={() => setOpen(false)} title={L("থেরাপিস্টকে আমন্ত্রণ জানান", "Invite a therapist")}>
         {data && (
           <div style={{ display: "flex", flexDirection: "column", gap: 14, textAlign: "center" }}>
             <p className="small">
-              Therapists sign up, choose &ldquo;I&apos;m a therapist&rdquo;, and enter this centre code:
+              {L(
+                "থেরাপিস্টরা সাইন আপ করার সময় \"আমি একজন থেরাপিস্ট\" নির্বাচন করে এই সেন্টার কোডটি লিখবেন:",
+                "Therapists sign up, choose “I'm a therapist”, and enter this centre code:"
+              )}
             </p>
             <div
               className="code"
@@ -120,14 +133,14 @@ export default function Therapists() {
                 variant="primary"
                 onClick={async () => {
                   await navigator.clipboard.writeText(shareText);
-                  toast("Invite instructions copied");
+                  toast(lang === "bn" ? "আমন্ত্রণ নির্দেশনাবলী কপি করা হয়েছে" : "Invite instructions copied");
                   setOpen(false);
                 }}
               >
-                Copy instructions
+                {L("নির্দেশনাবলী কপি করুন", "Copy instructions")}
               </Button>
               <Button variant="ghost" onClick={() => setOpen(false)}>
-                Done
+                {L("সম্পন্ন", "Done")}
               </Button>
             </div>
           </div>

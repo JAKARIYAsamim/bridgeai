@@ -14,25 +14,27 @@ import {
   StepLoader,
 } from "@/components/ui";
 import { useLoad } from "@/lib/hooks";
-import { AGE_BANDS } from "@/lib/labels";
+import { useLang } from "@/lib/i18n";
+import { AGE_BANDS, nameIn, num } from "@/lib/labels";
 import { aiService, childService, planService } from "@/lib/services";
 import type { IntakeInput, MediaType } from "@/lib/types";
 
-const MENTION = [
-  "Strengths and interests",
-  "Communication",
-  "Play",
-  "Sensory reactions",
-  "Eating, sleep and toileting",
-  "Behaviour concerns",
-  "The family's goals",
-  "Safety risks",
+const MENTION_DATA = [
+  { bn: "দক্ষতা ও পছন্দের কাজ", en: "Strengths and interests" },
+  { bn: "যোগাযোগের ধরন", en: "Communication" },
+  { bn: "খেলার ধরন", en: "Play" },
+  { bn: "সংবেদনশীলতা / সেন্সরি প্রতিক্রিয়া", en: "Sensory reactions" },
+  { bn: "খাওয়া, ঘুম ও টয়লেট", en: "Eating, sleep and toileting" },
+  { bn: "আচরণগত সমস্যা", en: "Behaviour concerns" },
+  { bn: "পরিবারের চাওয়া ও লক্ষ্য", en: "The family's goals" },
+  { bn: "নিরাপত্তা ঝুঁকি", en: "Safety risks" },
 ];
 const MAX_PHOTOS = 5;
 
 export default function SmartIntake() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const { lang, L } = useLang();
   const { data: child, loading, error, reload } = useLoad(() => childService.getChild(id), [id]);
   const [inputs, setInputs] = useState<IntakeInput[]>([]);
   const [sheet, setSheet] = useState<MediaType | null>(null);
@@ -46,14 +48,14 @@ export default function SmartIntake() {
     setInputs((l) => [...l, { ...i, id: `in_${Date.now()}_${l.length}` }]);
   const photos = inputs.filter((i) => i.type === "photo").length;
   const photo = useFilePicker("image/*", (f) =>
-    add({ type: "photo", label: `Photo · ${f.name.slice(0, 18)}`, url: f.url })
+    add({ type: "photo", label: `${L("ছবি", "Photo")} · ${f.name.slice(0, 18)}`, url: f.url })
   );
   const video = useFilePicker(
     "video/*",
     (f) =>
       add({
         type: "video",
-        label: `Video · ${f.seconds ? fmtSecs(f.seconds) : f.name.slice(0, 14)}`,
+        label: `${L("ভিডিও", "Video")} · ${f.seconds ? fmtSecs(f.seconds) : f.name.slice(0, 14)}`,
         url: f.url,
         seconds: f.seconds,
       }),
@@ -75,7 +77,7 @@ export default function SmartIntake() {
       await planService.saveDraft(id, draft);
       router.push(`/t/children/${id}/intake/review`);
     } catch (e) {
-      setFail(e instanceof Error ? e.message : "The draft could not be created.");
+      setFail(e instanceof Error ? e.message : L("খসড়া তৈরি করা যায়নি।", "The draft could not be created."));
       setBusy(false);
     }
   };
@@ -95,28 +97,30 @@ export default function SmartIntake() {
     );
   }
 
+  const cName = nameIn(child.nickname, lang);
+
   if (busy) {
     return (
-      <div className="scroll softbg pad in" style={{ paddingTop: 48, textAlign: "center" }}>
-        <StepLoader steps={["Reading your notes", "Finding goals", "Choosing activities"]} />
+      <div className="scroll softbg pad in" style={{ paddingTop: 48, textAlign: "center" }} lang={lang}>
+        <StepLoader steps={[L("নোট পড়া হচ্ছে…", "Reading your notes"), L("লক্ষ্য খোঁজা হচ্ছে…", "Finding goals"), L("অ্যাক্টিভিটি সাজানো হচ্ছে…", "Choosing activities")]} />
         <p className="small" style={{ marginTop: 14 }}>
-          The AI only picks activities from your library. You review everything next.
+          {L("AI কেবল আপনার লাইব্রেরি থেকেই অ্যাক্টিভিটি বাছাই করে। আপনি সবকিছু যাচাই করতে পারবেন।", "The AI only picks activities from your library. You review everything next.")}
         </p>
       </div>
     );
   }
 
   return (
-    <div className="scroll softbg pad" style={{ paddingBottom: 88 }}>
+    <div className="scroll softbg pad" style={{ paddingBottom: 88 }} lang={lang}>
       <div className="bar" style={{ padding: "4px 8px 10px" }}>
-        <Link href={`/t/children/${id}`} className="hbtn" aria-label="Back">
+        <Link href={`/t/children/${id}`} className="hbtn" aria-label={L("ফিরে যান", "Back")}>
           <Icon name="back" />
         </Link>
         <div className="grow" style={{ minWidth: 0, paddingLeft: 6 }}>
           <h1 className="h2" style={{ margin: 0 }}>
-            Intake: {child.nickname}
+            {L(`ইনটেক: ${cName}`, `Intake: ${child.nickname}`)}
           </h1>
-          <p className="small">Age {AGE_BANDS[child.ageBand].en}</p>
+          <p className="small">{L(`বয়স: ${lang === "bn" ? AGE_BANDS[child.ageBand].bn : AGE_BANDS[child.ageBand].en}`, `Age ${AGE_BANDS[child.ageBand].en}`)}</p>
         </div>
       </div>
 
@@ -124,25 +128,28 @@ export default function SmartIntake() {
         <div className="note2" style={{ marginBottom: 14 }}>
           <p className="small" style={{ fontWeight: 600, color: "var(--p)", marginBottom: 2 }}>
             <Icon name="spark" style={{ marginRight: 6 }} />
-            AI drafts, you decide
+            {L("AI খসড়া বানাবে, সিদ্ধান্ত আপনার", "AI drafts, you decide")}
           </p>
           <p className="sub" style={{ fontSize: 13 }}>
-            Add your first-session notes in any form: voice note, photo of paper notes, or text.
+            {L(
+              "প্রথম সেশনের তথ্য যেকোনোভাবে দিন: ভয়েস নোট, প্রেসক্রিপশন বা কাগজের ছবি, অথবা লিখে।",
+              "Add your first-session notes in any form: voice note, photo of paper notes, or text."
+            )}
           </p>
         </div>
 
         <Card style={{ padding: 14, marginBottom: 14 }}>
           <p className="h3" style={{ marginBottom: 8 }}>
-            Add notes
+            {L("নোট যুক্ত করুন", "Add notes")}
           </p>
           <MediaPicker
             onPick={pick}
             disabled={photos >= MAX_PHOTOS ? ["photo"] : []}
             labels={{
-              voice: "Voice · 5 min",
-              photo: `Photo · ${photos}/${MAX_PHOTOS}`,
-              video: "Video · 60 s",
-              text: "Text",
+              voice: L("ভয়েস · ৫ মি.", "Voice · 5 min"),
+              photo: L(`ছবি · ${num(photos, lang)}/${num(MAX_PHOTOS, lang)}`, `Photo · ${photos}/${MAX_PHOTOS}`),
+              video: L("ভিডিও · ৬০ সে.", "Video · 60 s"),
+              text: L("লেখা", "Text"),
             }}
           />
           {photo.input}
@@ -157,12 +164,12 @@ export default function SmartIntake() {
               onClick={() =>
                 add({
                   type: "photo",
-                  label: "Photo · session notes",
+                  label: L("ছবি · প্রেসক্রিপশন নোট", "Photo · session notes"),
                   url: "/demo/intake-notes.svg",
                 })
               }
             >
-              + Use sample notes photo
+              {L("+ নমুনা নোটের ছবি ব্যবহার করুন", "+ Use sample notes photo")}
             </button>
           </div>
 
@@ -212,7 +219,7 @@ export default function SmartIntake() {
           >
             <Icon name="doc" style={{ color: "var(--p)" }} />
             <span className="grow h3" style={{ fontSize: 14 }}>
-              What to mention in your notes
+              {L("নোটে কী কী তথ্য উল্লেখ করতে পারেন", "What to mention in your notes")}
             </span>
             <span style={{ transform: mentionOpen ? "rotate(180deg)" : undefined, transition: "transform .2s" }}>
               <Icon name="next" />
@@ -221,9 +228,9 @@ export default function SmartIntake() {
           {mentionOpen && (
             <div style={{ padding: "0 14px 12px", borderTop: "1px solid var(--line)", paddingTop: 10 }}>
               <ul className="steps plain" style={{ padding: 0, margin: 0 }}>
-                {MENTION.map((m) => (
-                  <li key={m} style={{ fontSize: 13 }}>
-                    {m}
+                {MENTION_DATA.map((m, idx) => (
+                  <li key={idx} style={{ fontSize: 13 }}>
+                    {L(m.bn, m.en)}
                   </li>
                 ))}
               </ul>
@@ -236,7 +243,7 @@ export default function SmartIntake() {
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {inputs.length === 0 && (
             <p className="small" style={{ textAlign: "center", color: "var(--mute)" }}>
-              Add at least one note to continue.
+              {L("এগিয়ে যেতে অন্তত একটি নোট যুক্ত করুন।", "Add at least one note to continue.")}
             </p>
           )}
           <Button
@@ -247,22 +254,22 @@ export default function SmartIntake() {
             onClick={create}
             icon={<Icon name="spark" />}
           >
-            Create draft plan
+            {L("খসড়া পরিকল্পনা তৈরি করুন", "Create draft plan")}
           </Button>
         </div>
       </div>
 
-      <BottomSheet open={sheet === "voice"} onClose={() => setSheet(null)} title="Voice note">
+      <BottomSheet open={sheet === "voice"} onClose={() => setSheet(null)} title={L("ভয়েস নোট", "Voice note")}>
         <div style={{ padding: "10px 0" }}>
           <p className="small" style={{ marginBottom: 14 }}>
-            Speak in Bangla or English, up to 5 minutes.
+            {L("বাংলা বা ইংরেজিতে কথা বলুন, সর্বোচ্চ ৫ মিনিট।", "Speak in Bangla or English, up to 5 minutes.")}
           </p>
           <MicButton
             maxSeconds={300}
             onDone={(r) => {
               add({
                 type: "voice",
-                label: `Voice note · ${fmtSecs(r.seconds)}`,
+                label: `${L("ভয়েস নোট", "Voice note")} · ${fmtSecs(r.seconds)}`,
                 url: r.url,
                 seconds: r.seconds,
               });
@@ -272,7 +279,7 @@ export default function SmartIntake() {
         </div>
       </BottomSheet>
 
-      <BottomSheet open={sheet === "text"} onClose={() => setSheet(null)} title="Type or paste notes">
+      <BottomSheet open={sheet === "text"} onClose={() => setSheet(null)} title={L("নোট লিখুন বা পেস্ট করুন", "Type or paste notes")}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <textarea
             autoFocus
@@ -280,7 +287,7 @@ export default function SmartIntake() {
             style={{ minHeight: 140, width: "100%", padding: 10, fontSize: 15 }}
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="e.g. He pulls my hand to the fridge instead of asking…"
+            placeholder={L("যেমন: রাফি কথা না বলে হাত ধরে ফ্রিজের কাছে নিয়ে যায়…", "e.g. He pulls my hand to the fridge instead of asking…")}
           />
           <Button
             block
@@ -290,14 +297,14 @@ export default function SmartIntake() {
             onClick={() => {
               add({
                 type: "text",
-                label: `Text · ${text.trim().split(/\s+/).length} words`,
+                label: `${L("লেখা", "Text")} · ${num(text.trim().split(/\s+/).length, lang)} ${L("শব্দ", "words")}`,
                 text: text.trim(),
               });
               setText("");
               setSheet(null);
             }}
           >
-            Add notes
+            {L("নোট যুক্ত করুন", "Add notes")}
           </Button>
         </div>
       </BottomSheet>

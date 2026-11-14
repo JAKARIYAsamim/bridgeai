@@ -274,7 +274,7 @@ export default function ParentSettings() {
               <Icon name="back" />
             </button>
             <span className="h1" style={{ minWidth: 100, textAlign: "center" }}>
-              {L(`${num(days, "bn")} দিন`, `${days} day${days > 1 ? "s" : ""}`)}
+              {L(`${num(days, lang)} দিন`, `${days} day${days > 1 ? "s" : ""}`)}
             </span>
             <button
               aria-label={L("বাড়ান", "More days")}

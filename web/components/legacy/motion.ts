@@ -190,6 +190,7 @@ export const ARRIVE: Record<TransitionKind, Keyframe[]> = {
 };
 
 let lastArriveTimestamp = 0;
+const staggeredEls = new WeakSet<Element>();
 
 export function staggerChildren(container: Element) {
   if (off()) return;
@@ -199,9 +200,8 @@ export function staggerChildren(container: Element) {
   Array.from(parts)
     .slice(0, 16)
     .forEach((el, i) => {
-      const htmlEl = el as HTMLElement;
-      if (htmlEl.dataset.staggered) return;
-      htmlEl.dataset.staggered = "1";
+      if (staggeredEls.has(el)) return;
+      staggeredEls.add(el);
       play(
         el,
         [{ transform: "translateY(22px) scale(0.96)", opacity: 0 }, { transform: "none", opacity: 1 }],

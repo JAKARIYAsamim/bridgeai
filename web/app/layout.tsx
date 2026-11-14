@@ -2,7 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Hind_Siliguri, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { MotionInit } from "@/components/legacy/motion-init";
-import { DemoBanner, ToastProvider } from "@/components/ui";
+import { ToastProvider } from "@/components/ui";
+import { LangProvider } from "@/lib/i18n";
 import "./globals.css";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
@@ -28,7 +29,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${hind.variable}`} suppressHydrationWarning>
+    <html lang="bn" className={`${inter.variable} ${hind.variable}`} suppressHydrationWarning>
       <body suppressHydrationWarning>
         <div className="stage">
           <main className="phone" id="phone">
@@ -56,14 +57,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
             <div id="wall" />
             <MotionInit />
-            <ToastProvider>
-              <DemoBanner />
-              <div id="app">
-                <Suspense fallback={null}>
-                  {children}
-                </Suspense>
-              </div>
-            </ToastProvider>
+            <LangProvider fallback="bn">
+              <ToastProvider>
+                <div id="app">
+                  <Suspense fallback={null}>
+                    {children}
+                  </Suspense>
+                </div>
+              </ToastProvider>
+            </LangProvider>
             <div id="topedge" aria-hidden="true" />
           </main>
         </div>
