@@ -4,9 +4,9 @@ import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
-import { seed, dayKey, daysAgo } from './seed.js';
+import { seed, dayKey, daysAgo, newChild, editChild, scanFields, SAMPLE_SCAN, fromLibrary, dailyFrom, noStory, progressEntry, suggestProgress, approvedProgress, GAS, sharedProfile } from './seed.js';
 import { ask, aiStatus, drawImage, ping } from './ai.js';
-import { planPrompt, storySheetPrompt, notePrompt, transcribePrompt, summaryPrompt, ICONS } from './prompts.js';
+import { planPrompt, storySheetPrompt, notePrompt, transcribePrompt, summaryPrompt, scanPrompt, progressPrompt, ICONS } from './prompts.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const PUBLIC = path.join(ROOT, 'public');
@@ -75,6 +75,7 @@ async function generatePlan({ childId, goals }) {
     title: pair(a.title, 80),
     when: pair(a.when, 40),
     steps: { en: list(a.steps?.en, 4, 220), bn: list(a.steps?.bn, 4, 220) },
+    ...(dailyFrom(a.daily) ? { daily: dailyFrom(a.daily) } : {}),
   }));
   const pages = (Array.isArray(data.story?.pages) ? data.story.pages : []).slice(0, 6).map((p) => ({ en: text(p.en, 300), bn: text(p.bn, 300), scene: text(p.scene, 300) }));
   if (!activities.length || pages.length < 3) throw fail(502, 'The AI answer was incomplete. Please try again.');
@@ -126,11 +127,31 @@ function drawStory(planId) {
   );
 }
 
-function updatePlan({ planId, activities, pages, title, removeActivity }) {
+/** A draft the therapist builds without AI, from the goals and the common activities they pick. */
+function manualPlan({ childId, goals, keys }) {
+  const c = child(childId);
+  if (!c) throw fail(404, 'Child not found.');
+  const goalTexts = list(goals, 3, 160);
+  if (!goalTexts.length) throw fail(400, 'Add at least one goal.');
+  const planId = id('plan'), picked = (Array.isArray(keys) ? keys : []).slice(0, 6);
+  let activities;
+  try { activities = picked.map((k, i) => fromLibrary(k, `${planId}-a${i + 1}`, `g${Math.min(i, goalTexts.length - 1) + 1}`)); } catch (e) { throw fail(400, e.message); }
+  db.plans = db.plans.filter((p) => !(p.childId === childId && p.status === 'draft'));
+  const plan = { id: planId, childId, createdAt: new Date().toISOString(), status: 'draft', source: 'manual', model: db.therapist.short, goals: goalTexts.map((t, i) => ({ id: `g${i + 1}`, text: t })), activities, story: noStory() };
+  db.plans.push(plan);
+  touch();
+  return plan;
+}
+
+function updatePlan({ planId, activities, pages, title, removeActivity, addCommon }) {
   const plan = db.plans.find((p) => p.id === planId);
   if (!plan) throw fail(404, 'Plan not found.');
   if (plan.status !== 'draft') throw fail(400, 'Only a draft can be edited.');
   if (removeActivity) plan.activities = plan.activities.filter((a) => a.id !== removeActivity);
+  if (addCommon) {
+    if (plan.activities.length >= 6) throw fail(400, 'A plan can have up to 6 activities.');
+    try { plan.activities.push(fromLibrary(addCommon, id(`${plan.id}-a`), plan.goals[0]?.id)); } catch (e) { throw fail(400, e.message); }
+  }
   for (const patch of Array.isArray(activities) ? activities : []) {
     const a = plan.activities.find((x) => x.id === patch.id);
     if (!a) continue;
@@ -150,6 +171,7 @@ function updatePlan({ planId, activities, pages, title, removeActivity }) {
 function approvePlan({ planId }) {
   const plan = db.plans.find((p) => p.id === planId);
   if (!plan) throw fail(404, 'Plan not found.');
+  if (!plan.activities.length) throw fail(400, 'Add at least one activity before you approve the plan.');
   plan.status = 'approved';
   plan.approvedAt = new Date().toISOString();
   for (const e of db.aiLog) {
@@ -185,19 +207,29 @@ async function transcribe({ audio, mime }) {
   return { text: text(data.text, 1200), lang: data.lang === 'bn' ? 'bn' : 'en', model };
 }
 
-async function addNote({ childId, text: raw, lang, audio, mime, heardBy }) {
+const MEDIA_EXT = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'video/mp4': 'mp4', 'video/quicktime': 'mov', 'video/webm': 'webm' };
+
+async function addNote({ childId, text: raw, lang, audio, mime, heardBy, media }) {
   const c = child(childId);
   if (!c) throw fail(404, 'Child not found.');
   const said = text(raw, 1200);
-  if (!said) throw fail(400, 'The note is empty.');
+  const files = (Array.isArray(media) ? media : []).filter((m) => m && m.data && MEDIA_EXT[m.mime]).slice(0, 4);
+  if (!said && !files.length) throw fail(400, 'The note is empty.');
   const note = { id: id('log'), childId, date: dayKey(), at: new Date().toISOString(), lang: lang === 'en' ? 'en' : 'bn', text: said, en: '', wins: [], struggles: [], triggers: [], mood: 'unknown', sleep: 'unknown', audio: null, analysed: false, source: 'parent' };
   if (audio) {
     const ext = /mp4|m4a|aac/.test(mime || '') ? 'm4a' : /ogg/.test(mime || '') ? 'ogg' : 'webm';
     fs.writeFileSync(path.join(MEDIA, `${note.id}.${ext}`), Buffer.from(audio, 'base64'));
     note.audio = `/media/${note.id}.${ext}`;
   }
+  // photos and videos the parent attached: saved for the therapist to look at; the AI never sees them
+  note.media = files.map((m, i) => {
+    const file = `${note.id}-m${i + 1}.${MEDIA_EXT[m.mime]}`;
+    fs.writeFileSync(path.join(MEDIA, file), Buffer.from(m.data, 'base64'));
+    return { kind: m.mime.startsWith('video/') ? 'video' : 'photo', url: `/media/${file}` };
+  });
   db.logs.push(note);
   touch();
+  if (!said) return note; // a photo or video on its own: nothing for the AI to read
 
   try {
     const { data, model, cached } = await ask('note', { ...notePrompt(c, weekGoals(childId), said), cacheInput: { childId, said } });
@@ -267,8 +299,121 @@ function reset() {
   return { ok: true };
 }
 
+function addChild(input) {
+  let child;
+  try { child = newChild(input, db.children); } catch (e) { throw fail(400, e.message); }
+  db.children.push(child);
+  // a profile that began as a report photo is on the record as AI-read and doctor-verified
+  if (input.scan) logAi({ step: input.scan.kind === 'voice' ? 'Profile filled from a voice note' : 'Profile read from a report photo', child: child.name, model: text(input.scan.model, 60) || 'AI', check: `Every answer checked by ${db.therapist.short} before the child was added`, status: 'approved' });
+  touch();
+  return { ok: true, id: child.id };
+}
+
+/** Reads a photo of an earlier doctor's report and returns form answers. Nothing is saved, and the photo is not kept. */
+async function scanReport({ image, mime, sample }) {
+  if (sample) return { ...scanFields(SAMPLE_SCAN), source: 'sample', model: 'Prepared sample' };
+  if (!image) throw fail(400, 'No photo received.');
+  if (!/^image\/(jpeg|png|webp)$/.test(mime || '')) throw fail(400, 'Use a JPG or PNG photo.');
+  let data, model;
+  try { ({ data, model } = await ask('scan', { ...scanPrompt(), image: { mime, data: image } })); }
+  catch (e) { if (e.aiDown) return { ...scanFields(SAMPLE_SCAN), source: 'sample', model: 'Prepared sample' }; throw e; } // demo without an AI key: show the prepared answers
+  const out = scanFields(data);
+  if (!out.filled.length) throw fail(422, 'Nothing could be read from this photo. Try a sharper picture, or fill in the form by hand.');
+  return { ...out, source: 'ai', model };
+}
+
+function updateChild(input) {
+  const child = db.children.find((c) => c.id === input.id);
+  if (!child) throw fail(404, 'That child is not on your list.');
+  try { editChild(child, input); } catch (e) { throw fail(400, e.message); }
+  touch();
+  return { ok: true, id: child.id };
+}
+
+/** The therapist rates a goal at a session, or records a parent's checklist score. One entry per day; a second one replaces it. */
+function saveProgress(kind, input) {
+  if (!child(input.childId)) throw fail(404, 'Child not found.');
+  let e;
+  try { e = progressEntry(kind, input, dayKey()); } catch (err) { throw fail(400, err.message); }
+  db.progress ||= {};
+  const p = (db.progress[input.childId] ||= { weeks: [], goals: [], atec: [], was: {} });
+  if (kind === 'rate') {
+    let g = p.goals.find((x) => x.text === e.goal);
+    if (!g) p.goals.push((g = { text: e.goal, ratings: [] }));
+    g.ratings = g.ratings.filter((r) => r.date !== e.rating.date).concat(e.rating);
+  } else p.atec = p.atec.filter((r) => r.date !== e.row.date).concat(e.row);
+  touch();
+  return { ok: true };
+}
+
+/** The AI drafts a progress update for the therapist to check: a level for each goal and a message for the parent. */
+async function suggest({ childId }) {
+  const c = child(childId), plan = livePlan(childId);
+  if (!c) throw fail(404, 'Child not found.');
+  if (!plan) throw fail(400, 'Approve a plan first.');
+  const logs = weekLogs(childId), doneCount = db.done.filter((d) => d.childId === childId && d.date >= weekStart()).length;
+  db.progress ||= {};
+  const p = (db.progress[childId] ||= { weeks: [], goals: [], atec: [], was: {} });
+  const base = suggestProgress(c, plan, p, db.summaries[childId], logs); // also the fallback when no AI is connected
+  let draft = { ...base, source: 'sample', model: 'Prepared sample' };
+  try {
+    const { data, model, cached } = await ask('progress', { ...progressPrompt(c, base.goals, logs, doneCount), cacheInput: { childId, logs: logs.map((l) => l.text), was: base.goals.map((g) => g.was) } });
+    const got = Array.isArray(data.goals) ? data.goals : [];
+    draft = {
+      goals: base.goals.map((g, i) => ({ ...g, level: GAS.some((x) => x[0] === Number(got[i]?.level)) ? Number(got[i].level) : g.level, why: text(got[i]?.why, 300) || g.why })),
+      message: { en: text(data.message?.en, 400) || base.message.en, bn: text(data.message?.bn, 400) || base.message.bn },
+      source: cached ? 'cache' : 'ai', model,
+    };
+  } catch (e) { if (!e.aiDown) throw e; }
+  p.draft = { ...draft, at: new Date().toISOString(), id: id('pg') };
+  logAi({ step: 'Progress update suggested', child: c.name, model: draft.model, check: 'Waiting for the therapist to review', status: 'waiting', progressId: p.draft.id });
+  touch();
+  return p.draft;
+}
+/** The therapist approves (after any changes): the ratings are recorded and the update appears on the parent's side. */
+function approveProgress(input) {
+  const p = db.progress?.[input.childId];
+  if (!p?.draft) throw fail(400, 'There is no suggestion to approve.');
+  const out = approvedProgress(p.draft, input, dayKey()), changed = out.goals.some((g, i) => g.level !== p.draft.goals[i].level) || out.message.en !== p.draft.message.en || out.message.bn !== p.draft.message.bn;
+  for (const g of out.goals) {
+    let row = p.goals.find((x) => x.text === g.text);
+    if (!row) p.goals.push((row = { text: g.text, ratings: [] }));
+    row.ratings = row.ratings.filter((r) => r.date !== out.date).concat({ date: out.date, level: g.level });
+  }
+  p.shared = { ...out, at: new Date().toISOString() };
+  for (const e of db.aiLog) if (e.progressId === p.draft.id) Object.assign(e, { status: 'approved', check: `Approved by ${db.therapist.short}${changed ? ' after changes' : ''} before the parent saw it` });
+  delete p.draft;
+  touch();
+  return { ok: true };
+}
+function discardProgress({ childId }) {
+  const p = db.progress?.[childId];
+  if (p?.draft) { for (const e of db.aiLog) if (e.progressId === p.draft.id) Object.assign(e, { status: 'rejected', check: `Rejected by ${db.therapist.short}; never shown to the parent` }); delete p.draft; touch(); }
+  return { ok: true };
+}
+
+/** The doctor approves the profile for the parent to see. The parent is shown this approved copy, not later unapproved edits. */
+function shareProfile({ id: cid }) {
+  const c = child(cid);
+  if (!c) throw fail(404, 'That child is not on your list.');
+  if (!Object.keys(c.profile || {}).length) throw fail(400, 'Fill in the profile before you share it.');
+  c.shared = sharedProfile(c);
+  touch();
+  return { ok: true };
+}
+
 const actions = {
+  '/api/child/share': shareProfile,
+  '/api/progress/suggest': suggest,
+  '/api/progress/approve': approveProgress,
+  '/api/progress/discard': discardProgress,
+  '/api/progress/rate': (input) => saveProgress('rate', input),
+  '/api/progress/atec': (input) => saveProgress('atec', input),
+  '/api/child/add': addChild,
+  '/api/child/scan': scanReport,
+  '/api/child/update': updateChild,
   '/api/plan/generate': generatePlan,
+  '/api/plan/manual': manualPlan,
   '/api/plan/update': updatePlan,
   '/api/plan/approve': approvePlan,
   '/api/plan/discard': discardPlan,
@@ -282,7 +427,7 @@ const actions = {
 };
 
 // ---------- http ----------
-const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.json': 'application/json', '.webm': 'audio/webm', '.m4a': 'audio/mp4', '.ogg': 'audio/ogg', '.woff2': 'font/woff2', '.ico': 'image/x-icon' };
+const MIME = { '.m4a': 'audio/mp4', '.mp4': 'video/mp4', '.mov': 'video/quicktime', '.webp': 'image/webp', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.json': 'application/json', '.webm': 'audio/webm', '.m4a': 'audio/mp4', '.ogg': 'audio/ogg', '.woff2': 'font/woff2', '.ico': 'image/x-icon' };
 
 function send(res, status, body, headers = {}) {
   const data = typeof body === 'string' || Buffer.isBuffer(body) ? body : JSON.stringify(body);
@@ -290,11 +435,18 @@ function send(res, status, body, headers = {}) {
   res.end(data);
 }
 
-function serveFile(res, base, rel) {
+function serveFile(res, base, rel, req) {
   const file = path.normalize(path.join(base, rel));
   if (!file.startsWith(base + path.sep)) return send(res, 403, { error: 'Not allowed.' });
   fs.readFile(file, (err, buf) => {
     if (err) return send(res, 404, { error: 'Not found.' });
+    // phones ask for a video in pieces; without this iPhones refuse to play it
+    const range = /^bytes=(\d*)-(\d*)$/.exec(req?.headers.range || '');
+    if (range && (range[1] || range[2])) {
+      const start = range[1] ? Number(range[1]) : Math.max(0, buf.length - Number(range[2])), end = range[1] && range[2] ? Math.min(Number(range[2]), buf.length - 1) : buf.length - 1;
+      if (start > end || start >= buf.length) return send(res, 416, '', { 'content-range': `bytes */${buf.length}` });
+      return send(res, 206, buf.subarray(start, end + 1), { 'content-type': MIME[path.extname(file)] || 'application/octet-stream', 'content-range': `bytes ${start}-${end}/${buf.length}`, 'accept-ranges': 'bytes', 'cache-control': 'no-store' });
+    }
     const big = /\.(png|jpg|woff2)$/.test(file);
     send(res, 200, buf, { 'content-type': MIME[path.extname(file)] || 'application/octet-stream', 'cache-control': big ? 'max-age=3600' : 'no-store' });
   });
@@ -306,7 +458,7 @@ function readBody(req) {
     let size = 0;
     req.on('data', (c) => {
       size += c.length;
-      if (size > 25 << 20) return reject(fail(413, 'That recording is too large.'));
+      if (size > 80 << 20) return reject(fail(413, 'That recording is too large.'));
       chunks.push(c);
     });
     req.on('end', () => {
@@ -332,9 +484,9 @@ http
         return send(res, 200, await actions[url.pathname](await readBody(req)));
       }
       if (req.method !== 'GET') return send(res, 405, { error: 'Not allowed.' });
-      if (url.pathname.startsWith('/media/')) return serveFile(res, MEDIA, decodeURIComponent(url.pathname.slice(7)));
+      if (url.pathname.startsWith('/media/')) return serveFile(res, MEDIA, decodeURIComponent(url.pathname.slice(7)), req);
       const rel = url.pathname === '/' ? 'index.html' : url.pathname === '/demo' ? 'demo.html' : decodeURIComponent(url.pathname.slice(1));
-      return serveFile(res, PUBLIC, rel);
+      return serveFile(res, PUBLIC, rel, req);
     } catch (e) {
       if (!e.status && !e.aiDown) console.error(e);
       send(res, e.status || (e.aiDown ? 503 : 500), { error: e.message || 'Something went wrong.', aiDown: Boolean(e.aiDown) });

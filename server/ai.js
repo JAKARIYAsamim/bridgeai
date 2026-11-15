@@ -80,10 +80,12 @@ async function post(url, headers, body, ms = 90_000) {
   return j;
 }
 
-async function callProvider(p, { system, user, audio }) {
+async function callProvider(p, { system, user, audio, image }) {
+  const picture = image ? `data:${image.mime};base64,${image.data}` : null;
   if (p.id === 'gemini') {
     const parts = [{ text: user }];
     if (audio) parts.push({ inline_data: { mime_type: audio.mime, data: audio.data } });
+    if (image) parts.push({ inline_data: { mime_type: image.mime, data: image.data } });
     const j = await post(
       `https://generativelanguage.googleapis.com/v1beta/models/${p.model}:generateContent`,
       { 'x-goog-api-key': process.env.GEMINI_API_KEY },
@@ -97,7 +99,7 @@ async function callProvider(p, { system, user, audio }) {
     const j = await post(`${base}/chat/completions`, { authorization: `Bearer ${process.env.OPENAI_API_KEY}` }, {
       model: p.model,
       response_format: { type: 'json_object' },
-      messages: [{ role: 'system', content: system }, { role: 'user', content: user }],
+      messages: [{ role: 'system', content: system }, { role: 'user', content: picture ? [{ type: 'text', text: user }, { type: 'image_url', image_url: { url: picture } }] : user }],
     });
     return j.choices?.[0]?.message?.content || '';
   }
@@ -105,7 +107,7 @@ async function callProvider(p, { system, user, audio }) {
   const j = await post(`${ASTRA_URL}/responses`, { 'api-key': astraKey() }, {
     model: p.model,
     reasoning: { effort: 'low' },
-    input: [{ role: 'system', content: system }, { role: 'user', content: user }],
+    input: [{ role: 'system', content: system }, { role: 'user', content: picture ? [{ type: 'input_text', text: user }, { type: 'input_image', image_url: picture }] : user }],
     text: { format: { type: 'json_object' } },
   }, 150_000);
   if (j.output_text) return j.output_text;
@@ -116,14 +118,14 @@ async function callProvider(p, { system, user, audio }) {
  * Ask the chat model for a JSON answer.
  * @returns {Promise<{data:object, model:string, cached:boolean}>}
  */
-export async function ask(kind, { system, user, audio, cacheInput }) {
+export async function ask(kind, { system, user, audio, image, cacheInput }) {
   const list = chatProviders().filter((p) => !audio || p.id === 'gemini');
   const k = cacheInput ? keyOf(kind, cacheInput) : null;
   let lastError = list.length ? null : new Error('no AI key is set');
   for (const p of list) {
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
-        const data = parseJson(await callProvider(p, { system, user, audio }));
+        const data = parseJson(await callProvider(p, { system, user, audio, image }));
         health.chat = { ok: true, provider: p.label, model: p.model, error: null };
         if (k) remember(k, { data, model: p.model });
         return { data, model: p.model, cached: false };

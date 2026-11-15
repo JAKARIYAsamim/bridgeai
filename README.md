@@ -32,6 +32,14 @@ Story pictures use the `neoimg` command (gpt-image-2). `bash tools/make-art.sh` 
 Without a working key the app still opens and shows the sample week, and parent notes are saved as spoken,
 but drafting a plan and writing a summary show an "AI is not connected" message.
 
+## What is in it
+
+**Doctor:** Home lists only the children who need attention; Children has a category filter and three ways to add a child (photo of an earlier report, voice, by hand); each child has Summary, Plan, Notes, Progress and Profile; the AI use tab is a chat that runs the app.
+
+**Parent:** Home shows the next step, the doctor-verified progress and today's guide; Guide has daily and weekly guidance chosen from the child's approved profile; Tracker; an AI chat that matches a situation with doctor-verified advice; notes with voice, photo and video.
+
+**What is real and what is a demo.** Real: plans (day by day, with common activities), notes with media, progress ratings, the approve-then-share steps, the profile and filters. Demo only, with prepared answers: both chats, the report scan and voice intake, the AI progress suggestion when no AI key is set, and the match percentages. The sample children, the guide, the how-to videos and the "verified situations" are invented sample content and have not been reviewed by a clinician.
+
 ## The 90-second demo
 
 1. View as a doctor: Rafi > Plan > New week > type a goal > Draft activities and story.

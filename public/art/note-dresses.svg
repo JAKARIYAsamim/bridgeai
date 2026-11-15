@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="Sample picture: two dresses laid out on a bed to choose from">
+  <rect width="400" height="400" fill="#efe6dc"/>
+  <rect x="20" y="70" width="360" height="290" rx="20" fill="#fdf7ee"/><rect x="20" y="70" width="360" height="60" rx="20" fill="#f3d9c4"/>
+  <g transform="translate(110 235)"><path d="M-22-90l-34 20 14 28 14-8v110h56V-50l14 8 14-28-34-20a22 22 0 0 1-44 0Z" fill="#4f8df7"/><path d="M-28 20h56" stroke="#fff" stroke-width="5" opacity=".6"/></g>
+  <g transform="translate(290 235)"><path d="M-22-90l-34 20 14 28 14-8v110h56V-50l14 8 14-28-34-20a22 22 0 0 1-44 0Z" fill="#ff9fbd"/><circle cx="0" cy="-10" r="6" fill="#fff"/><circle cx="0" cy="18" r="6" fill="#fff"/></g>
+  <text x="200" y="388" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#8a8377">Sample picture for the demo</text>
+</svg>

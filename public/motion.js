@@ -3,6 +3,8 @@
 (() => {
   const RM = matchMedia('(prefers-reduced-motion: reduce)');
   const off = () => RM.matches;
+  // Lite mode (low-cost phones): keep only motion the phone can draw without re-measuring or blurring anything.
+  const lite = () => document.documentElement.classList.contains('lite');
   // A spring with a little bounce. Browsers without linear() get a close curve instead.
   const SPRING = CSS.supports('transition-timing-function', 'linear(0, 1)')
     ? 'linear(0, 0.009, 0.035 2.1%, 0.141 4.4%, 0.723 12.9%, 0.938 16.7%, 1.017, 1.077, 1.121, 1.149 24.3%, 1.159, 1.163, 1.161, 1.154 29.9%, 1.129 32.8%, 1.051 39.6%, 1.017 43.1%, 0.991, 0.977 51%, 0.974 53.8%, 0.975 57.1%, 0.997 69.8%, 1.003 76.9%, 1.004 83.8%, 1)'
@@ -20,6 +22,10 @@
     if (el.classList.contains('row') && el.parentElement.classList.contains('rowbox')) el = el.parentElement;
     pressed = { find: finder(a), at: performance.now() };
     el.classList.add('is-pressed');
+    const up = () => { el.classList.remove('is-pressed'); removeEventListener('pointerup', up); removeEventListener('pointercancel', up); };
+    addEventListener('pointerup', up);
+    addEventListener('pointercancel', up);
+    if (lite()) return;
     const r = el.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2.3;
     if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
     el.classList.add('lq-host');
@@ -29,9 +35,6 @@
     el.append(drop);
     const anim = play(drop, [{ transform: 'scale(0.12)', opacity: 0.95 }, { transform: 'scale(1)', opacity: 0 }], { duration: 720, easing: GLIDE });
     if (anim) anim.onfinish = () => drop.remove(); else drop.remove();
-    const up = () => { el.classList.remove('is-pressed'); removeEventListener('pointerup', up); removeEventListener('pointercancel', up); };
-    addEventListener('pointerup', up);
-    addEventListener('pointercancel', up);
   }, { passive: true });
 
   // Most taps redraw the screen, which replaces the pressed element. These helpers find its replacement so the
@@ -39,7 +42,7 @@
   let pressed = null;
   const finder = (a) => `[data-act="${a.dataset.act}"]` + ['id', 'tab', 'role', 'lang', 'd'].filter((k) => a.dataset[k] !== undefined).map((k) => `[data-${k}="${CSS.escape(a.dataset[k])}"]`).join('');
   function release() {
-    if (!pressed || off() || performance.now() - pressed.at > 900) { pressed = null; return; }
+    if (!pressed || off() || lite() || performance.now() - pressed.at > 900) { pressed = null; return; }
     const a = document.querySelector('#app ' + pressed.find);
     pressed = null;
     if (!a) return;
@@ -60,6 +63,7 @@
   const BLOCKS = '#app .in > *, #app .tiles, #app .banner';
   const keyOf = (el, i) => el.dataset.k || `${el.className.split(' ')[0]}:${i}`;
   function before() {
+    if (off() || lite()) return null;
     const snap = {};
     document.querySelectorAll(BLOCKS).forEach((el, i) => { const r = el.getBoundingClientRect(); snap[keyOf(el, i)] = { top: r.top, h: r.height }; });
     return snap;
@@ -124,6 +128,7 @@
   function arrive(kind) {
     const screen = document.querySelector('#app > :first-child');
     if (!screen || off() || !ARRIVE[kind]) return;
+    if (lite()) { play(screen, [{ opacity: 0, transform: kind === 'push' ? 'translateX(24px)' : kind === 'pop' ? 'translateX(-24px)' : 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 200, easing: 'ease-out' }); return; }
     play(screen, ARRIVE[kind], { duration: kind === 'role' ? 640 : 480, easing: GLIDE });
     if (kind === 'push' || kind === 'pop') return;
     const parts = screen.querySelectorAll('.greet, .tiles > *, .banner, .in > *, .reader > *, .hello > *, .chips > *, .ask, .duo2 > *, .big, .tagline, .sheet0');
@@ -152,11 +157,12 @@
   }
   function unfold(id) {
     const row = document.querySelector(`#app [data-act="open"][data-id="${CSS.escape(id)}"]`)?.closest('.rowbox');
-    if (!row || off()) return;
+    if (!row || off() || lite()) return;
     row.querySelectorAll('.steps > li, .stepfoot').forEach((el, i) => play(el, [{ transform: 'translateY(-10px) scale(0.97)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 620, delay: i * 45, easing: SPRING, fill: 'backwards' }));
   }
   function turnPage(dir) {
     if (off()) return;
+    if (lite()) { const pic = document.querySelector('#app .reader .pic'); if (pic) play(pic, [{ transform: `translateX(${dir * 30}px)`, opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 200, easing: 'ease-out' }); return; }
     const pic = document.querySelector('#app .reader .pic'), words = document.querySelector('#app .reader .words');
     if (pic) play(pic, [{ transform: `translateX(${dir * 70}px) scale(0.9) rotate(${dir * 3}deg)`, opacity: 0, filter: 'blur(10px)' }, { transform: 'none', opacity: 1, filter: 'blur(0)' }], { duration: 640, easing: SPRING });
     if (words) play(words, [{ transform: 'translateY(14px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 520, delay: 90, easing: GLIDE, fill: 'backwards' });

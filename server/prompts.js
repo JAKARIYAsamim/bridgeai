@@ -1,4 +1,5 @@
 // The words sent to the AI. Kept in one place so the team can show judges exactly what the AI is asked to do.
+import { profileText, scanShape } from '../public/seed-data.js';
 
 const SAFETY = `You are BridgeAI, a writing assistant inside a tool used by a qualified autism therapist and the families they work with.
 Rules you always follow:
@@ -13,7 +14,7 @@ export const ICONS = ['turn', 'wait', 'sound', 'book', 'breath', 'play', 'talk',
 export function planPrompt(child, goals) {
   return {
     system: SAFETY,
-    user: `Child: ${child.name} (Bangla spelling: ${child.name_bn}), age ${child.age}. Likes: ${child.likes}. Sensitive to: ${child.sensitivities}. Parent at home: ${child.parent}. Family language: Bangla.
+    user: `Child: ${child.name} (Bangla spelling: ${child.name_bn}), age ${child.age}. Likes: ${child.likes}. Sensitive to: ${child.sensitivities}. Parent at home: ${child.parent}. Family language: Bangla.${profileText(child) ? `\nProfile recorded by the therapist (fit every activity to it; never comment on or change the diagnosis): ${profileText(child)}` : ''}
 
 The therapist's goals for this week:
 ${goals.map((g, i) => `${i + 1}. ${g}`).join('\n')}
@@ -21,6 +22,7 @@ ${goals.map((g, i) => `${i + 1}. ${g}`).join('\n')}
 Write a home practice plan and one social story.
 
 ACTIVITIES: exactly ${Math.min(4, Math.max(2, goals.length * 2))} in total, shared evenly across the goals. Each one takes 3 to 6 minutes, needs only things found in an ordinary Bangladeshi home, uses what the child likes where it fits, and has exactly 3 short steps a tired parent can follow. The last step says what to do if the child gets upset or how to praise.
+For each activity also give "daily": three precise, countable targets that grow through the week (days 1-2 start small, days 3-5 build, days 6-7 stretch), each under 10 words, for example "Wait to a count of 3", "Wait to a count of 5", "Wait to a count of 10".
 
 SOCIAL STORY: one story of exactly 6 pages about the situation in the goals that would most benefit from preparation. Write it about ${child.name} by name, in the present tense, positive and literal, 1 to 3 short sentences per page. Say what happens, what ${child.name} can do to stay calm, and end with success. No metaphors, no scary words.
 For each page also give "scene": one sentence in English describing exactly what the picture shows (who, where, doing what), for an illustrator. Scenes must not need any written words in the picture.
@@ -32,7 +34,8 @@ Return JSON in exactly this shape:
   "activities": [
     { "goal": 1, "icon": "one of: ${ICONS.join(', ')}", "minutes": 5,
       "title": {"en": "", "bn": ""}, "when": {"en": "time of day, 2-3 words", "bn": ""},
-      "steps": {"en": ["", "", ""], "bn": ["", "", ""]} }
+      "steps": {"en": ["", "", ""], "bn": ["", "", ""]},
+      "daily": [{"en": "target for days 1-2", "bn": ""}, {"en": "target for days 3-5", "bn": ""}, {"en": "target for days 6-7", "bn": ""}] }
   ],
   "story": {
     "title": {"en": "", "bn": ""},
@@ -76,6 +79,41 @@ Return JSON:
   "sleep": "good | poor | unknown"
 }
 Use empty arrays when nothing was said.`,
+  };
+}
+
+/** Reading a photo of a report written by an earlier doctor, to pre-fill a new child's profile for the therapist to check. */
+export function scanPrompt() {
+  return {
+    system: `${SAFETY}
+You are reading a photo of a clinical report, prescription or assessment written earlier by another doctor. Your only job is to copy what it says into a form. A therapist will check every answer against the photo before anything is saved.
+- Copy only what is written. If the report does not state something, use null or an empty list. Never guess, never infer a diagnosis or a level from the description, and never add your own opinion.
+- Map the report's wording to the closest allowed answer only when the meaning is clear. If it is not clear, leave it empty and say so in "unsure".
+- The report may be in English, Bangla or both, typed or handwritten.
+Answer with one JSON object only.`,
+    user: `Read the report in this photo and return exactly this shape:\n${scanShape()}`,
+  };
+}
+
+/** A suggested progress update: a level for each goal and a short message for the parent. The therapist approves or changes it. */
+export function progressPrompt(child, goals, logs, doneCount) {
+  return {
+    system: `${SAFETY}
+You help a therapist prepare a progress update. You only SUGGEST; the therapist decides and nothing reaches the parent until they approve.
+Use goal attainment scaling: -2 much less than expected, -1 where the child started, 0 the expected result, +1 better than expected, +2 much better than expected.
+Base every suggestion only on the parent's notes and the practice count below. If the notes do not show a change, keep the last level. Never diagnose and never mention medication.
+Answer with one JSON object only.`,
+    user: `Child: ${child.name} (Bangla: ${child.name_bn}), age ${child.age}. Parent: ${child.parent}.
+Goals and their last rated level:
+${goals.map((g, i) => `${i + 1}. ${g.text} (last level: ${g.was})`).join('\n')}
+Home activities ticked as done this week: ${doneCount}.
+Parent's notes this week (oldest first):
+${logs.map((l) => `- [${l.date}, day was ${l.mood}] ${l.en || l.text}`).join('\n') || '- none'}
+
+Return exactly:
+{ "goals": [ { "level": -2, "why": "one sentence naming the evidence in the notes" } ],
+  "message": { "en": "two short, warm sentences for the parent: what went well and what to keep doing", "bn": "the same in natural, simple Bangla" } }
+Give one entry in "goals" for each goal above, in the same order.`,
   };
 }
 

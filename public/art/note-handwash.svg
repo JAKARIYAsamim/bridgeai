@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="Sample picture: four hand-washing picture cards stuck beside a tap">
+  <rect width="400" height="400" fill="#dff1f4"/>
+  <g stroke="#fff" stroke-width="2" opacity=".6"><path d="M0 100h400M0 200h400M0 300h400M100 0v400M200 0v400M300 0v400"/></g>
+  <rect x="150" y="300" width="100" height="100" fill="#f7f8fa"/><path d="M190 300v-40h50v18h-28v22Z" fill="#aeb6c2"/>
+  <g font-family="Arial, sans-serif" font-size="13" font-weight="700" text-anchor="middle" fill="#fff">
+    <rect x="26" y="60" width="78" height="92" rx="10" fill="#4f8df7"/><path d="M65 82c10 14 16 22 16 30a16 16 0 0 1-32 0c0-8 6-16 16-30Z" fill="#fff" opacity=".9"/><text x="65" y="144">1</text>
+    <rect x="116" y="60" width="78" height="92" rx="10" fill="#ff9f43"/><rect x="138" y="88" width="34" height="26" rx="8" fill="#fff" opacity=".9"/><text x="155" y="144">2</text>
+    <rect x="206" y="60" width="78" height="92" rx="10" fill="#30b855"/><circle cx="237" cy="100" r="13" fill="#fff" opacity=".9"/><circle cx="254" cy="100" r="13" fill="#fff" opacity=".7"/><text x="245" y="144">3</text>
+    <rect x="296" y="60" width="78" height="92" rx="10" fill="#b06cf0"/><rect x="316" y="84" width="38" height="34" rx="4" fill="#fff" opacity=".9"/><text x="335" y="144">4</text>
+  </g>
+  <text x="200" y="392" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#6f7f86">Sample picture for the demo</text>
+</svg>
