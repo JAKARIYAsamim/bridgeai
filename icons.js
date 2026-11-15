@@ -33,6 +33,8 @@ window.I = {
   list: svg('<path d="M9 7h11M9 12h11M9 17h11"/><path d="M4 6.500l1 1 1.500-2M4 11.500l1 1 1.500-2M4 16.500l1 1 1.500-2"/>'),
   globe: svg('<circle cx="12" cy="12" r="8.500"/><path d="M3.500 12h17M12 3.500c3 3 3 14 0 17M12 3.500c-3 3-3 14 0 17"/>'),
   user: svg('<circle cx="12" cy="8.500" r="4"/><path d="M4.500 20c1-4 4-6 7.500-6s6.500 2 7.500 6"/>'),
+  camera: svg('<path d="M4 8h3l1.500-2h7L17 8h3v11H4V8Z"/><circle cx="12" cy="13.500" r="3.500"/>'),
+  video: svg('<rect x="3" y="6" width="12.500" height="12" rx="3"/><path d="M15.500 10.500L21 7.500v9l-5.500-3"/>'),
   doc: svg('<path d="M7 3h7l4 4v14H7V3Z"/><path d="M14 3v4h4M10 12h5M10 16h5"/>'),
   // activity kinds
   turn: svg('<path d="M4 9a8 8 0 0 1 14-3l2 2M20 15a8 8 0 0 1-14 3l-2-2"/><path d="M20 4v4h-4M4 20v-4h4"/>'),
