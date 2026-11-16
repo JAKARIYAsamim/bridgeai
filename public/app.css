@@ -622,6 +622,10 @@ video.how { display: block; width: 100%; border-radius: 16px; background: #f6efe
 .chatscr.notescr .ask { margin-bottom: 8px; } .chatscr.notescr .ask textarea { height: 52px; }
 .chatscr.notescr .chips .chipb { max-width: 280px; white-space: normal; height: auto; min-height: 42px; padding-top: 5px; padding-bottom: 5px; text-align: left; line-height: 1.25; }
 
+/* all features screen */
+.row.feat { align-items: center; gap: 12px; } .row.feat .ic { width: 38px; height: 38px; font-size: 18px; flex: none; } .row.feat .pill { flex: none; }
+.row.featentry { box-shadow: var(--shine), 0 0 0 1.500px rgba(88, 86, 214, 0.35), var(--shadow); }
+
 /* ---------- lite mode: low-cost phones ----------
    Blur behind every surface is the most expensive thing a phone can draw. Here each surface becomes nearly solid
    white instead, the wallpaper stops moving, and shadows get smaller. The layout and colours stay the same. */
