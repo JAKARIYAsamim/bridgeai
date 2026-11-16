@@ -1,4 +1,4 @@
-:HL["/bridgeai/phase-1/_next/static/chunks/2ajfbgwwf8ly-.css","style"]
+:HL["/mimo/phase-1/_next/static/chunks/2ajfbgwwf8ly-.css","style"]
 2:[["children",{"s":"__PAGE__","h":160}]]
 1:[["children",{"s":"/_not-found","h":96,"c":"$Q2"}]]
-0:{"b":"VYGj4jjVkAC1KtVN56CFb","t":{"t":{"s":"","h":80,"c":"$Q1"}}}
+0:{"b":"WErR_M4fjcmPhjTOoYjgl","t":{"t":{"s":"","h":80,"c":"$Q1"}}}
