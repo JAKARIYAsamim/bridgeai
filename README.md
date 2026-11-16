@@ -5,7 +5,7 @@ Everyone in the sample data (Rafi, Nusrat, Dr. Farhana, the centre) is invented.
 
 ## Start it
 
-    cd ~/Study/hackathon/bridgeai
+    cd ~/Study/hackathon/bridgeai   (the GitHub repository is now called mimo)
     npm start
 
 - The app: http://localhost:4900 . It opens on "View as a parent / View as a doctor"; switch any time in Settings or the top-left menu.
