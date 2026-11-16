@@ -18,6 +18,7 @@ const S = {
   filter: {},                           // doctor's children list: chosen answers per category
   pday: 0,                              // doctor's plan: the day being looked at (0 = today)
   allacts: false, gtab: 'daily',        // parent: whole day's list open on Home; Guide tab on today or this week
+  fview: null,                          // the features screen: which side's list is showing
   pdraft: null,                         // doctor's changes to an AI progress suggestion before approving it
   pflow: null,                          // parent's chat: the situation being narrowed down, and the answers so far
   pchat: [], pchatBusy: false,          // parent's AI chat (kept only while the app is open)
@@ -55,7 +56,7 @@ const T = {
     went: 'Went well', hard: 'Was hard', trig: 'Possible trigger', close: 'Done', micNo: 'The microphone is not available here, so please type your note.',
     offline: (d) => `Your note is saved exactly as you said it. ${d} will see it before the next session.`,
     newPlan: (d) => `New plan from ${d}`, drawing: 'Drawing…',
-    settings: 'Settings', viewAs: 'View the app as', language: 'Language', parentOf: (c) => `Parent of ${c}`, aiHow: 'How AI is used', lite: 'Lite mode', liteSub: 'Faster on low-cost phones', on: 'On', offw: 'Off', reset: 'Reset sample data', about: 'MIMO prototype · sample data only',
+    settings: 'Settings', viewAs: 'View the app as', language: 'Language', parentOf: (c) => `Parent of ${c}`, allFeat: 'All features', allFeatSub: 'For presenting: tap any feature to open it', aiHow: 'How AI is used', lite: 'Lite mode', liteSub: 'Faster on low-cost phones', on: 'On', offw: 'Off', reset: 'Reset sample data', about: 'MIMO prototype · sample data only',
   },
   bn: {
     hey: (n) => `হ্যালো, ${n}`, ready: (c) => `${c}-এর অনুশীলনের জন্য তৈরি?`, small: 'অল্প অল্প করে শুরু!', great: 'আজ দারুণ হয়েছে!',
@@ -78,7 +79,7 @@ const T = {
     went: 'ভালো হয়েছে', hard: 'কঠিন ছিল', trig: 'সম্ভাব্য কারণ', close: 'ঠিক আছে', micNo: 'এখানে মাইক্রোফোন পাওয়া যাচ্ছে না, তাই নোটটি লিখে দিন।',
     offline: (d) => `আপনার নোট হুবহু জমা হয়েছে। পরের সেশনের আগে ${d} এটি দেখবেন।`,
     newPlan: (d) => `${d}-এর নতুন পরিকল্পনা এসেছে`, drawing: 'আঁকা হচ্ছে…',
-    settings: 'সেটিংস', viewAs: 'কে ব্যবহার করছেন', language: 'ভাষা', parentOf: (c) => `${c}-এর অভিভাবক`, aiHow: 'এআই কীভাবে ব্যবহার হয়', lite: 'হালকা মোড', liteSub: 'কম দামি ফোনে দ্রুত চলে', on: 'চালু', offw: 'বন্ধ', reset: 'নমুনা তথ্য নতুন করুন', about: 'মিমো প্রোটোটাইপ · শুধু নমুনা তথ্য',
+    settings: 'সেটিংস', viewAs: 'কে ব্যবহার করছেন', language: 'ভাষা', parentOf: (c) => `${c}-এর অভিভাবক`, allFeat: 'সব ফিচার', allFeatSub: 'উপস্থাপনার জন্য: যেকোনো ফিচারে ট্যাপ করে খুলুন', aiHow: 'এআই কীভাবে ব্যবহার হয়', lite: 'হালকা মোড', liteSub: 'কম দামি ফোনে দ্রুত চলে', on: 'চালু', offw: 'বন্ধ', reset: 'নমুনা তথ্য নতুন করুন', about: 'মিমো প্রোটোটাইপ · শুধু নমুনা তথ্য',
   },
 };
 const t = (k, ...a) => { const v = T[S.role === 'parent' ? S.lang : 'en'][k]; return typeof v === 'function' ? v(...a) : v; };
@@ -235,6 +236,7 @@ function parent() {
   if (S.push === 'note') return noteScreen(c);
   if (S.push === 'ai') return aiUse(true);
   if (S.push === 'about') return aboutScreen(c);
+  if (S.push === 'features') return featuresScreen();
   if (S.push === 'story') return parentStory(c, plan);
   if (S.tab.parent === 'story') S.tab.parent = 'home';
   const tab = S.tab.parent;
@@ -502,6 +504,7 @@ function settings() {
   return `<div class="scroll softbg pad"><div class="bar"><h1 class="h2" style="padding-left:4px">${t('settings')}</h1></div><div class="in">
     <div class="card" style="display:flex;gap:14px;align-items:center"><span class="persona" style="width:auto;padding:0;margin:0;background:none"><span class="m ${p ? 't-orange' : 't-purple'}">${p ? M.tiger() : M.ele({ mood: 'calm', extra: 'doctor' })}</span></span>
       <div><p class="h2">${esc(p ? c.parent : S.db.therapist.name)}</p><p class="small">${esc(p ? t('parentOf', S.lang === 'bn' ? c.name_bn : c.name) : S.db.centre.name)}</p></div></div>
+    <button class="row featentry" data-act="features"><span class="ic t-purple" style="width:38px;height:38px;font-size:18px">${I.list}</span><span class="grow"><span class="h3" style="display:block">${t('allFeat')}</span><span class="small">${t('allFeatSub')}</span></span><span style="color:var(--mute);font-size:17px">${I.next}</span></button>
     ${FORCED ? '' : `<div class="sec"><h2 class="h2">${t('viewAs')}</h2></div>${personaBtns()}`}
     <div class="sec"><h2 class="h2">${p && S.lang === 'bn' ? 'আরও' : 'More'}</h2></div>
     ${p ? `<div class="row"><span class="ic t-blue" style="width:38px;height:38px;font-size:18px">${I.globe}</span><span class="grow h3" style="font-weight:500">${t('language')}</span>${langSeg()}</div>` : ''}
@@ -705,9 +708,117 @@ function assistant() {
     ${fresh ? '' : `<div class="chatask">${CHAT_ASK.map(([, , q]) => `<button class="chipb" data-act="chatq" data-d="${esc(q)}">${esc(q)}</button>`).join('')}</div>`}
     <div class="chatbox"><input id="chatin" placeholder="Ask the assistant…" autocomplete="off" maxlength="200"><button class="rb send" data-act="chatgo" aria-label="Send">${I.arrow}</button></div></div>`;
 }
+// ----- all features: a guided list for presenting the app -----
+// Every row opens the real screen with sample data ready (Rafi has the fullest example), so a presenter can tap through in order.
+// "Works" = runs in the prototype; "Demo" = shown with prepared answers, because no live AI is connected.
+const FEATURES = {
+  doctor: [
+    ['Daily work', [
+      ['home', 'home', 't-pink', 'Who needs attention', 'Home lists only the children who need the therapist, with the reason', 'works'],
+      ['children', 'users', 't-blue', 'All children and category filters', 'Filter by support level, speech, sensory profile, behaviour or therapy', 'works'],
+      ['summary', 'doc', 't-purple', 'Weekly summary', 'The week in one card: headline, goals, patterns, message to the parent', 'works'],
+      ['notes', 'mic', 't-orange', 'Parent notes with voice, photo and video', 'Each note leads with what the parent sent', 'works'],
+    ]],
+    ['Planning', [
+      ['plan', 'list', 't-green', 'Day-by-day plan', 'A week strip; each activity has an exact target for that day and a how-to video', 'works'],
+      ['library', 'book', 't-blue', 'Library of common activities', 'Add a ready activity to a draft plan with one tap', 'works'],
+      ['newweek', 'plus', 't-purple', 'Plan a new week', 'Set goals, then build the week from common activities (AI drafting needs an AI key)', 'works'],
+    ]],
+    ['Progress', [
+      ['progress', 'chart', 't-green', 'Progress tracking', 'Goal ratings from -2 to +2, weekly charts, daily skills, the ATEC checklist', 'works'],
+      ['suggest', 'spark', 't-purple', 'AI progress suggestion, approved by the therapist', 'The parent sees it only after approval', 'demo'],
+    ]],
+    ['Children', [
+      ['profile', 'shield', 't-pink', 'Clinical profile, shared with the parent on approval', 'Support level, communication, sensory profile, behaviour, daily skills', 'works'],
+      ['addhand', 'edit', 't-blue', 'Add a child by hand', 'A five-step form', 'works'],
+      ['addscan', 'camera', 't-purple', 'Add a child from a photo of a report', 'The form fills itself; the therapist checks every answer', 'demo'],
+      ['addvoice', 'mic', 't-orange', 'Add a child by voice', 'Describe the child; the form fills itself; the therapist checks it', 'demo'],
+    ]],
+    ['AI', [
+      ['assistant', 'spark', 't-purple', 'AI assistant chat', 'Ask in plain words: who needs me, draft a plan, approve, remind a parent', 'demo'],
+      ['aiinfo', 'shield', 't-green', 'How AI is used, and the AI log', 'Every AI step and whether it was approved, changed or rejected', 'works'],
+    ]],
+  ],
+  parent: [
+    ['Home', [
+      ['phome', 'home', 't-pink', 'Next step for today', 'One activity at a time, with today’s exact target', 'works'],
+      ['pactivity', 'play', 't-blue', 'Activity with a how-to video', 'Video, steps and the goal it serves; tick it when done', 'works'],
+      ['pabout', 'shield', 't-green', 'About my child', 'The child’s profile, as the therapist approved it', 'works'],
+      ['pprogress', 'chart', 't-purple', 'Progress verified by the therapist', 'Plain labels instead of numbers, with the therapist’s message', 'works'],
+    ]],
+    ['Help at home', [
+      ['pguide', 'heart', 't-pink', 'Daily and weekly guide', 'Video, voice and written tips chosen from the child’s profile', 'works'],
+      ['pchat', 'spark', 't-purple', 'AI chat: what do I do now?', 'Two quick questions, then advice the therapist verified, with how well it matches', 'demo'],
+      ['pstory', 'book', 't-orange', 'Social story', 'A short picture story the child reads with a parent', 'works'],
+    ]],
+    ['Reporting', [
+      ['pnote', 'mic', 't-orange', 'Send a note: voice, text, photo or video', 'Takes about 30 seconds; the therapist sees it', 'works'],
+      ['ptracker', 'chart', 't-green', 'Tracker', 'Note streak, good days, and each activity across the week', 'works'],
+      ['plang', 'globe', 't-blue', 'Bangla and English', 'The whole parent side switches language', 'works'],
+    ]],
+  ],
+  both: [
+    ['lite', 'spark', 't-purple', 'Lite mode for low-cost phones', 'Turns on by itself on slow phones; also in Settings', 'works'],
+    ['twophones', 'users', 't-blue', 'Both sides on one screen', 'The therapist and parent phones side by side, for presenting', 'works'],
+  ],
+};
+function featuresScreen() {
+  const view = FORCED ? S.role : S.fview || S.role;
+  const row = ([key, ic, tint, title, line, status]) => `<button class="row feat" data-act="fgo" data-d="${key}" data-r="${view}"><span class="ic ${tint}">${I[ic] || I.spark}</span><span class="grow"><span class="h3" style="display:block">${esc(title)}</span><span class="small">${esc(line)}</span></span><span class="pill ${status === 'works' ? 'good' : 'warn'}">${status === 'works' ? 'Works' : 'Demo'}</span></button>`;
+  const n = FEATURES[view].reduce((k, [, items]) => k + items.length, 0) + FEATURES.both.length;
+  return `<div class="scroll softbg pad" style="padding-bottom:28px"><div class="bar"><button class="hbtn" data-act="back" aria-label="Back">${I.back}</button><div class="grow"><h1 class="h2">All features</h1><p class="small">${n} features · tap one to open it</p></div></div><div class="in">
+    ${FORCED ? '' : `<div class="seg" style="margin-bottom:6px"><button class="${view === 'doctor' ? 'on' : ''}" data-act="fview" data-d="doctor">Therapist</button><button class="${view === 'parent' ? 'on' : ''}" data-act="fview" data-d="parent">Parent</button></div>`}
+    ${FEATURES[view].map(([sec, items]) => `<div class="sec"><h2 class="h2">${sec}</h2></div>${items.map(row).join('')}`).join('')}
+    <div class="sec"><h2 class="h2">For both</h2></div>${FEATURES.both.map(row).join('')}
+    <p class="small" style="text-align:center;margin-top:16px">“Works” runs in the prototype. “Demo” uses prepared answers, because no live AI is connected. All data is sample data.</p>
+  </div></div>`;
+}
+/** Opens the screen behind a feature row, switching side first when the feature belongs to the other one. */
+function goFeature(role, key) {
+  if (role !== S.role) { if (FORCED) return; S.role = role; }
+  closeSheet();
+  S.push = null; S.open = null; S.edit = null; S.busy = {}; S.pday = 0;
+  const child = (id, tab) => { S.tab.doctor = 'children'; S.childId = id; S.push = 'child'; S.ctab = tab; };
+  const tab = (t) => { S.tab[S.role] = t; };
+  const after = [];
+  switch (key) {
+    case 'home': tab('home'); break;
+    case 'children': tab('children'); after.push(filterSheet); break;
+    case 'summary': child('rafi', 'summary'); break;
+    case 'notes': child('rafi', 'notes'); break;
+    case 'plan': child('rafi', 'plan'); break;
+    case 'library': { const d = kids().find((c) => draftPlan(c.id)); if (d) { child(d.id, 'plan'); after.push(() => libSheet()); } else { child('ayaan', 'plan'); after.push(() => toast('Tap “Plan this week”, then “Build it myself”')); } break; }
+    case 'newweek': { const c = kids().find((k) => !livePlan(k.id) && !draftPlan(k.id)) || kid('ayaan'); child(c.id, 'plan'); after.push(() => { G = null; planSheet(); }); break; }
+    case 'progress': child('rafi', 'progress'); break;
+    case 'suggest': child('rafi', 'progress'); if (!S.db.progress?.rafi?.draft) after.push(() => act.sgmake()); break;
+    case 'profile': child('rafi', 'profile'); break;
+    case 'addhand': tab('children'); after.push(() => { N = null; childSheet(); }); break;
+    case 'addscan': tab('children'); after.push(() => scanReport('art/sample-report.jpg', true)); break;
+    case 'addvoice': tab('children'); after.push(voiceSheet); break;
+    case 'assistant': tab('ai'); break;
+    case 'aiinfo': S.push = S.role === 'doctor' ? 'aiinfo' : 'ai'; break;
+    case 'phome': tab('home'); S.allacts = false; break;
+    case 'pactivity': { const p = livePlan(PARENT_CHILD), a = p?.activities.find((x) => !doneOn(PARENT_CHILD, x.id, S.db.today)) || p?.activities[0]; tab('home'); S.allacts = true; S.open = a?.id || null; break; }
+    case 'pabout': S.push = 'about'; break;
+    case 'pprogress': tab('tracker'); break;
+    case 'pguide': tab('guide'); S.gtab = 'daily'; break;
+    case 'pchat': tab('chat'); break;
+    case 'pstory': S.push = 'story'; S.page = 0; break;
+    case 'pnote': V = null; S.push = 'note'; break;
+    case 'ptracker': tab('tracker'); break;
+    case 'plang': S.lang = S.lang === 'bn' ? 'en' : 'bn'; tab('home'); after.push(() => toast(S.lang === 'bn' ? 'এখন বাংলায়' : 'Now in English')); break;
+    case 'lite': tab('settings'); after.push(() => toast('Lite mode is the switch in Settings')); break;
+    case 'twophones': S.push = 'features'; after.push(() => { location.href = 'demo.html'; }); break;
+  }
+  render(true);
+  after.forEach((f) => f());
+  const open = $('#app .rowbox:has(.steps)');
+  if (open) open.scrollIntoView({ block: 'center' });
+}
 function doctor() {
   if (S.push === 'child' && kid(S.childId)) return childView(kid(S.childId));
   if (S.push === 'aiinfo') return aiUse(true);
+  if (S.push === 'features') return featuresScreen();
   if (S.tab.doctor === 'chat') S.tab.doctor = 'ai';
   const tab = S.tab.doctor, waiting = kids().filter((c) => draftPlan(c.id)).length;
   const body = tab === 'children' ? childList() : tab === 'ai' ? assistant() : tab === 'settings' ? settings() : doctorHome();
@@ -1273,6 +1384,9 @@ const act = {
   async libadd(el) { try { await api('/api/plan/update', { planId: draftPlan(S.childId).id, addCommon: el.dataset.d }); await pull(); render(true); libSheet(); } catch (e) { libSheet(e.message); } },
   addchild() { N = null; startSheet(); },
   about() { S.push = 'about'; render(true); },
+  features() { S.fview = S.role; S.push = 'features'; render(true); },
+  fview(el) { S.fview = el.dataset.d; render(true); },
+  fgo(el) { goFeature(el.dataset.r, el.dataset.d); },
   allacts() { S.allacts = !S.allacts; render(true); },
   gtab(el) { S.gtab = el.dataset.d; render(true); },
   async shareprofile() { const c = kid(S.childId); try { await api('/api/child/share', { id: c.id }); toast(`Profile shared with ${c.parent}`); } catch (e) { toast(e.message); } await pull(); render(true); },
