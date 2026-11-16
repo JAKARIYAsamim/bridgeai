@@ -1,4 +1,4 @@
-// BridgeAI prototype server: one small Node program, no packages to install.
+// MIMO prototype server: one small Node program, no packages to install.
 import './env.js';
 import http from 'http';
 import fs from 'fs';
@@ -493,7 +493,7 @@ http
     }
   })
   .listen(PORT, HOST, () => {
-    console.log(`BridgeAI is running:  http://localhost:${PORT}   (pitch view: http://localhost:${PORT}/demo)`);
+    console.log(`MIMO is running:  http://localhost:${PORT}   (pitch view: http://localhost:${PORT}/demo)`);
     ping().then(() => {
       const s = aiStatus().chat;
       console.log(s.ok ? `AI connected: ${s.label} (${s.model})` : `AI NOT connected: ${s.error}. Add a key to bridgeai/.env (see .env.example).`);

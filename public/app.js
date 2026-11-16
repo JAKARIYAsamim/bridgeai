@@ -1,4 +1,4 @@
-/* BridgeAI app. One small script, no framework.
+/* MIMO app. One small script, no framework.
    The screen is redrawn from `S` (what this phone is showing) and `S.db` (shared data from the server). */
 const I = window.I, M = window.M;
 const Q = new URLSearchParams(location.search);
@@ -55,7 +55,7 @@ const T = {
     went: 'Went well', hard: 'Was hard', trig: 'Possible trigger', close: 'Done', micNo: 'The microphone is not available here, so please type your note.',
     offline: (d) => `Your note is saved exactly as you said it. ${d} will see it before the next session.`,
     newPlan: (d) => `New plan from ${d}`, drawing: 'Drawing…',
-    settings: 'Settings', viewAs: 'View the app as', language: 'Language', parentOf: (c) => `Parent of ${c}`, aiHow: 'How AI is used', lite: 'Lite mode', liteSub: 'Faster on low-cost phones', on: 'On', offw: 'Off', reset: 'Reset sample data', about: 'BridgeAI prototype · sample data only',
+    settings: 'Settings', viewAs: 'View the app as', language: 'Language', parentOf: (c) => `Parent of ${c}`, aiHow: 'How AI is used', lite: 'Lite mode', liteSub: 'Faster on low-cost phones', on: 'On', offw: 'Off', reset: 'Reset sample data', about: 'MIMO prototype · sample data only',
   },
   bn: {
     hey: (n) => `হ্যালো, ${n}`, ready: (c) => `${c}-এর অনুশীলনের জন্য তৈরি?`, small: 'অল্প অল্প করে শুরু!', great: 'আজ দারুণ হয়েছে!',
@@ -78,7 +78,7 @@ const T = {
     went: 'ভালো হয়েছে', hard: 'কঠিন ছিল', trig: 'সম্ভাব্য কারণ', close: 'ঠিক আছে', micNo: 'এখানে মাইক্রোফোন পাওয়া যাচ্ছে না, তাই নোটটি লিখে দিন।',
     offline: (d) => `আপনার নোট হুবহু জমা হয়েছে। পরের সেশনের আগে ${d} এটি দেখবেন।`,
     newPlan: (d) => `${d}-এর নতুন পরিকল্পনা এসেছে`, drawing: 'আঁকা হচ্ছে…',
-    settings: 'সেটিংস', viewAs: 'কে ব্যবহার করছেন', language: 'ভাষা', parentOf: (c) => `${c}-এর অভিভাবক`, aiHow: 'এআই কীভাবে ব্যবহার হয়', lite: 'হালকা মোড', liteSub: 'কম দামি ফোনে দ্রুত চলে', on: 'চালু', offw: 'বন্ধ', reset: 'নমুনা তথ্য নতুন করুন', about: 'ব্রিজএআই প্রোটোটাইপ · শুধু নমুনা তথ্য',
+    settings: 'সেটিংস', viewAs: 'কে ব্যবহার করছেন', language: 'ভাষা', parentOf: (c) => `${c}-এর অভিভাবক`, aiHow: 'এআই কীভাবে ব্যবহার হয়', lite: 'হালকা মোড', liteSub: 'কম দামি ফোনে দ্রুত চলে', on: 'চালু', offw: 'বন্ধ', reset: 'নমুনা তথ্য নতুন করুন', about: 'মিমো প্রোটোটাইপ · শুধু নমুনা তথ্য',
   },
 };
 const t = (k, ...a) => { const v = T[S.role === 'parent' ? S.lang : 'en'][k]; return typeof v === 'function' ? v(...a) : v; };
@@ -218,9 +218,9 @@ const langBtn = () => `<button class="hbtn ${S.lang === 'en' ? 'bn' : ''}" style
 function picker() {
   return `<section class="pick pad">
     <div class="cl" style="left:-40px;top:120px">${M.cloud()}</div><div class="cl" style="right:-50px;top:200px;width:120px">${M.cloud()}</div>
-    <div class="logo">${I.logo} BridgeAI</div><h1 class="big">Therapy that<br><em>continues at home.</em></h1><p class="tagline">One small step a day, shared between doctor and parent.</p>
+    <div class="logo">${I.logo} MIMO</div><h1 class="big">Therapy that<br><em>continues at home.</em></h1><p class="tagline">One small step a day, shared between doctor and parent.</p>
     <div class="duo2"><div style="left:42px;width:160px">${M.ele({ extra: 'doctor' })}</div><div style="right:40px;width:118px;animation-delay:-2s;bottom:14px">${M.tiger()}</div></div>
-    <div class="sheet0"><h1 class="h1">Welcome</h1><p class="sub" style="margin-top:4px">Who is using BridgeAI today? You can switch any time in Settings.</p>
+    <div class="sheet0"><h1 class="h1">Welcome</h1><p class="sub" style="margin-top:4px">Who is using MIMO today? You can switch any time in Settings.</p>
       ${personaBtns()}</div>
   </section>`;
 }
@@ -1021,7 +1021,7 @@ function closeSheet() {
 const shead = (title, sub) => `<div class="shead"><div class="grow"><p class="h2">${title}</p>${sub ? `<p class="small">${sub}</p>` : ''}</div><button class="xb" data-act="close" aria-label="Close">${I.x}</button></div>`;
 
 function menuSheet() {
-  openSheet(`${shead('BridgeAI', 'One app, two sides of the same child’s week.')}${FORCED ? '' : personaBtns()}
+  openSheet(`${shead('MIMO', 'One app, two sides of the same child’s week.')}${FORCED ? '' : personaBtns()}
     <button class="row" style="margin-top:10px" data-act="ai"><span class="ic t-green" style="width:38px;height:38px;font-size:18px">${I.shield}</span><span class="grow h3" style="font-weight:500">How AI is used</span>${I.next}</button>`);
 }
 function bellSheet() {

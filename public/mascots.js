@@ -1,4 +1,4 @@
-// BridgeAI's own characters, drawn as vector shapes: Haati the elephant and Bagh the tiger cub.
+// MIMO's own characters, drawn as vector shapes: Haati the elephant and Bagh the tiger cub.
 (() => {
   const eye = (x, y, r = 7) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#1d1b33"/><circle cx="${x + r * 0.35}" cy="${y - r * 0.35}" r="${r * 0.32}" fill="#fff"/>`;
   const happy = (x, y) => `<path d="M${x - 8} ${y + 2}q8-11 16 0" fill="none" stroke="#1d1b33" stroke-width="4" stroke-linecap="round"/>`;

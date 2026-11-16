@@ -1,4 +1,4 @@
-/* Motion for BridgeAI: springy, liquid-feeling animation in the style of Apple's glass interface.
+/* Motion for MIMO: springy, liquid-feeling animation in the style of Apple's glass interface.
    Everything here is decoration. If the viewer asks for reduced motion, none of it runs. */
 (() => {
   const RM = matchMedia('(prefers-reduced-motion: reduce)');

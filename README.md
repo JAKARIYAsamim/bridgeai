@@ -1,4 +1,4 @@
-# BridgeAI prototype
+# MIMO prototype
 
 An app that links an autism therapist and a parent between sessions. Built for the AI in Business Hackathon 2026 (17 November 2026).
 Everyone in the sample data (Rafi, Nusrat, Dr. Farhana, the centre) is invented.
